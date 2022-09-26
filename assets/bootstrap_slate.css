@@ -45,7 +45,8 @@
   --bs-light: #e9ecef;
   --bs-dark: #272b30;
   --bs-primary-rgb: 58, 63, 68;
-  --bs-secondary-rgb: 122, 130, 136;
+  --bs-secondary-rgb: 170, 170, 170;
+  /*--bs-secondary-rgb: 122, 130, 136;*/
   --bs-success-rgb: 98, 196, 98;
   --bs-info-rgb: 91, 192, 222;
   --bs-warning-rgb: 248, 148, 6;

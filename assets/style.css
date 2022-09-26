@@ -1,0 +1,16 @@
+#mpe_erg .rc-slider-disabled{
+  background-color: #272b30;
+}
+#mpe_erg .rc-slider-track{
+  background-color: rgba(91, 192, 222, 0.8);
+}
+
+#mpe_erg .rc-slider-handle{
+  border-color: #5bc0de;
+}
+#mpe_erg .rc-slider-track{
+  background-color: rgba(91, 192, 222, 0.8);
+}
+#mpe_erg .rc-slider-dot-active{
+  border-color: #5bc0de;
+}
