@@ -11,8 +11,8 @@ import math
 global model
 model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 
-global expectation
-expectation = model.expectation(model.variables, evidence=jpt.variables.VariableMap(), confidence_level=1.)
+global priors
+priors = model.independent_marginals()
 
 app = dash.Dash(__name__, prevent_initial_callbacks=True,
                 meta_tags=[{'name': 'viewport',
@@ -22,7 +22,7 @@ app = dash.Dash(__name__, prevent_initial_callbacks=True,
 app.layout = dbc.Container(
     [
         dbc.Row(
-            dbc.Col(html.H1("MPE", className='text-center mb-4'), width=12)
+            dbc.Col(html.H1("Most Probable Explanation", className='text-center mb-4'), width=12)
         ),
         dbc.Row(
             [
@@ -50,29 +50,21 @@ app.layout = dbc.Container(
             ]
         ),
         dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
-        dbc.Row(dbc.Col(children=[], id="mpe_erg", className="d-grid gap-2 col-3 mt-3 mx-auto"))
+        dbc.Row(dbc.Col(children=[], id="mpe_erg", className="d-grid gap-2 col-3 mt-3 mx-auto")),
+        #dbc.Row(dcc.RangeSlider(min=0, max= 20, tooltip={"placement": "bottom",  "always_visible": True}))
 
     ], fluid=True
 )
 
 def create_range_slider(variable, *args, **kwargs):
-    global expectation
+    min = priors[variable].cdf.intervals[0].upper
+    max = priors[variable].cdf.intervals[-1].lower
 
-    if math.isnan(expectation[variable].lower):
-        max = math.ceil(expectation[variable].upper)
-        slider = dcc.RangeSlider(**kwargs,
-                                 min=max, max=max + 1, step=0.1, allowCross=False,
-                                 dots=False, tooltip={"placement": "bottom", "always_visible": False}
-                                 )
-    elif math.isnan(expectation[variable].upper):
-        min = math.ceil(expectation[variable].lower)
-        slider = dcc.RangeSlider(**kwargs, min=min, max=min - 1, step=0.1, allowCross=False, dots=False,
-                                 tooltip={"placement": "bottom", "always_visible": False})
-    else:
-        min = math.ceil(expectation[variable].lower)
-        max = math.ceil(expectation[variable].upper)
-        slider = dcc.RangeSlider(**kwargs, min=min, max=max, allowCross=False,
-                                 tooltip={"placement": "bottom", "always_visible": False})
+    if min == max:
+        min = min - 1
+        max = max + 1
+
+    slider = dcc.RangeSlider(**kwargs, min=min, max=max, allowCross=False,)
 
     return slider
 
@@ -120,27 +112,10 @@ def evid_gen(dd_vals, e_var, e_in):
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
-            # expectation = model.expectation([variable], {}, confidence_level=1.)
-            print(expectation[variable])
-            if math.isnan(expectation[variable].lower):
-                max = math.ceil(expectation[variable].upper)
-                e_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_e', 'index': cb.get("index")},
-                                                        min=max - 1, max=max + 1, step=0.1, value=[max - 1, max + 1],
-                                                        allowCross=False, dots=False,
-                                                        tooltip={"placement": "bottom", "always_visible": True})
-            elif math.isnan(expectation[variable].upper):
-                min = math.ceil(expectation[variable].lower)
-                e_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_e', 'index': cb.get("index")},
-                                                        min=min - 1, max=min - 1, step=0.1, value=[min - 1, min - 1],
-                                                        allowCross=False, dots=False,
-                                                        tooltip={"placement": "bottom", "always_visible": True})
-            else:
-                min = math.ceil(expectation[variable].lower)
-                max = math.ceil(expectation[variable].upper)
-                e_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_e', 'index': cb.get("index")},
-                                                        min=min, max=max, value=[min, max],
-                                                        allowCross=False,
+            e_in[cb.get("index")] = create_range_slider(variable, id={'type': 'i_e', 'index': cb.get("index")},
+                                                        dots=False,
                                                         tooltip={"placement": "bottom", "always_visible": False})
+
         elif variable.symbolic:
             e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
                                                  options={k: v for k, v in zip(variable.domain.labels.keys(),
@@ -187,16 +162,18 @@ def mpe(n1, e_var, e_in):  # Error bei
         else:
             evidence_dict.update({e_var[j]: set(e_in[j])})
     try:
-        result = model.mpe(evidence=evidence_dict)
+        result = model._mpe(evidence=evidence_dict)[0]
+
     except:
         return [html.Div("Unsatasfiable")]
     return_div = []
-    for variable, restriction in result.path.items():
-        print(type(variable.name), variable.name)
+    for variable, restriction in result.items():
+
         if variable.numeric:
-            print(restriction.lower)
-            value = [restriction.lower if restriction.lower > -float("inf") else expectation[variable].lower,
-                     restriction.upper if restriction.upper < float("inf") else expectation[variable].upper]
+            value = []
+            for interval in result[variable]:
+                value += [interval.lower, interval.upper]
+
             return_div += [html.Div(
                 [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True, className="margin10"),
                  create_range_slider(variable, value=value, disabled=True, className="margin10")]

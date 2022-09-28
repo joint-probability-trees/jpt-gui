@@ -9,11 +9,10 @@ from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
 
 global model
-model: jpt.trees.JPT = jpt.JPT.load('neem.jpt')
+model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 
-global expectation
-expectation = model.expectation(model.variables, evidence=jpt.variables.VariableMap(), confidence_level=1.)
-
+global priors
+priors = model.independent_marginals()
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE], prevent_initial_callbacks=True,
                 meta_tags=[{'name': 'viewport',
@@ -77,30 +76,20 @@ def query_gen(dd_vals, q_var, q_in):
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
-            # expectation = model.expectation([variable], {}, confidence_level=1.)
-            print(expectation[variable])
-            if math.isnan(expectation[variable].lower):
-                max = math.ceil(expectation[variable].upper)
-                q_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_q', 'index': cb.get("index")},
-                                                        min=max, max=max + 1, step=0.1, value=[max, max + 1],
-                                                        allowCross=False, dots=False,
-                                                        tooltip={"placement": "bottom", "always_visible": True})
-            elif math.isnan(expectation[variable].upper):
-                min = math.ceil(expectation[variable].lower)
-                q_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_q', 'index': cb.get("index")},
-                                                        min=min, max=min + 1, step=0.1, value=[min, min + 1],
-                                                        allowCross=False, dots=False,
-                                                        tooltip={"placement": "bottom", "always_visible": True})
-            else:
-                min = math.ceil(expectation[variable].lower)
-                max = math.ceil(expectation[variable].upper)
+                min = priors[variable].cdf.intervals[0].upper
+                max = priors[variable].cdf.intervals[-1].lower
+
+                if min == max:
+                    min = min - 1
+                    max = max + 1
+
                 q_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_q', 'index': cb.get("index")},
                                                         min=min, max=max, value=[min, max],
                                                         allowCross=False,
                                                         tooltip={"placement": "bottom", "always_visible": False})
         elif variable.symbolic:
             q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q", "index": cb.get("index")},
-                                                 options={k:v for k,v in zip(variable.domain.labels.keys(), variable.domain.labels.values()) }, multi=True, ) #list(variable.domain.labels.keys())
+                                                 options={k:v for k,v in zip(variable.domain.labels.keys(), variable.domain.labels.values()) },value=list(variable.domain.labels.keys()), multi=True, ) #list(variable.domain.labels.keys())
 
         if len(q_var) - 1 == cb.get("index"):
             q_var.append(
@@ -137,26 +126,20 @@ def evid_gen(dd_vals, e_var, e_in):
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
             # expectation = model.expectation([variable], {}, confidence_level=1.)
-            print(expectation[variable])
-            if math.isnan(expectation[variable].lower):
-                max = math.ceil(expectation[variable].upper)
-                e_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_e', 'index': cb.get("index")},
-                                                        min=max, max=max + 1, step=0.1, value=[max, max + 1],
-                                                        allowCross=False, dots=False,
-                                                        tooltip={"placement": "bottom", "always_visible": True})
-            elif math.isnan(expectation[variable].upper):
-                min = math.ceil(expectation[variable].lower)
-                e_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_e', 'index': cb.get("index")},
-                                                        min=min, max=min + 1, step=0.1, value=[min, min + 1],
-                                                        allowCross=False, dots=False,
-                                                        tooltip={"placement": "bottom", "always_visible": True})
-            else:
-                min = math.ceil(expectation[variable].lower)
-                max = math.ceil(expectation[variable].upper)
+            # expectation = model.expectation([variable], {}, confidence_level=1.)
+
+                min = priors[variable].cdf.intervals[0].upper
+                max = priors[variable].cdf.intervals[-1].lower
+
+                if min == max:
+                    min = min - 1
+                    max = max + 1
+
                 e_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_e', 'index': cb.get("index")},
                                                         min=min, max=max, value=[min, max],
                                                         allowCross=False,
                                                         tooltip={"placement": "bottom", "always_visible": False})
+
         elif variable.symbolic:
             e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
                                                  options={k:v for k,v in zip(variable.domain.labels.keys(), variable.domain.labels.values()) }, multi=True, )
@@ -268,5 +251,5 @@ def infer(n1, q_var, q_in, e_var, e_in):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 # result.result *100 '%'
