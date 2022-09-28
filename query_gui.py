@@ -14,7 +14,7 @@ model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 global priors
 priors = model.independent_marginals()
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE], prevent_initial_callbacks=True,
+app = dash.Dash(__name__, prevent_initial_callbacks=True,
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}]
                 )
@@ -26,21 +26,21 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col([
-                         html.Div("P ", className="align-self-center text-end float-start", style={"width": "50%", 'fontSize': 40, 'padding-top': 0}),
-                         html.Div("(", className="text-end float-end align-top pt-0", style={"width": "50%", "height": "100%", 'fontSize': 40})
-                         ], id="text_l", align="center"),
+                         html.Div("P ", className="align-self-center text-end float-end", style={'fontSize': 40, 'padding-top': 0}),
+                         #html.Div("(", className="text-end float-end align-top pt-0", style={"width": "50%", "height": "100%", 'fontSize': 40})
+                         ], id="text_l", align="center", className="", width=2),
                 dbc.Col(id="q_variable",
                         children=[dcc.Dropdown(id={'type': 'dd_q', 'index': 0}, options=sorted(model.varnames))],
-                        width=1, className="d-grid gap-3"),
+                        width=1, className="d-grid gap-3 border-start border-secondary border-3 rounded-4"),
                 dbc.Col(id="q_input",
-                        children=[dcc.Dropdown(id={'type': 'i_q', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3 border-end border-3 border-secondary border-start-3 rounded-5"),
+                        children=[dcc.Dropdown(id={'type': 'i_q', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3 border-end border-3 border-secondary"),
                 #dbc.Col(html.Div("|", className="fs-1 text text-center")),
                 dbc.Col(id="e_variable",
                         children=[dcc.Dropdown(id={'type': 'dd_e', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-3 border-secondary ps-3"),
                 dbc.Col(id="e_input",
-                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3"),
-                dbc.Col(html.Div(")", className="text text-start align-self-center float-start", style={"width": "50%", "height": "100%", 'fontSize': 40}), id="text_r")
+                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3 border-end border-secondary border-3 rounded-4"),
+                #dbc.Col(html.Div(")", className="text text-start align-self-center float-start", style={"width": "50%", "height": "100%", 'fontSize': 40}), id="text_r")
             ]
         ),
         dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
@@ -146,7 +146,8 @@ def evid_gen(dd_vals, e_var, e_in):
 
         if len(e_var) - 1 == cb.get("index"):
             e_var.append(
-                dcc.Dropdown(id={'type': 'dd_e', 'index': cb.get("index") + 1}, options=sorted(model.varnames)))
+                dcc.Dropdown(id={'type': 'dd_e',
+ 'index': cb.get("index") + 1}, options=sorted(model.varnames)))
             e_in.append(dcc.Dropdown(id={'type': 'i_e', 'index': cb.get("index") + 1}, disabled=True))
         return e_var, e_in
     return e_var, e_in
@@ -158,7 +159,7 @@ def evid_gen(dd_vals, e_var, e_in):
     Output('e_variable', 'children'),
     Output('e_input', 'children'),
 
-    Output('text_r', 'children'),
+    #Output('text_r', 'children'),
     Output('text_l', 'children'),
 
 
@@ -176,36 +177,36 @@ def query_router(q_dd, e_dd, q_var, q_in, e_var, e_in):
     print(cb)
     if cb.get("type") == "dd_q":
         q_var_n, q_in_n = query_gen(q_dd, q_var, q_in)
-        text_r = [
-            html.Div("P ", className="align-self-center text-end float-start",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20}),
-            html.Div("(", className="text-end float-end align-top pt-0",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var_n) if len(q_var_n) >= len(e_var) else len(e_var)) * 40})
+        text_l = [
+            html.Div("P ", className="align-self-center text-end float-end",
+                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var)*1 if len(q_var) >= len(e_var) else len(e_var))*1}),
+            #html.Div("(", className="text-end float-end align-top pt-0",
+            #         style={"width": "50%", "height": "100%", 'fontSize': (len(q_var_n) if len(q_var_n) >= len(e_var) else len(e_var)) * 40})
         ]
-        text_l = [html.Div(")", className="text text-start align-self-center float-start",
+        text_r = [html.Div(")", className="text text-start align-self-center float-start",
                            style={"width": "50%", "height": "100%", 'fontSize': (len(q_var_n) if len(q_var_n) >= len(e_var) else len(e_var)) * 40})]
-        return q_var_n, q_in_n, e_var, e_in, text_l, text_r
+        return q_var_n, q_in_n, e_var, e_in, text_l
     elif cb.get("type") == "dd_e":
-        e_var_n, e_in_n = evid_gen(e_dd,e_var,e_in)
-        text_r = [
+        e_var_n, e_in_n = evid_gen(e_dd, e_var, e_in)
+        text_l = [
             html.Div("P ", className="align-self-center text-end float-start",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20}),
-            html.Div("(", className="text-end float-end align-top pt-0",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var_n) else len(e_var_n)) * 40})
+                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var)*1 if len(q_var) >= len(e_var) else len(e_var))*1}),
+            #html.Div("(", className="text-end float-end align-top pt-0",
+            #         style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var_n) else len(e_var_n)) * 40})
         ]
-        text_l = [html.Div(")", className="text text-start align-self-center float-start",
+        text_r = [html.Div(")", className="text text-start align-self-center float-start",
                            style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var_n) else len(e_var_n)) * 40})]
-        return q_var, q_in, e_var_n, e_in_n, text_l, text_r
+        return q_var, q_in, e_var_n, e_in_n, text_l
     else:
-        text_r = [
-            html.Div("P ", className="align-self-center text-end float-start",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20}),
-            html.Div("(", className="text-end float-end align-top pt-0",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var)) * 40})
+        text_l = [
+            html.Div("P ", className="align-self-center text-end float-end",
+                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var)*1 if len(q_var) >= len(e_var) else len(e_var))*1}),
+            #html.Div("(", className="text-end float-end align-top pt-0",
+            #         style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var)) * 40})
         ]
-        text_l = [html.Div(")", className="text text-start align-self-center float-start",
+        text_r = [html.Div(")", className="text text-start align-self-center float-start",
                            style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var)) * 40})]
-        return q_var, q_in, e_var, e_in, text_l, text_r
+        return q_var, q_in, e_var, e_in, text_l
 
 
 
