@@ -14,6 +14,11 @@ model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 global priors
 priors = model.independent_marginals()
 
+global result
+
+global page
+page = 0
+
 app = dash.Dash(__name__, prevent_initial_callbacks=True,
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}]
@@ -50,7 +55,12 @@ app.layout = dbc.Container(
             ]
         ),
         dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
-        dbc.Row(dbc.Col(children=[], id="mpe_erg", className="d-grid gap-2 col-3 mt-3 mx-auto")),
+        dbc.Row(
+            [
+                dbc.Col(dbc.Button("<", id="b_erg_pre", n_clicks=0, disabled=True),  className="d-flex justify-content-end align-self-stretch"),
+                dbc.Col(children=[], id="mpe_erg", className=""),
+                dbc.Col(dbc.Button(">", id="b_erg_next", n_clicks=0, disabled=True), className="d-flex justify-content-start align-self-stretch")
+            ], className="pt-3", align="center"),
         dbc.Row()
 
     ], fluid=True
@@ -76,7 +86,7 @@ def create_range_slider(variable, *args, **kwargs):
 
     #Output('text_r', 'children'),
     Output('text_l', 'children'),
-    Output('text_var', 'value'),
+
 
     Input({'type': 'dd_e', 'index': ALL}, 'value'),
     State('e_variable', 'children'),
@@ -106,8 +116,7 @@ def evid_gen(dd_vals, e_var, e_in):
                                style={"width": "50%", "height": "100%",
                                       'fontSize':  len(e_var) * 40 if len(e_var) * 40 < 360 else 360,  "padding-top": (len(e_var)-9) * 15 if len(e_var) > 9 else 0})]
 
-            text_var = [x for x in model.varnames if x not in dd_vals]
-            return e_var, e_in, text_l, text_var
+            return e_var, e_in, text_l
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
@@ -138,44 +147,71 @@ def evid_gen(dd_vals, e_var, e_in):
                        style={"width": "50%", "height": "100%",
                               'fontSize': len(e_var) * 40 if len(e_var) * 40 < 360 else 360, "padding-top": (len(e_var)-9) * 15 if len(e_var) > 9 else 0})]
 
-    text_var = [x for x in model.varnames if x not in dd_vals]
-    return e_var, e_in, text_l, text_var
-
+    return e_var, e_in, text_l
 
 
 
 @app.callback(
     Output('mpe_erg', 'children'),
+    Output('b_erg_pre','disabled'),
+    Output('b_erg_next', 'disabled'),
     Input('erg_b', 'n_clicks'),
+    Input('b_erg_pre', 'n_clicks'),
+    Input('b_erg_next', 'n_clicks'),
     State({'type': 'dd_e', 'index': ALL}, 'value'),
     State({'type': 'i_e', 'index': ALL}, 'value'),
 )
-def mpe(n1, e_var, e_in):  # Error bei
-    evidence_dict = {}
-
-    for j in range(0, len(e_var) - 1):
-        variable = model.varnames[e_var[j]]
-        print(variable.domain.labels)
-        if variable.numeric:
-            evidence_dict.update({e_var[j]: e_in[j]})
+def erg_controller(n1, n2, n3, e_var, e_in):
+    global result
+    global page
+    cb = ctx.triggered_id
+    if cb == "b_erg_pre":
+        page -= 1
+        if page == 0:
+            return mpe(result[page]), True, False
         else:
-            evidence_dict.update({e_var[j]: set(e_in[j])})
-    try:
-        result = model._mpe(evidence=evidence_dict)[0]
+            return mpe(result[page]), False, False
+    elif cb == "b_erg_next":
+        page += 1
+        if len(result) > page+1:
+            return mpe(result[page]), False, False
+        else:
+            return mpe(result[page]), False, True
+    else:
+        page = 0
+        evidence_dict = {}
+        for j in range(0, len(e_var) - 1):
+            variable = model.varnames[e_var[j]]
+            print(variable.domain.labels)
+            if variable.numeric:
+                evidence_dict.update({e_var[j]: e_in[j]})
+            else:
+                evidence_dict.update({e_var[j]: set(e_in[j])})
+        try:
+            result = model._mpe(evidence=evidence_dict)
 
-    except:
-        return [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")]
+        except:
+            return [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True
+        if len(result) > 1:
+            return mpe(result[0]), True, False
+        else:
+            return mpe(result[0]), True, True
+
+
+
+def mpe(res):
+
     return_div = []
-    for variable, restriction in result.items():
+    for variable, restriction in res.items():
 
         if variable.numeric:
             value = []
-            for interval in result[variable]:
+            for interval in res[variable]:
                 value += [interval.lower, interval.upper]
 
             return_div += [html.Div(
                 [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True, className="margin10"),
-                 create_range_slider(variable, value=value, disabled=True, className="margin10")]
+                 create_range_slider(variable, value=value, disabled=True, className="margin10",  tooltip={"placement": "bottom", "always_visible": True})]
                 , style={"display": "grid", "grid-template-columns": "30% 70%"})]
         elif variable.symbolic:
             return_div += [html.Div(
@@ -184,11 +220,11 @@ def mpe(n1, e_var, e_in):  # Error bei
                      options={k: v for k, v in zip(variable.domain.labels.keys(), variable.domain.labels.values())},
                      value=restriction, multi=True, disabled=True, className="ps-3")],
                 style={"display": "grid", "grid-template-columns": "30% 70%"})]
+
     return_div += [html.Div(className="pt-3")]
     return return_div
-    # min=excet lower  max= excet upper  l=lower path   u=upper path
-    # sym drobdown
 
 
 if __name__ == '__main__':
+
     app.run_server(debug=True)

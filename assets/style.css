@@ -27,6 +27,12 @@
 #mpe_erg .Select-control{
   background-color: rgb(194, 194, 192);
 }
-/*.rc-slider-track-n immer ungreade blau im erg
-#deaktive Vars ausgrauen
- */
+
+#mpe_erg .rc-slider-tooltip-inner{
+  background-color: rgba(82, 87, 92, 0.23);
+  box-shadow: 0 0 0 #d9d9d9;
+}
+#mpe_erg .Select--multi.is-disabled .Select-value{
+  background-color: rgb(194, 194, 192);
+  border: 0px;
+}
