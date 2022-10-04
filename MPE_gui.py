@@ -1,4 +1,5 @@
 import jpt
+import jpt.variables
 import igraph
 from igraph import Graph, EdgeSeq
 import plotly.graph_objects as go
@@ -9,7 +10,7 @@ from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
 
 global model
-model: jpt.trees.JPT = jpt.JPT.load('test.datei')
+model: jpt.trees.JPT = jpt.JPT.load('cereal.jpt')
 
 global priors
 priors = model.independent_marginals()
@@ -74,7 +75,7 @@ def create_range_slider(variable, *args, **kwargs):
         min = min - 1
         max = max + 1
 
-    slider = dcc.RangeSlider(**kwargs, min=min, max=max, allowCross=False,)
+    slider = dcc.RangeSlider(**kwargs, min=math.floor(min), max=max, allowCross=False)
 
     return slider
 
@@ -96,7 +97,6 @@ def evid_gen(dd_vals, e_var, e_in):
     e_var: list[dict] = e_var
     e_in: list[dict] = e_in
     cb = ctx.triggered_id
-    print(cb)
     if (cb.get("type") == "dd_e"):
         if dd_vals[cb.get("index")] is None:
             e_var.pop(cb.get("index"))
@@ -126,8 +126,9 @@ def evid_gen(dd_vals, e_var, e_in):
 
         elif variable.symbolic:
             e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
-                                                 options={k: v for k, v in zip(variable.domain.labels.keys(),
+                                                 options={k: v for k, v in zip(variable.domain.labels.values(),
                                                                                variable.domain.labels.values())},
+                                                 value=list(variable.domain.labels.values()),
                                                  multi=True, )
 
         if len(e_var) - 1 == cb.get("index"):
@@ -182,15 +183,16 @@ def erg_controller(n1, n2, n3, e_var, e_in):
         evidence_dict = {}
         for j in range(0, len(e_var) - 1):
             variable = model.varnames[e_var[j]]
-            print(variable.domain.labels)
             if variable.numeric:
-                evidence_dict.update({e_var[j]: e_in[j]})
+                evidence_dict.update({variable: e_in[j]})
             else:
-                evidence_dict.update({e_var[j]: set(e_in[j])})
+                evidence_dict.update({variable: set(e_in[j])})
         try:
-            result = model._mpe(evidence=evidence_dict)
+            print(jpt.variables.VariableMap(evidence_dict.items()))
+            result = model._mpe(evidence=jpt.variables.VariableMap(evidence_dict.items()))
 
-        except:
+        except Exception as e:
+            print("Error was", type(e), e)
             return [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True
         if len(result) > 1:
             return mpe(result[0]), True, False

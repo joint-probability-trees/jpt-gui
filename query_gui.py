@@ -9,7 +9,7 @@ from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
 
 global model
-model: jpt.trees.JPT = jpt.JPT.load('test.datei')
+model: jpt.trees.JPT = jpt.JPT.load('cereal.jpt')
 
 global priors
 priors = model.independent_marginals()
@@ -89,7 +89,7 @@ def query_gen(dd_vals, q_var, q_in):
                                                         tooltip={"placement": "bottom", "always_visible": False})
         elif variable.symbolic:
             q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q", "index": cb.get("index")},
-                                                 options={k:v for k,v in zip(variable.domain.labels.keys(), variable.domain.labels.values()) },value=list(variable.domain.labels.keys()), multi=True, ) #list(variable.domain.labels.keys())
+                                                 options={k:v for k,v in zip(variable.domain.labels.values(), variable.domain.labels.values()) },value=list(variable.domain.labels.values()), multi=True, ) #list(variable.domain.labels.keys())
 
         if len(q_var) - 1 == cb.get("index"):
             q_var.append(
@@ -142,7 +142,7 @@ def evid_gen(dd_vals, e_var, e_in):
 
         elif variable.symbolic:
             e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
-                                                 options={k:v for k,v in zip(variable.domain.labels.keys(), variable.domain.labels.values()) }, multi=True, )
+                                                 options={k:v for k,v in zip(variable.domain.labels.values(), variable.domain.labels.values())}, value=list(variable.domain.labels.values()), multi=True, )
 
         if len(e_var) - 1 == cb.get("index"):
             e_var.append(
@@ -224,7 +224,6 @@ def infer(n1, q_var, q_in, e_var, e_in):
     evidence_dict = {}
     for i in range(0, len(q_var) - 1):
         variable = model.varnames[q_var[i]]
-        print(variable.domain.labels)
         if variable.numeric:
             query_dict.update({q_var[i]: q_in[i]})
         else:
@@ -232,7 +231,6 @@ def infer(n1, q_var, q_in, e_var, e_in):
 
     for j in range(0, len(e_var) - 1):
         variable = model.varnames[e_var[j]]
-        print(variable.domain.labels)
         if variable.numeric:
             evidence_dict.update({e_var[j]: e_in[j]})
         else:
@@ -241,11 +239,12 @@ def infer(n1, q_var, q_in, e_var, e_in):
     # ToDoo Fors Kombenieren
     evidence = jpt.variables.VariableMap([(model.varnames[k], v) for k, v in evidence_dict.items()])
     query = jpt.variables.VariableMap([(model.varnames[k], v) for k, v in query_dict.items()])
-    print(evidence, query)
-
+    
     try:
+        print(evidence, query)
         result = model.infer(query, evidence)
-    except:
+    except Exception as e:
+        print(e)
         return "Unsatasfiable"
 
     return "{}%".format(round(result.result * 100, 2))
