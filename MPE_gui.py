@@ -37,9 +37,8 @@ app.layout = dbc.Container(
                              style={'fontSize': 20, 'padding-top': 0}),
                     html.Div("P ", className="ps-3",
                              style={'fontSize': 30, 'padding-top': 0}),
-                    #html.Div("(", className="text-end float-end align-top pt-0",
-                    #         style={"width": "40%", "height": "100%", 'fontSize': 40})
-                ], id="text_l", align="center", className="d-flex flex-wrap align-items-center justify-content-end pe-3", width=2),
+                ], id="text_l", align="center",
+                    className="d-flex flex-wrap align-items-center justify-content-end pe-3", width=2),
                 dbc.Col(id="q_variable",
                         children=[
                             dcc.Dropdown(id="text_var", options=sorted(model.varnames), value=sorted(model.varnames),
@@ -49,23 +48,23 @@ app.layout = dbc.Container(
                         children=[dcc.Dropdown(id={'type': 'dd_e', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-3 border-secondary ps-3"),
                 dbc.Col(id="e_input",
-                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3,
-                        className="d-grid gap-3 border-end border-secondary border-3 rounded-4"),
-                #dbc.Col(html.Div(")", className="text text-start align-self-center float-start",
-                #                 style={"width": "50%", "height": "100%", 'fontSize': 40}), id="text_r")
+                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3, )
             ]
         ),
         dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
         dbc.Row(
             [
-                dbc.Col(dbc.Button("<", id="b_erg_pre", n_clicks=0, disabled=True),  className="d-flex justify-content-end align-self-stretch"),
+                dbc.Col(dbc.Button("<", id="b_erg_pre", n_clicks=0, disabled=True),
+                        className="d-flex justify-content-end align-self-stretch"),
                 dbc.Col(children=[], id="mpe_erg", className=""),
-                dbc.Col(dbc.Button(">", id="b_erg_next", n_clicks=0, disabled=True), className="d-flex justify-content-start align-self-stretch")
+                dbc.Col(dbc.Button(">", id="b_erg_next", n_clicks=0, disabled=True),
+                        className="d-flex justify-content-start align-self-stretch")
             ], className="pt-3", align="center"),
         dbc.Row()
 
     ], fluid=True
 )
+
 
 def create_range_slider(variable, *args, **kwargs):
     min = priors[variable].cdf.intervals[0].upper
@@ -80,14 +79,18 @@ def create_range_slider(variable, *args, **kwargs):
     return slider
 
 
+def create_prefix_text(len_fac):
+    return [
+        html.Div("argmax ", className="pe-3",
+                 style={"width": "30%", 'fontSize': len_fac * 10 if len_fac * 10 < 30 else 30}),
+        html.Div("P ", className="ps-3",
+                 style={"width": "30%", "height": "100%", 'fontSize': len_fac * 15 if len_fac * 15 < 75 else 75}),
+    ]
 
 @app.callback(
     Output('e_variable', 'children'),
     Output('e_input', 'children'),
-
-    #Output('text_r', 'children'),
     Output('text_l', 'children'),
-
 
     Input({'type': 'dd_e', 'index': ALL}, 'value'),
     State('e_variable', 'children'),
@@ -104,19 +107,7 @@ def evid_gen(dd_vals, e_var, e_in):
             for x in range(0, len(e_var)):
                 e_var[x]['props']['id'] = {'type': 'dd_e', 'index': x}
                 e_in[x]['props']['id'] = {'type': 'i_e', 'index': x}
-            text_l = [
-                html.Div("argmax ", className="pe-3",
-                         style={"width": "30%", 'fontSize': len(e_var) * 10 if len(e_var)*10 < 30 else 30}),
-                html.Div("P ", className="ps-3",
-                         style={"width": "30%", "height": "100%", 'fontSize': len(e_var) * 15 if len(e_var) *15 < 75 else 75}),
-                #html.Div("(", className="text-end float-end align-top pt-0",
-                #         style={"width": "40%", "height": "100%", 'fontSize': len(e_var) * 40 if len(e_var) * 40 < 360 else 360})
-            ]
-            text_r = [html.Div(")", className="text text-start align-self-center float-start",
-                               style={"width": "50%", "height": "100%",
-                                      'fontSize':  len(e_var) * 40 if len(e_var) * 40 < 360 else 360,  "padding-top": (len(e_var)-9) * 15 if len(e_var) > 9 else 0})]
-
-            return e_var, e_in, text_l
+            return e_var, e_in, create_prefix_text(len(e_var))
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
@@ -136,25 +127,12 @@ def evid_gen(dd_vals, e_var, e_in):
                 dcc.Dropdown(id={'type': 'dd_e', 'index': cb.get("index") + 1}, options=sorted(model.varnames)))
             e_in.append(dcc.Dropdown(id={'type': 'i_e', 'index': cb.get("index") + 1}, disabled=True))
 
-    text_l = [
-        html.Div("argmax ", className="pe-3",
-                 style={"width": "30%", 'fontSize': len(e_var) * 10 if len(e_var) * 10 < 30 else 30}),
-        html.Div("P ", className="ps-3",
-                 style={"width": "30%", "height": "100%", 'fontSize': len(e_var) * 15 if len(e_var) * 15 < 75 else 75}),
-        #html.Div("(", className="text-end float-end align-top pt-0",
-        #         style={"width": "40%", "height": "100%", 'fontSize': len(e_var) * 40 if len(e_var) * 40 < 360 else 360})
-    ]
-    text_r = [html.Div(")", className="text text-start align-self-center float-start",
-                       style={"width": "50%", "height": "100%",
-                              'fontSize': len(e_var) * 40 if len(e_var) * 40 < 360 else 360, "padding-top": (len(e_var)-9) * 15 if len(e_var) > 9 else 0})]
-
-    return e_var, e_in, text_l
-
+    return e_var, e_in, create_prefix_text(len(e_var))
 
 
 @app.callback(
     Output('mpe_erg', 'children'),
-    Output('b_erg_pre','disabled'),
+    Output('b_erg_pre', 'disabled'),
     Output('b_erg_next', 'disabled'),
     Input('erg_b', 'n_clicks'),
     Input('b_erg_pre', 'n_clicks'),
@@ -174,7 +152,7 @@ def erg_controller(n1, n2, n3, e_var, e_in):
             return mpe(result[page]), False, False
     elif cb == "b_erg_next":
         page += 1
-        if len(result) > page+1:
+        if len(result) > page + 1:
             return mpe(result[page]), False, False
         else:
             return mpe(result[page]), False, True
@@ -188,7 +166,6 @@ def erg_controller(n1, n2, n3, e_var, e_in):
             else:
                 evidence_dict.update({variable: set(e_in[j])})
         try:
-            print(jpt.variables.VariableMap(evidence_dict.items()))
             result = model._mpe(evidence=jpt.variables.VariableMap(evidence_dict.items()))
 
         except Exception as e:
@@ -200,9 +177,7 @@ def erg_controller(n1, n2, n3, e_var, e_in):
             return mpe(result[0]), True, True
 
 
-
 def mpe(res):
-
     return_div = []
     for variable, restriction in res.items():
 
@@ -213,7 +188,8 @@ def mpe(res):
 
             return_div += [html.Div(
                 [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True, className="margin10"),
-                 create_range_slider(variable, value=value, disabled=True, className="margin10",  tooltip={"placement": "bottom", "always_visible": True})]
+                 create_range_slider(variable, value=value, disabled=True, className="margin10",
+                                     tooltip={"placement": "bottom", "always_visible": True})]
                 , style={"display": "grid", "grid-template-columns": "30% 70%"})]
         elif variable.symbolic:
             return_div += [html.Div(
@@ -228,5 +204,4 @@ def mpe(res):
 
 
 if __name__ == '__main__':
-
     app.run_server(debug=True)

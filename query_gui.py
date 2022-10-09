@@ -27,20 +27,17 @@ app.layout = dbc.Container(
             [
                 dbc.Col([
                          html.Div("P ", className="align-self-center text-end float-end", style={'fontSize': 40, 'padding-top': 0}),
-                         #html.Div("(", className="text-end float-end align-top pt-0", style={"width": "50%", "height": "100%", 'fontSize': 40})
                          ], id="text_l", align="center", className="", width=2),
                 dbc.Col(id="q_variable",
                         children=[dcc.Dropdown(id={'type': 'dd_q', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-secondary border-3 rounded-4"),
                 dbc.Col(id="q_input",
                         children=[dcc.Dropdown(id={'type': 'i_q', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3 border-end border-3 border-secondary"),
-                #dbc.Col(html.Div("|", className="fs-1 text text-center")),
                 dbc.Col(id="e_variable",
                         children=[dcc.Dropdown(id={'type': 'dd_e', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-3 border-secondary ps-3"),
                 dbc.Col(id="e_input",
                         children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3 border-end border-secondary border-3 rounded-4"),
-                #dbc.Col(html.Div(")", className="text text-start align-self-center float-start", style={"width": "50%", "height": "100%", 'fontSize': 40}), id="text_r")
             ]
         ),
         dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
@@ -49,16 +46,27 @@ app.layout = dbc.Container(
     ], fluid=True
 )
 
+def create_range_slider(variable, *args, **kwargs):
+    min = priors[variable].cdf.intervals[0].upper
+    max = priors[variable].cdf.intervals[-1].lower
 
-# @app.callback(
-#     Output('q_variable', 'children'),
-#     Output('q_input', 'children'),
-#     Output('text_l', 'children'),
-#     Output('text_r', 'children'),
-#     Input({'type': 'dd_q', 'index': ALL}, 'value'),
-#     State('q_variable', 'children'),
-#     State('q_input', 'children'),
-# )
+    if min == max:
+        min = min - 1
+        max = max + 1
+
+    slider = dcc.RangeSlider(**kwargs, min=math.floor(min), max=max, allowCross=False, tooltip={"placement": "bottom", "always_visible": False})
+
+    return slider
+
+def create_prefix_text(len_fac_q, len_fac_e):
+    return [
+        html.Div("P ", className="align-self-center text-end float-end",
+                 style={"width": "50%", "height": "100%",
+                        'fontSize': (len_fac_q if len_fac_q >= len_fac_e else len_fac_e) * 20,
+                        'padding-top': (len_fac_q * 1 if len_fac_q >= len_fac_e else len_fac_e) * 1}),
+    ]
+
+
 def query_gen(dd_vals, q_var, q_in):
     q_var: list[dict] = q_var
     q_in: list[dict] = q_in
@@ -76,17 +84,8 @@ def query_gen(dd_vals, q_var, q_in):
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
-                min = priors[variable].cdf.intervals[0].upper
-                max = priors[variable].cdf.intervals[-1].lower
+                q_in[cb.get("index")] = create_range_slider(variable=variable, id={'type': 'i_q', 'index': cb.get("index")})
 
-                if min == max:
-                    min = min - 1
-                    max = max + 1
-
-                q_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_q', 'index': cb.get("index")},
-                                                        min=min, max=max, value=[min, max],
-                                                        allowCross=False,
-                                                        tooltip={"placement": "bottom", "always_visible": False})
         elif variable.symbolic:
             q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q", "index": cb.get("index")},
                                                  options={k:v for k,v in zip(variable.domain.labels.values(), variable.domain.labels.values()) },value=list(variable.domain.labels.values()), multi=True, ) #list(variable.domain.labels.keys())
@@ -101,14 +100,6 @@ def query_gen(dd_vals, q_var, q_in):
     return q_var, q_in
 
 
-# @app.callback(
-#     Output('e_variable', 'children'),
-#     Output('e_input', 'children'),
-#
-#     Input({'type': 'dd_e', 'index': ALL}, 'value'),
-#     State('e_variable', 'children'),
-#     State('e_input', 'children'),
-# )
 def evid_gen(dd_vals, e_var, e_in):
     e_var: list[dict] = e_var
     e_in: list[dict] = e_in
@@ -125,20 +116,7 @@ def evid_gen(dd_vals, e_var, e_in):
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
-            # expectation = model.expectation([variable], {}, confidence_level=1.)
-            # expectation = model.expectation([variable], {}, confidence_level=1.)
-
-                min = priors[variable].cdf.intervals[0].upper
-                max = priors[variable].cdf.intervals[-1].lower
-
-                if min == max:
-                    min = min - 1
-                    max = max + 1
-
-                e_in[cb.get("index")] = dcc.RangeSlider(id={'type': 'i_e', 'index': cb.get("index")},
-                                                        min=min, max=max, value=[min, max],
-                                                        allowCross=False,
-                                                        tooltip={"placement": "bottom", "always_visible": False})
+                e_in[cb.get("index")] = create_range_slider(variable=variable, id={'type': 'i_e', 'index': cb.get("index")})
 
         elif variable.symbolic:
             e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
@@ -159,7 +137,6 @@ def evid_gen(dd_vals, e_var, e_in):
     Output('e_variable', 'children'),
     Output('e_input', 'children'),
 
-    #Output('text_r', 'children'),
     Output('text_l', 'children'),
 
 
@@ -177,36 +154,12 @@ def query_router(q_dd, e_dd, q_var, q_in, e_var, e_in):
     print(cb)
     if cb.get("type") == "dd_q":
         q_var_n, q_in_n = query_gen(q_dd, q_var, q_in)
-        text_l = [
-            html.Div("P ", className="align-self-center text-end float-end",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var)*1 if len(q_var) >= len(e_var) else len(e_var))*1}),
-            #html.Div("(", className="text-end float-end align-top pt-0",
-            #         style={"width": "50%", "height": "100%", 'fontSize': (len(q_var_n) if len(q_var_n) >= len(e_var) else len(e_var)) * 40})
-        ]
-        text_r = [html.Div(")", className="text text-start align-self-center float-start",
-                           style={"width": "50%", "height": "100%", 'fontSize': (len(q_var_n) if len(q_var_n) >= len(e_var) else len(e_var)) * 40})]
-        return q_var_n, q_in_n, e_var, e_in, text_l
+        return q_var_n, q_in_n, e_var, e_in, create_prefix_text(len_fac_q=len(q_var), len_fac_e=len(e_var))
     elif cb.get("type") == "dd_e":
         e_var_n, e_in_n = evid_gen(e_dd, e_var, e_in)
-        text_l = [
-            html.Div("P ", className="align-self-center text-end float-start",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var)*1 if len(q_var) >= len(e_var) else len(e_var))*1}),
-            #html.Div("(", className="text-end float-end align-top pt-0",
-            #         style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var_n) else len(e_var_n)) * 40})
-        ]
-        text_r = [html.Div(")", className="text text-start align-self-center float-start",
-                           style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var_n) else len(e_var_n)) * 40})]
-        return q_var, q_in, e_var_n, e_in_n, text_l
+        return q_var, q_in, e_var_n, e_in_n, create_prefix_text(len_fac_q=len(q_var), len_fac_e=len(e_var))
     else:
-        text_l = [
-            html.Div("P ", className="align-self-center text-end float-end",
-                     style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var))*20,  'padding-top': (len(q_var)*1 if len(q_var) >= len(e_var) else len(e_var))*1}),
-            #html.Div("(", className="text-end float-end align-top pt-0",
-            #         style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var)) * 40})
-        ]
-        text_r = [html.Div(")", className="text text-start align-self-center float-start",
-                           style={"width": "50%", "height": "100%", 'fontSize': (len(q_var) if len(q_var) >= len(e_var) else len(e_var)) * 40})]
-        return q_var, q_in, e_var, e_in, text_l
+        return q_var, q_in, e_var, e_in,  create_prefix_text(len_fac_q=len(q_var), len_fac_e=len(e_var))
 
 
 
@@ -236,7 +189,6 @@ def infer(n1, q_var, q_in, e_var, e_in):
         else:
             evidence_dict.update({e_var[j]: set(e_in[j])})
 
-    # ToDoo Fors Kombenieren
     evidence = jpt.variables.VariableMap([(model.varnames[k], v) for k, v in evidence_dict.items()])
     query = jpt.variables.VariableMap([(model.varnames[k], v) for k, v in query_dict.items()])
     
@@ -252,4 +204,3 @@ def infer(n1, q_var, q_in, e_var, e_in):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-# result.result *100 '%'
