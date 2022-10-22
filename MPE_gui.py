@@ -8,9 +8,9 @@ from jpt.base.utils import list2interval
 import dash
 from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
-
+import components as c
 global model
-model: jpt.trees.JPT = jpt.JPT.load('cereal.jpt')
+model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 
 global priors
 priors = model.independent_marginals()
@@ -48,7 +48,8 @@ app.layout = dbc.Container(
                         children=[dcc.Dropdown(id={'type': 'dd_e', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-3 border-secondary ps-3"),
                 dbc.Col(id="e_input",
-                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3, )
+                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3,
+                        className="d-grid gap-3 border-end border-secondary border-3 rounded-4")
             ]
         ),
         dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
@@ -65,28 +66,6 @@ app.layout = dbc.Container(
     ], fluid=True
 )
 
-
-def create_range_slider(variable, *args, **kwargs):
-    min = priors[variable].cdf.intervals[0].upper
-    max = priors[variable].cdf.intervals[-1].lower
-
-    if min == max:
-        min = min - 1
-        max = max + 1
-
-    slider = dcc.RangeSlider(**kwargs, min=math.floor(min), max=max, allowCross=False)
-
-    return slider
-
-
-def create_prefix_text(len_fac):
-    return [
-        html.Div("argmax ", className="pe-3",
-                 style={"width": "30%", 'fontSize': len_fac * 10 if len_fac * 10 < 30 else 30}),
-        html.Div("P ", className="ps-3",
-                 style={"width": "30%", "height": "100%", 'fontSize': len_fac * 15 if len_fac * 15 < 75 else 75}),
-    ]
-
 @app.callback(
     Output('e_variable', 'children'),
     Output('e_input', 'children'),
@@ -102,16 +81,13 @@ def evid_gen(dd_vals, e_var, e_in):
     cb = ctx.triggered_id
     if (cb.get("type") == "dd_e"):
         if dd_vals[cb.get("index")] is None:
-            e_var.pop(cb.get("index"))
-            e_in.pop(cb.get("index"))
-            for x in range(0, len(e_var)):
-                e_var[x]['props']['id'] = {'type': 'dd_e', 'index': x}
-                e_in[x]['props']['id'] = {'type': 'i_e', 'index': x}
-            return e_var, e_in, create_prefix_text(len(e_var))
+            return c.del_selector_from_div(model, e_var, e_in), c.create_prefix_text_mpe(len(e_var))
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
-            e_in[cb.get("index")] = create_range_slider(variable, id={'type': 'i_e', 'index': cb.get("index")},
+            minimum = priors[variable].cdf.intervals[0].upper
+            maximum = priors[variable].cdf.intervals[-1].lower
+            e_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_e', 'index': cb.get("index")},
                                                         dots=False,
                                                         tooltip={"placement": "bottom", "always_visible": False})
 
@@ -123,11 +99,11 @@ def evid_gen(dd_vals, e_var, e_in):
                                                  multi=True, )
 
         if len(e_var) - 1 == cb.get("index"):
-            e_var.append(
-                dcc.Dropdown(id={'type': 'dd_e', 'index': cb.get("index") + 1}, options=sorted(model.varnames)))
-            e_in.append(dcc.Dropdown(id={'type': 'i_e', 'index': cb.get("index") + 1}, disabled=True))
+            test1, test2 = c.add_selector_to_div(model, e_var, e_in, "dd_e", cb.get("index")+1)
+            print(test1, test2)
+            return test1, test2, c.create_prefix_text_mpe(len(e_var))
 
-    return e_var, e_in, create_prefix_text(len(e_var))
+    return c.update_free_vars_in_div(model, e_var), e_in, c.create_prefix_text_mpe(len(e_var))
 
 
 @app.callback(
@@ -160,13 +136,14 @@ def erg_controller(n1, n2, n3, e_var, e_in):
         page = 0
         evidence_dict = {}
         for j in range(0, len(e_var) - 1):
+            if e_var[j] is None: break
             variable = model.varnames[e_var[j]]
             if variable.numeric:
                 evidence_dict.update({variable: e_in[j]})
             else:
                 evidence_dict.update({variable: set(e_in[j])})
         try:
-            result = model._mpe(evidence=jpt.variables.VariableMap(evidence_dict.items()))
+            result = model.mpe(evidence=jpt.variables.VariableMap(evidence_dict.items()))
 
         except Exception as e:
             print("Error was", type(e), e)
@@ -178,30 +155,9 @@ def erg_controller(n1, n2, n3, e_var, e_in):
 
 
 def mpe(res):
-    return_div = []
-    for variable, restriction in res.items():
-
-        if variable.numeric:
-            value = []
-            for interval in res[variable]:
-                value += [interval.lower, interval.upper]
-
-            return_div += [html.Div(
-                [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True, className="margin10"),
-                 create_range_slider(variable, value=value, disabled=True, className="margin10",
-                                     tooltip={"placement": "bottom", "always_visible": True})]
-                , style={"display": "grid", "grid-template-columns": "30% 70%"})]
-        elif variable.symbolic:
-            return_div += [html.Div(
-                [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True),
-                 dcc.Dropdown(
-                     options={k: v for k, v in zip(variable.domain.labels.keys(), variable.domain.labels.values())},
-                     value=restriction, multi=True, disabled=True, className="ps-3")],
-                style={"display": "grid", "grid-template-columns": "30% 70%"})]
-
-    return_div += [html.Div(className="pt-3")]
-    return return_div
+    return c.mpe_result_to_div(model, res)
 
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+

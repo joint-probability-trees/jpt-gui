@@ -36,3 +36,8 @@
   background-color: rgb(194, 194, 192);
   border: 0px;
 }
+
+#likelihood .Select-control{
+ background-color: rgb(144, 144, 168);
+  border: 0px;
+}

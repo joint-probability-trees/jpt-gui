@@ -7,9 +7,12 @@ from jpt.base.utils import list2interval
 import dash
 from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
+import components as c
+
+
 
 global model
-model: jpt.trees.JPT = jpt.JPT.load('cereal.jpt')
+model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 
 global priors
 priors = model.independent_marginals()
@@ -26,18 +29,21 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col([
-                         html.Div("P ", className="align-self-center text-end float-end", style={'fontSize': 40, 'padding-top': 0}),
-                         ], id="text_l", align="center", className="", width=2),
+                    html.Div("P ", className="align-self-center text-end float-end",
+                             style={'fontSize': 40, 'padding-top': 0}),
+                ], id="text_l", align="center", className="", width=2),
                 dbc.Col(id="q_variable",
                         children=[dcc.Dropdown(id={'type': 'dd_q', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-secondary border-3 rounded-4"),
                 dbc.Col(id="q_input",
-                        children=[dcc.Dropdown(id={'type': 'i_q', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3 border-end border-3 border-secondary"),
+                        children=[dcc.Dropdown(id={'type': 'i_q', 'index': 0}, disabled=True)], width=3,
+                        className="d-grid gap-3 border-end border-3 border-secondary"),
                 dbc.Col(id="e_variable",
                         children=[dcc.Dropdown(id={'type': 'dd_e', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-3 border-secondary ps-3"),
                 dbc.Col(id="e_input",
-                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3, className="d-grid gap-3 border-end border-secondary border-3 rounded-4"),
+                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3,
+                        className="d-grid gap-3 border-end border-secondary border-3 rounded-4"),
             ]
         ),
         dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
@@ -46,58 +52,34 @@ app.layout = dbc.Container(
     ], fluid=True
 )
 
-def create_range_slider(variable, *args, **kwargs):
-    min = priors[variable].cdf.intervals[0].upper
-    max = priors[variable].cdf.intervals[-1].lower
-
-    if min == max:
-        min = min - 1
-        max = max + 1
-
-    slider = dcc.RangeSlider(**kwargs, min=math.floor(min), max=max, allowCross=False, tooltip={"placement": "bottom", "always_visible": False})
-
-    return slider
-
-def create_prefix_text(len_fac_q, len_fac_e):
-    return [
-        html.Div("P ", className="align-self-center text-end float-end",
-                 style={"width": "50%", "height": "100%",
-                        'fontSize': (len_fac_q if len_fac_q >= len_fac_e else len_fac_e) * 20,
-                        'padding-top': (len_fac_q * 1 if len_fac_q >= len_fac_e else len_fac_e) * 1}),
-    ]
-
 
 def query_gen(dd_vals, q_var, q_in):
     q_var: list[dict] = q_var
     q_in: list[dict] = q_in
 
     cb = ctx.triggered_id
-    print(cb)
-    if (cb.get("type") == "dd_q"):
-        if dd_vals[cb.get("index")] is None:
-            q_var.pop(cb.get("index"))
-            q_in.pop(cb.get("index"))
-            for x in range(0, len(q_var)):
-                q_var[x]['props']['id'] = {'type': 'dd_q', 'index': x}
-                q_in[x]['props']['id'] = {'type': 'i_q', 'index': x}
-            return q_var, q_in
+    if dd_vals[cb.get("index")] is None:
+        return c.del_selector_from_div(model, q_var, q_in, cb.get("index"))
 
-        variable = model.varnames[dd_vals[cb.get("index")]]
-        if variable.numeric:
-                q_in[cb.get("index")] = create_range_slider(variable=variable, id={'type': 'i_q', 'index': cb.get("index")})
+    variable = model.varnames[dd_vals[cb.get("index")]]
+    if variable.numeric:
+        minimum = priors[variable].cdf.intervals[0].upper
+        maximum = priors[variable].cdf.intervals[-1].lower
+        q_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_q', 'index': cb.get("index")},
+                                                      tooltip={"placement": "bottom", "always_visible": False})
 
-        elif variable.symbolic:
-            q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q", "index": cb.get("index")},
-                                                 options={k:v for k,v in zip(variable.domain.labels.values(), variable.domain.labels.values()) },value=list(variable.domain.labels.values()), multi=True, ) #list(variable.domain.labels.keys())
+    elif variable.symbolic:
+        q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q", "index": cb.get("index")},
+                                             options={k: v for k, v in zip(variable.domain.labels.values(),
+                                                                           variable.domain.labels.values())},
+                                             value=list(variable.domain.labels.values()),
+                                             multi=True, )  # list(variable.domain.labels.keys())
 
-        if len(q_var) - 1 == cb.get("index"):
-            q_var.append(
-                dcc.Dropdown(id={'type': 'dd_q', 'index': cb.get("index") + 1}, options=sorted(model.varnames)))
-            q_in.append(dcc.Dropdown(id={'type': 'i_q', 'index': cb.get("index") + 1}, disabled=True))
+    if len(q_var) - 1 == cb.get("index"):
+        return c.add_selector_to_div(model, q_var, q_in, 'dd_q', cb.get("index")+1)
 
 
-        return q_var, q_in
-    return q_var, q_in
+    return c.update_free_vars_in_div(model, q_var), q_in
 
 
 def evid_gen(dd_vals, e_var, e_in):
@@ -105,30 +87,27 @@ def evid_gen(dd_vals, e_var, e_in):
     e_in: list[dict] = e_in
     cb = ctx.triggered_id
     print(cb)
-    if (cb.get("type") == "dd_e"):
-        if dd_vals[cb.get("index")] is None:
-            e_var.pop(cb.get("index"))
-            e_in.pop(cb.get("index"))
-            for x in range(0, len(e_var)):
-                e_var[x]['props']['id'] = {'type': 'dd_e', 'index': x}
-                e_in[x]['props']['id'] = {'type': 'i_e', 'index': x}
-            return e_var, e_in
+    if dd_vals[cb.get("index")] is None:
+        return c.del_selector_from_div(model, e_var, e_in, cb.get('index'))
 
-        variable = model.varnames[dd_vals[cb.get("index")]]
-        if variable.numeric:
-                e_in[cb.get("index")] = create_range_slider(variable=variable, id={'type': 'i_e', 'index': cb.get("index")})
+    variable = model.varnames[dd_vals[cb.get("index")]]
+    if variable.numeric:
+        minimum = priors[variable].cdf.intervals[0].upper
+        maximum = priors[variable].cdf.intervals[-1].lower
+        e_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_e', 'index': cb.get("index")},
+                                                      tooltip={"placement": "bottom", "always_visible": False})
+    elif variable.symbolic:
+        e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
+                                             options={k: v for k, v in zip(variable.domain.labels.values(),
+                                                                           variable.domain.labels.values())},
+                                             value=list(variable.domain.labels.values()), multi=True, )
 
-        elif variable.symbolic:
-            e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
-                                                 options={k:v for k,v in zip(variable.domain.labels.values(), variable.domain.labels.values())}, value=list(variable.domain.labels.values()), multi=True, )
+    if len(e_var) - 1 == cb.get("index"):
+        return c.add_selector_to_div(model,e_var, e_in, "dd_e", cb.get("index")+1)
 
-        if len(e_var) - 1 == cb.get("index"):
-            e_var.append(
-                dcc.Dropdown(id={'type': 'dd_e',
- 'index': cb.get("index") + 1}, options=sorted(model.varnames)))
-            e_in.append(dcc.Dropdown(id={'type': 'i_e', 'index': cb.get("index") + 1}, disabled=True))
-        return e_var, e_in
-    return e_var, e_in
+
+    return c.update_free_vars_in_div(model, e_var), e_in
+
 
 @app.callback(
     Output('q_variable', 'children'),
@@ -138,7 +117,6 @@ def evid_gen(dd_vals, e_var, e_in):
     Output('e_input', 'children'),
 
     Output('text_l', 'children'),
-
 
     Input({'type': 'dd_q', 'index': ALL}, 'value'),
     Input({'type': 'dd_e', 'index': ALL}, 'value'),
@@ -154,13 +132,13 @@ def query_router(q_dd, e_dd, q_var, q_in, e_var, e_in):
     print(cb)
     if cb.get("type") == "dd_q":
         q_var_n, q_in_n = query_gen(q_dd, q_var, q_in)
-        return q_var_n, q_in_n, e_var, e_in, create_prefix_text(len_fac_q=len(q_var), len_fac_e=len(e_var))
+        print(q_var_n, q_in_n)
+        return q_var_n, q_in_n, e_var, e_in, c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var))
     elif cb.get("type") == "dd_e":
         e_var_n, e_in_n = evid_gen(e_dd, e_var, e_in)
-        return q_var, q_in, e_var_n, e_in_n, create_prefix_text(len_fac_q=len(q_var), len_fac_e=len(e_var))
+        return q_var, q_in, e_var_n, e_in_n, c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var))
     else:
-        return q_var, q_in, e_var, e_in,  create_prefix_text(len_fac_q=len(q_var), len_fac_e=len(e_var))
-
+        return q_var, q_in, e_var, e_in, c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var))
 
 
 @app.callback(
@@ -173,34 +151,27 @@ def query_router(q_dd, e_dd, q_var, q_in, e_var, e_in):
     State({'type': 'i_e', 'index': ALL}, 'value'),
 )
 def infer(n1, q_var, q_in, e_var, e_in):
-    query_dict = {}
-    evidence_dict = {}
-    for i in range(0, len(q_var) - 1):
-        variable = model.varnames[q_var[i]]
-        if variable.numeric:
-            query_dict.update({q_var[i]: q_in[i]})
-        else:
-            query_dict.update({q_var[i]: set(q_in[i])})
-
-    for j in range(0, len(e_var) - 1):
-        variable = model.varnames[e_var[j]]
-        if variable.numeric:
-            evidence_dict.update({e_var[j]: e_in[j]})
-        else:
-            evidence_dict.update({e_var[j]: set(e_in[j])})
-
-    evidence = jpt.variables.VariableMap([(model.varnames[k], v) for k, v in evidence_dict.items()])
-    query = jpt.variables.VariableMap([(model.varnames[k], v) for k, v in query_dict.items()])
-    
+    query = c.div_to_variablemap(model, q_var, q_in)
+    evidence = c.div_to_variablemap(model, e_var, e_in)
+    print(f'qery:{query}, evi:{evidence}')
     try:
-        print(evidence, query)
         result = model.infer(query, evidence)
     except Exception as e:
         print(e)
         return "Unsatasfiable"
-
+    print(result)
     return "{}%".format(round(result.result * 100, 2))
 
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+#DUBILCA VERBIERTEN
+
+#1. VAR DUBLKICA VERBIERTEN + STYLE MPE ÄNDERN
+#1.5 UPLOAD JPT BAUM
+#2. Posterior RESULTS
+#3. MASKE DTAILS GUI
+#4. ERKLÄREN QUERY Button EXPLAN
+#5. MEHER SLIDER ODER IN MPE UND QUERY
+#6. https://observablehq.com/@d3/tree-of-life
