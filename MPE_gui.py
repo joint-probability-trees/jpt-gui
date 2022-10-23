@@ -8,8 +8,10 @@ from jpt.base.utils import list2interval
 import dash
 from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
+import base64
 import components as c
 global model
+import json
 model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 
 global priors
@@ -28,7 +30,11 @@ app = dash.Dash(__name__, prevent_initial_callbacks=True,
 app.layout = dbc.Container(
     [
         dbc.Row(
-            dbc.Col(html.H1("Most Probable Explanation", className='text-center mb-4'), width=12)
+            [
+            dbc.Col(html.H1("Most Probable Explanation", className='text-center mb-4'), width=12),
+            dbc.Col(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className="position-absolute top-0 end-0"),
+                                   id="upload_tree"))
+            ]
         ),
         dbc.Row(
             [
@@ -70,18 +76,37 @@ app.layout = dbc.Container(
     Output('e_variable', 'children'),
     Output('e_input', 'children'),
     Output('text_l', 'children'),
-
+    Output('q_variable', 'children'),
+    Input("upload_tree", 'contents'),
     Input({'type': 'dd_e', 'index': ALL}, 'value'),
     State('e_variable', 'children'),
     State('e_input', 'children'),
+    State('q_variable', 'children')
 )
-def evid_gen(dd_vals, e_var, e_in):
+def evid_gen(upload, dd_vals, e_var, e_in, q_var):
     e_var: list[dict] = e_var
     e_in: list[dict] = e_in
     cb = ctx.triggered_id
-    if (cb.get("type") == "dd_e"):
+    if cb == "upload_tree" and upload is not None:
+        global model
+        global priors
+        try:
+            content_type, content_string = upload.split(',')
+            decoded = base64.b64decode(content_string)
+            io_model = jpt.JPT.from_json(json.loads(decoded))
+        except Exception as e:
+            print("ModelLaden hat net geklappt!")
+            print(e)
+            return e_var, e_in, c.create_prefix_text_mpe(len(e_var)), q_var
+        e_var_n, e_in_n = c.reset_gui(io_model, "e")
+        model = io_model
+        priors = model.independent_marginals()
+        q_var_n = dcc.Dropdown(id="text_var", options=sorted(model.varnames), value=sorted(model.varnames),
+                                         multi=True, disabled=True)
+        return e_var_n, e_in_n, c.create_prefix_text_mpe(len(e_var_n)), q_var_n
+    elif cb.get("type") == "dd_e":
         if dd_vals[cb.get("index")] is None:
-            return c.del_selector_from_div(model, e_var, e_in), c.create_prefix_text_mpe(len(e_var))
+            return c.del_selector_from_div(model, e_var, e_in), c.create_prefix_text_mpe(4), q_var
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
@@ -101,9 +126,9 @@ def evid_gen(dd_vals, e_var, e_in):
         if len(e_var) - 1 == cb.get("index"):
             test1, test2 = c.add_selector_to_div(model, e_var, e_in, "dd_e", cb.get("index")+1)
             print(test1, test2)
-            return test1, test2, c.create_prefix_text_mpe(len(e_var))
+            return test1, test2, c.create_prefix_text_mpe(len(e_var)), q_var
 
-    return c.update_free_vars_in_div(model, e_var), e_in, c.create_prefix_text_mpe(len(e_var))
+    return c.update_free_vars_in_div(model, e_var), e_in, c.create_prefix_text_mpe(len(e_var)), q_var
 
 
 @app.callback(
@@ -144,6 +169,7 @@ def erg_controller(n1, n2, n3, e_var, e_in):
                 evidence_dict.update({variable: set(e_in[j])})
         try:
             result = model.mpe(evidence=jpt.variables.VariableMap(evidence_dict.items()))
+            print(result[0].maximum)
 
         except Exception as e:
             print("Error was", type(e), e)

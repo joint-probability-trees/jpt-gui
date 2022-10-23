@@ -1,3 +1,5 @@
+import base64
+
 import jpt
 import igraph
 from igraph import Graph, EdgeSeq
@@ -7,6 +9,7 @@ from jpt.base.utils import list2interval
 import dash
 from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
+import json
 import components as c
 
 
@@ -24,7 +27,10 @@ app = dash.Dash(__name__, prevent_initial_callbacks=True,
 app.layout = dbc.Container(
     [
         dbc.Row(
-            dbc.Col(html.H1("Query", className='text-center mb-4'), width=12)
+            [
+                dbc.Col(html.H1("Query", className='text-center mb-4'), width=12),
+                dbc.Col(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className="position-absolute top-0 end-0"), id="upload_tree"))
+            ]
         ),
         dbc.Row(
             [
@@ -118,6 +124,8 @@ def evid_gen(dd_vals, e_var, e_in):
 
     Output('text_l', 'children'),
 
+    Input("upload_tree", "contents"),
+
     Input({'type': 'dd_q', 'index': ALL}, 'value'),
     Input({'type': 'dd_e', 'index': ALL}, 'value'),
 
@@ -127,10 +135,28 @@ def evid_gen(dd_vals, e_var, e_in):
     State('e_variable', 'children'),
     State('e_input', 'children'),
 )
-def query_router(q_dd, e_dd, q_var, q_in, e_var, e_in):
+def query_router(upload, q_dd, e_dd, q_var, q_in, e_var, e_in):
     cb = ctx.triggered_id
     print(cb)
-    if cb.get("type") == "dd_q":
+    if cb == "upload_tree" and upload is not None:
+            global model
+            global priors
+            try:
+                content_type, content_string = upload.split(',')
+                decoded = base64.b64decode(content_string)
+                io_model = jpt.JPT.from_json(json.loads(decoded))
+            except Exception as e:
+                print("ModelLaden hat net geklappt!")
+                print(e)
+                return q_var, q_in, e_var, e_in, c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var))
+
+            q_var_n, q_in_n = c.reset_gui(io_model, "q")
+            e_var_n, e_in_n = c.reset_gui(io_model, "e")
+            model = io_model
+            priors = model.independent_marginals()
+            return q_var_n, q_in_n, e_var_n, e_in_n, c.create_prefix_text_query(len_fac_q=2,
+                                                                                len_fac_e=2)
+    elif cb.get("type") == "dd_q":
         q_var_n, q_in_n = query_gen(q_dd, q_var, q_in)
         print(q_var_n, q_in_n)
         return q_var_n, q_in_n, e_var, e_in, c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var))

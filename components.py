@@ -77,7 +77,7 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: list[jpt.trees.MPEResult]) -> l
             return_div += [html.Div(
                 [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True),
                  dcc.Dropdown(
-                     options={k: v for k, v in zip(variable.domain.labels.keys(), variable.domain.labels.values())},
+                     options=list(restriction),
                      value=list(restriction), multi=True, disabled=True, className="ps-3")],
                 style={"display": "grid", "grid-template-columns": "30% 70%"})]
         return_div += [html.Div(className="pt-1")]
@@ -113,9 +113,9 @@ def create_prefix_text_mpe(len_fac):
     """
     return [
         html.Div("argmax ", className="pe-3",
-                 style={"width": "30%", 'fontSize': len_fac * 10 if len_fac * 10 < 30 else 30}),
+                 style={'padding-top': 0, 'fontSize': len_fac * 10 if len_fac * 10 < 40 else 40}),
         html.Div("P ", className="ps-3",
-                 style={"width": "30%", "height": "100%", 'fontSize': len_fac * 15 if len_fac * 15 < 75 else 75}),
+                 style={'padding-top': 0, "height": "100%", 'fontSize': len_fac * 15 if len_fac * 15 < 75 else 75}),
     ]
 
 
@@ -190,3 +190,9 @@ def add_selector_to_div(model: jpt.trees.JPT, variable_div, constrains_div, type
                      options=variable_list[0]['props']['options'][1:]))
     constrains_list.append(dcc.Dropdown(id={'type': type, 'index': index}, disabled=True))
     return variable_list, constrains_list
+
+def reset_gui(model: jpt.trees.JPT, type: str):
+
+    var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
+    in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
+    return var_div, in_div
