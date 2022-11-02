@@ -15,7 +15,7 @@ import components as c
 
 
 global model
-model: jpt.trees.JPT = jpt.JPT.load('test.datei')
+model = jpt.trees.JPT.load("test.datei")
 
 global priors
 priors = model.independent_marginals()
@@ -83,8 +83,6 @@ def query_gen(dd_vals, q_var, q_in):
 
     if len(q_var) - 1 == cb.get("index"):
         return c.add_selector_to_div(model, q_var, q_in, 'dd_q', cb.get("index")+1)
-
-
     return c.update_free_vars_in_div(model, q_var), q_in
 
 
@@ -198,6 +196,6 @@ if __name__ == '__main__':
 #1.5 UPLOAD JPT BAUM
 #2. Posterior RESULTS
 #3. MASKE DTAILS GUI
-#4. ERKLÄREN QUERY Button EXPLAN
-#5. MEHER SLIDER ODER IN MPE UND QUERY
-#6. https://observablehq.com/@d3/tree-of-life
+#4. MEHER SLIDER ODER IN MPE UND QUERY
+#5. https://observablehq.com/@d3/tree-of-life
+#6. ERKLÄREN QUERY Button EXPLAN

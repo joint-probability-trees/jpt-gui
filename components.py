@@ -1,5 +1,6 @@
 import math
 from dash import dcc, html
+import plotly.graph_objects as go
 import jpt.variables
 import jpt.base.intervals
 from typing import List
@@ -41,7 +42,7 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: list, constrains: list) 
     var_dict = {}
     print(f'vars:{variables}  , cons{constrains}')
     for i in range(0, len(variables) - 1):
-        if variables[i] is None: #TODOO WIESO HAT DAS NULLS
+        if variables[i] is None:  # TODOO WIESO HAT DAS NULLS
             break
         variable = model.varnames[variables[i]]
         if variable.numeric:
@@ -83,9 +84,9 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: list[jpt.trees.MPEResult]) -> l
         return_div += [html.Div(className="pt-1")]
 
     return_div = [html.Div([dcc.Dropdown(options=["Likelihood"], value="Likelihood", disabled=True,
-                                          className="margin10"),
-                             dcc.Dropdown(options=[res.result],value=res.result, disabled=True, className="ps-3 pb-2")],
-                            id="likelihood", style={"display": "grid", "grid-template-columns": "30% 70%"})] + return_div
+                                         className="margin10"),
+                            dcc.Dropdown(options=[res.result], value=res.result, disabled=True, className="ps-3 pb-2")],
+                           id="likelihood", style={"display": "grid", "grid-template-columns": "30% 70%"})] + return_div
 
     return return_div
 
@@ -191,8 +192,112 @@ def add_selector_to_div(model: jpt.trees.JPT, variable_div, constrains_div, type
     constrains_list.append(dcc.Dropdown(id={'type': type, 'index': index}, disabled=True))
     return variable_list, constrains_list
 
-def reset_gui(model: jpt.trees.JPT, type: str):
 
+def reset_gui(model: jpt.trees.JPT, type: str):
     var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
     in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
     return var_div, in_div
+
+
+# Postierior---
+
+def plot_symbolic_distribution(distribution: jpt.distributions.univariate.Multinomial):
+    trace = go.Bar(x=list(distribution.labels.keys()), y=distribution._params)  # anstatt keys könnte values sein
+    return trace
+
+
+def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1):
+    x = []
+    y = []
+    for interval, function in zip(distribution.pdf.intervals[1:-1], distribution.pdf.functions[1:-1]):
+        x += [interval.lower, interval.upper, interval.upper]
+        y += [function.value, function.value, None]
+
+    range = x[-1] - x[0]
+    x = [x[0] - (range * padding), x[0], x[0]] + x + [x[-1], x[-1], x[-1] + (range * padding)]
+    y = [0, 0, None] + y + [None, 0, 0]
+    trace = go.Scatter(x=x, y=y, name="PDF")
+    return trace
+
+
+def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1):
+    x = []
+    y = []
+
+    for interval, function in zip(distribution.cdf.intervals[1:], distribution.cdf.functions[1:]):
+        x += [interval.lower]
+        y += [function.eval(interval.lower)]
+
+    range = x[-1] - x[0]
+    if range == 0:
+        range = 1
+
+    x = [x[0] - (range * padding), x[0]] + x + [x[-1] + (range * padding)]
+    y = [0, 0] + y + [1]
+    trace = go.Scatter(x=x, y=y, name="CDF")
+    return trace
+
+
+def plot_numeric_to_div(var_name, result):
+    fig = go.Figure(layout=dict(title=f"Cumulative Density Function of {var_name}"))
+    t = plot_numeric_cdf(result[var_name])
+    fig.add_trace(t)
+    is_dirac = result[var_name].is_dirac_impulse()
+    if not is_dirac:
+        fig2 = go.Figure(layout=dict(title=f"Probability Density Function of {var_name}"))
+        t2 = plot_numeric_pdf(result[var_name])
+        fig2.add_trace(t2)
+
+    expectation = result[var_name].expectation()
+    max_, arg_max = result[var_name].mpe()
+
+    for interval in arg_max.intervals:
+        if interval.size() <= 1:
+            continue
+        fig.add_trace(go.Scatter(x=[interval.lower, interval.upper, interval.upper, interval.lower],
+                                 y=[0, 0, result[var_name].cdf.eval(interval.upper),
+                                    result[var_name].cdf.eval(interval.lower)],
+                                 fillcolor="LightSalmon",
+                                 opacity=0.5,
+                                 mode="lines",
+                                 fill="toself", line=dict(width=0),
+                                 name="Max"))
+        if not is_dirac:
+            fig2.add_trace(go.Scatter(x=[interval.lower, interval.upper, interval.upper, interval.lower],
+                                      y=[0, 0, max_, max_],
+                                      fillcolor="LightSalmon",
+                                      opacity=0.5,
+                                      mode="lines",
+                                      fill="toself", line=dict(width=0),
+                                      name="Max"))
+    fig.add_trace(go.Scatter(x=[expectation, expectation], y=[0, 1], name="Exp", mode="lines+markers",
+                             marker=dict(opacity=[0, 1])))
+    if is_dirac:
+        return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2")],className="pb-3")
+    else:
+        fig2.add_trace(go.Scatter(x=[expectation, expectation], y=[0, max_ * 1.1], name="Exp", mode="lines+markers",
+                                  marker=dict(opacity=[0, 1])))
+        return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2"), dcc.Graph(figure=fig2)],className="pb-3")
+
+
+def plot_symbolic_to_div(var_name, result):
+    max_, arg_max = result[var_name].mpe()
+    fig = go.Figure(layout=dict(title="Probability Distribution"))
+    # t = plot_symbolic_distribution(result[var_name])
+    # fig.add_trace(t)
+    # trace = go.Bar(x=list(distribution.labels.keys()), y=distribution._params)
+    lis_x_max = []
+    lis_y_max = []
+    lis_x = []
+    lis_y = []
+    for i in range(0, len(result[var_name].labels.keys())):
+        if result[var_name]._params[i] >= max_:
+            lis_x_max += [list(result[var_name].labels.keys())[i]]
+            lis_y_max += [result[var_name]._params[i]]
+        else:
+            lis_x += [list(result[var_name].labels.keys())[i]]
+            lis_y += [result[var_name]._params[i]]
+
+    fig.add_trace(go.Bar(x=lis_x_max, y=lis_y_max, name="PD", marker=dict(color="LightSalmon")))
+    fig.add_trace(go.Bar(x=lis_x, y=lis_y, name="Max", marker=dict(color="CornflowerBlue")))
+    return html.Div([dcc.Graph(figure=fig)], className="pb-3")
