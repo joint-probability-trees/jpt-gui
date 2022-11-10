@@ -123,7 +123,7 @@ def post_router(upload, dd_vals, e_var, e_in, q_var):
                                                  multi=True, )
 
         if len(e_var) - 1 == cb.get("index"):
-            return *c.add_selector_to_div(model, e_var, e_in, "dd_e", cb.get("index") + 1), \
+            return *c.add_selector_to_div(model, e_var, e_in, "e", cb.get("index") + 1), \
                    c.create_prefix_text_query(len(e_var), len(e_var)), q_var
 
     return c.update_free_vars_in_div(model, e_var), e_in, c.create_prefix_text_query(len(e_var), len(e_var)), q_var

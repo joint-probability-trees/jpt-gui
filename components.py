@@ -187,9 +187,9 @@ def add_selector_to_div(model: jpt.trees.JPT, variable_div, constrains_div, type
     variable_list = update_free_vars_in_div(model, variable_list)
 
     variable_list.append(
-        dcc.Dropdown(id={'type': type, 'index': index},
+        dcc.Dropdown(id={'type': f'dd_{type}', 'index': index},
                      options=variable_list[0]['props']['options'][1:]))
-    constrains_list.append(dcc.Dropdown(id={'type': type, 'index': index}, disabled=True))
+    constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True))
     return variable_list, constrains_list
 
 
@@ -298,6 +298,6 @@ def plot_symbolic_to_div(var_name, result):
             lis_x += [list(result[var_name].labels.keys())[i]]
             lis_y += [result[var_name]._params[i]]
 
-    fig.add_trace(go.Bar(x=lis_x_max, y=lis_y_max, name="PD", marker=dict(color="LightSalmon")))
-    fig.add_trace(go.Bar(x=lis_x, y=lis_y, name="Max", marker=dict(color="CornflowerBlue")))
+    fig.add_trace(go.Bar(x=lis_x_max, y=lis_y_max, name="Max", marker=dict(color="LightSalmon")))
+    fig.add_trace(go.Bar(x=lis_x, y=lis_y, name="Prob", marker=dict(color="CornflowerBlue")))
     return html.Div([dcc.Graph(figure=fig)], className="pb-3")

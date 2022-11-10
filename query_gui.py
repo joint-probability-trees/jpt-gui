@@ -82,7 +82,7 @@ def query_gen(dd_vals, q_var, q_in):
                                              multi=True, )  # list(variable.domain.labels.keys())
 
     if len(q_var) - 1 == cb.get("index"):
-        return c.add_selector_to_div(model, q_var, q_in, 'dd_q', cb.get("index")+1)
+        return c.add_selector_to_div(model, q_var, q_in, 'q', cb.get("index")+1)
     return c.update_free_vars_in_div(model, q_var), q_in
 
 
@@ -107,7 +107,7 @@ def evid_gen(dd_vals, e_var, e_in):
                                              value=list(variable.domain.labels.values()), multi=True, )
 
     if len(e_var) - 1 == cb.get("index"):
-        return c.add_selector_to_div(model,e_var, e_in, "dd_e", cb.get("index")+1)
+        return c.add_selector_to_div(model,e_var, e_in, "e", cb.get("index")+1)
 
 
     return c.update_free_vars_in_div(model, e_var), e_in
@@ -192,10 +192,11 @@ if __name__ == '__main__':
 
 #DUBILCA VERBIERTEN
 
-#1. VAR DUBLKICA VERBIERTEN + STYLE MPE ÄNDERN
-#1.5 UPLOAD JPT BAUM
 #2. Posterior RESULTS
 #3. MASKE DTAILS GUI
 #4. MEHER SLIDER ODER IN MPE UND QUERY
 #5. https://observablehq.com/@d3/tree-of-life
 #6. ERKLÄREN QUERY Button EXPLAN
+# PIP
+# JPT Update
+# Landing page

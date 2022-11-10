@@ -345,7 +345,7 @@ def query_value_selector(variable_name, n1, n2, n3, n4, num_val, sym_val):
         print('num')
         expectation = model.expectation([variable], {}, confidence_level=1.)
         print(expectation[variable])
-        if math.isnan(expectation[variable].lower):
+        if math.isnan(expectation[variable].lower):r(n_clicks,):
             return False, True, math.ceil(expectation[variable].upper), math.ceil(expectation[variable].upper)+1, [], figure
         elif math.isnan(expectation[variable].upper):
             return False, True, math.ceil(expectation[variable].lower), math.ceil(expectation[variable].lower)+1, [], figure
