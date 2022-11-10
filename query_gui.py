@@ -11,6 +11,7 @@ from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
 import json
 import components as c
+from typing import List
 
 
 
@@ -60,8 +61,8 @@ app.layout = dbc.Container(
 
 
 def query_gen(dd_vals, q_var, q_in):
-    q_var: list[dict] = q_var
-    q_in: list[dict] = q_in
+    q_var: List[dict] = q_var
+    q_in: List[dict] = q_in
 
     cb = ctx.triggered_id
     if dd_vals[cb.get("index")] is None:
@@ -87,8 +88,8 @@ def query_gen(dd_vals, q_var, q_in):
 
 
 def evid_gen(dd_vals, e_var, e_in):
-    e_var: list[dict] = e_var
-    e_in: list[dict] = e_in
+    e_var: List[dict] = e_var
+    e_in: List[dict] = e_in
     cb = ctx.triggered_id
     print(cb)
     if dd_vals[cb.get("index")] is None:

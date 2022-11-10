@@ -31,7 +31,7 @@ def real_set_to_rangeslider(realset: jpt.base.intervals.RealSet) -> dcc.RangeSli
     pass
 
 
-def div_to_variablemap(model: jpt.trees.JPT, variables: list, constrains: list) -> jpt.variables.VariableMap:
+def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) -> jpt.variables.VariableMap:
     """
     Transforms variable and Constrains List form the GUI to a VariableMap
     :param model: the JPT model of the Prob. Tree
@@ -52,7 +52,7 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: list, constrains: list) 
         return jpt.variables.VariableMap([(model.varnames[k], v) for k, v in var_dict.items()])
 
 
-def mpe_result_to_div(model: jpt.trees.JPT, res: list[jpt.trees.MPEResult]) -> list:
+def mpe_result_to_div(model: jpt.trees.JPT, res: List[jpt.trees.MPEResult]) -> List:
     """
         Generate Visuel Dash Representation for result of the mpe jpt func
     :param res: one of the Results from mpe func
@@ -91,7 +91,7 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: list[jpt.trees.MPEResult]) -> l
     return return_div
 
 
-def create_prefix_text_query(len_fac_q, len_fac_e) -> list:
+def create_prefix_text_query(len_fac_q: List, len_fac_e: int) -> List:
     """
     Creates Dash Style Prefix for the query GUI
     :param len_fac_q:  Length of Query input used for Scaling
@@ -102,11 +102,11 @@ def create_prefix_text_query(len_fac_q, len_fac_e) -> list:
         html.Div("P ", className="align-self-center text-end float-end",
                  style={"width": "50%", "height": "100%",
                         'fontSize': (len_fac_q if len_fac_q >= len_fac_e else len_fac_e) * 20,
-                        'padding-top': (len_fac_q * 1 if len_fac_q >= len_fac_e else len_fac_e) * 1}),
+                        'padding-top': (len_fac_q * 1 if len_fac_q >= len_fac_e else len_fac_e * 1)}),
     ]
 
 
-def create_prefix_text_mpe(len_fac):
+def create_prefix_text_mpe(len_fac: int) -> List:
     """
     Creates Dash Style Prefix for the MPE GUI
     :param len_fac: Length of Evidence input used for Scaling
@@ -120,7 +120,7 @@ def create_prefix_text_mpe(len_fac):
     ]
 
 
-def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: list):
+def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: List) -> List:
     variable_list = variable_div
     variables = []
     for v in variable_list:
@@ -130,7 +130,7 @@ def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: list):
     return generate_free_variables_from_list(model, variables)
 
 
-def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list):
+def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list: List) -> List:
     vars_free = model.varnames.copy()
     # return [v for v in model.varnames if v not in varaible_list]
     print(variable_list)
@@ -138,7 +138,7 @@ def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list):
     return list(vars_free.keys())
 
 
-def update_free_vars_in_div(model, variable_div):
+def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
     variable_list = variable_div
     vars_free = generate_free_variables_from_div(model, variable_list)
 
@@ -170,7 +170,7 @@ def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_d
     return new_var_list, constrains_list
 
 
-def add_selector_to_div(model: jpt.trees.JPT, variable_div, constrains_div, type: str,
+def add_selector_to_div(model: jpt.trees.JPT, variable_div: List, constrains_div: list, type: str,
                         index: int) \
         -> (List[dcc.Dropdown], List):
     """
@@ -193,7 +193,7 @@ def add_selector_to_div(model: jpt.trees.JPT, variable_div, constrains_div, type
     return variable_list, constrains_list
 
 
-def reset_gui(model: jpt.trees.JPT, type: str):
+def reset_gui(model: jpt.trees.JPT, type: str) -> (List, List):
     var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
     in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
     return var_div, in_div
@@ -201,12 +201,12 @@ def reset_gui(model: jpt.trees.JPT, type: str):
 
 # Postierior---
 
-def plot_symbolic_distribution(distribution: jpt.distributions.univariate.Multinomial):
+def plot_symbolic_distribution(distribution: jpt.distributions.univariate.Multinomial) -> go.Bar:
     trace = go.Bar(x=list(distribution.labels.keys()), y=distribution._params)  # anstatt keys könnte values sein
     return trace
 
 
-def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1):
+def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
     x = []
     y = []
     for interval, function in zip(distribution.pdf.intervals[1:-1], distribution.pdf.functions[1:-1]):
@@ -220,7 +220,7 @@ def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding
     return trace
 
 
-def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1):
+def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
     x = []
     y = []
 
@@ -238,7 +238,7 @@ def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding
     return trace
 
 
-def plot_numeric_to_div(var_name, result):
+def plot_numeric_to_div(var_name: List, result) -> List:
     fig = go.Figure(layout=dict(title=f"Cumulative Density Function of {var_name}"))
     t = plot_numeric_cdf(result[var_name])
     fig.add_trace(t)
@@ -280,7 +280,7 @@ def plot_numeric_to_div(var_name, result):
         return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2"), dcc.Graph(figure=fig2)],className="pb-3")
 
 
-def plot_symbolic_to_div(var_name, result):
+def plot_symbolic_to_div(var_name: str, result) -> List:
     max_, arg_max = result[var_name].mpe()
     fig = go.Figure(layout=dict(title="Probability Distribution"))
     # t = plot_symbolic_distribution(result[var_name])

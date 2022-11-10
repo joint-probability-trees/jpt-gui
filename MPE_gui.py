@@ -12,6 +12,8 @@ import base64
 import components as c
 global model
 import json
+from typing import List
+
 model: jpt.trees.JPT = jpt.JPT.load('test.datei')
 
 global priors
@@ -84,8 +86,8 @@ app.layout = dbc.Container(
     State('q_variable', 'children')
 )
 def evid_gen(upload, dd_vals, e_var, e_in, q_var):
-    e_var: list[dict] = e_var
-    e_in: list[dict] = e_in
+    e_var: List[dict] = e_var
+    e_in: List[dict] = e_in
     cb = ctx.triggered_id
     if cb == "upload_tree" and upload is not None:
         global model

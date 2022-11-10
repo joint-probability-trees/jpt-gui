@@ -13,6 +13,7 @@ from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
 import json
 import components as c
+from typing import List
 
 global model
 model = jpt.trees.JPT.load("test.datei")

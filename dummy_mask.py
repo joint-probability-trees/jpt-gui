@@ -180,8 +180,8 @@ def generate_modal_option(model, var, result, value):
     State('e_option', 'children')
 )
 def evid_gen(op_ab, op_sa, upload, dd_vals, b_e, e_var, e_in, e_op):
-    e_var: list[dict] = e_var
-    e_in: list[dict] = e_in
+    e_var: List[dict] = e_var
+    e_in: List[dict] = e_in
     cb = ctx.triggered_id
     if cb == "upload_tree" and upload is not None:
         global model
