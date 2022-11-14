@@ -25,6 +25,26 @@ global result
 global page
 page = 0
 
+global modal_var_index
+modal_var_index = -1
+
+#TEMP
+global modal_basic
+modal_basic = [
+        dbc.ModalHeader(dbc.ModalTitle('temp')),
+        dbc.ModalBody([
+            html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
+        ]),
+        dbc.ModalFooter(
+            [
+                dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
+                dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+            ]
+        ),
+    ],
+
+
+
 app = dash.Dash(__name__, prevent_initial_callbacks=True,
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}]
@@ -34,15 +54,17 @@ modal_option = dbc.Modal(
     [
         # #Chidlren? alles Generieren
         dbc.ModalHeader(dbc.ModalTitle('temp')),
-        dbc.ModalBody([]),
+        dbc.ModalBody([
+            html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
+        ]),
         dbc.ModalFooter(
             [
-            dbc.Button("Abort", id="option_abort", className="ms-auto", n_clicks=0),
-            dbc.Button("Save", id="option_save", className="ms-auto", n_clicks=0)
-                ]
+                dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
+                dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+            ]
         ),
     ],
-    id="modal_option", is_open=False,
+    id="modal_option", is_open=False, size="xl", backdrop="static"
 )
 app.layout = dbc.Container(
     [
@@ -63,19 +85,20 @@ app.layout = dbc.Container(
                         children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3,
                         className="d-grid gx-0 ps-2 "),
                 dbc.Col(children=[html.Div(id="e_option", children=[
-                    dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
+                    dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=False, n_clicks=0, className="me-2 mb-3",
                                size="sm")], className=" d-grid border-end border-secondary border-3 rounded-4")
-                ],
+                                  ],
                         width=1, className="d-grid gx-1 d-md-flex align-self-center"),
             ], className="justify-content-md-center"
         ),
-    ], fluid=True
+        modal_option,
+    ], fluid=True,
 )
 
 
-def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_div,option_div , type: str,
+def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_div, option_div, type: str,
                                index: int) \
-        -> (List[dcc.Dropdown], List):
+        -> (List[dcc.Dropdown], List, List):
     """
     :param model: the JPT model of the Prob. Tree
     :param variable_div: list of Components to Chose Variable in the GUI
@@ -94,8 +117,9 @@ def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_di
         dcc.Dropdown(id={'type': f'dd_{type}', 'index': index},
                      options=variable_list[0]['props']['options'][1:]))
     constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True))
-    option_list.append(dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=True, n_clicks=0, className="me-2 mb-3",
-                               size="sm"))
+    option_list.append(
+        dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=False, n_clicks=0, className="me-2 mb-3",
+                   size="sm"))
     return variable_list, constrains_list, option_list
 
 
@@ -103,10 +127,12 @@ def reset_gui_button(model: jpt.trees.JPT, type: str):
     var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
     in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
     op_div = [dbc.Button("O", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2",
-                               size="sm")]
+                         size="sm")]
     return var_div, in_div, op_div
 
-def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, constrains_div: List, option_div: List, del_index: int) \
+
+def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, constrains_div: List, option_div: List,
+                                 del_index: int) \
         -> (List, List):
     """
     Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
@@ -126,42 +152,50 @@ def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, const
     new_var_list = c.update_free_vars_in_div(model, variable_list)
     return new_var_list, constrains_list, option_list
 
-def correct_input(variable, value):
+
+def correct_input_div(variable, value):
     if variable.numeric:
         minimum = priors[variable].cdf.intervals[0].upper
         maximum = priors[variable].cdf.intervals[-1].lower
-        rang = c.create_range_slider(minimum, maximum,
-                              id={'type': 'i_e', 'index': 0},
-                              dots=False,
-                              value=value,
-                              tooltip={"placement": "bottom", "always_visible": False})
-        return html.Div([rang])
+        rang = c.create_range_slider(minimum, maximum, id={'type': 'op_i', 'index': 0}, value=value, dots=False, tooltip={"placement": "bottom", "always_visible": False})
+        return rang
     else:
-        return html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}, options=value, value=value)])
+        return dcc.Dropdown(id={'type': 'op_i', 'index': 0}, options=value, value=value)
 
-def generate_modal_option(model, var, result, value):
+
+def generate_modal_option(model, var, value):
     modal_layout = []
-    modal_layout += [dbc.ModalHeader(dbc.ModalTitle(var))]
+    modal_layout.append(dbc.ModalHeader(dbc.ModalTitle(var)))
     variable = model.varnames[var]
+    result = model.posterior(evidence={})
+    print(f"value= {value}")
 
     body = dbc.ModalBody([
-        dbc.Row([#Grapicen
+        dbc.Row([  # Grapicen
             dbc.Col([
                 c.plot_numeric_to_div(var, result) if variable.numeric else c.plot_symbolic_to_div(var, result)
             ], width=12),
         ]),
         dbc.Row([
-            dbc.Col([#Inputs
-                correct_input(variable, value),
-                dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)
-            ], width=6, className="d-grid gx-0 ps-2")
+            dbc.Col([  # Inputs
+                html.Div(correct_input_div(variable, value), id="mod_in"),
+                #html.Div([dcc.RangeSlider(id={'type': 'op_i', 'index': 0}, min=0, max=10, value=[2, 6], dots=False, tooltip={"placement": "bottom", "always_visible": False})], id="mod_in"),
+            ], width=6, className="d-grid ps-2")
         ]),
+        dbc.Row([
+            dbc.Col([
+                dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)
+            ], width=6, className="d-grid ps2")
         ])
-    foot = dbc.ModalFooter([
-        dbc.Button("Abort", id="option_abort", className="ms-auto", n_clicks=0),
-        dbc.Button("Save", id="option_save", className="ms-auto", n_clicks=0)
     ])
 
+    foot = dbc.ModalFooter(children=[
+        dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
+        dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+    ])
+    modal_layout.append(body)
+    modal_layout.append(foot)
+    return modal_layout
 
 
 @app.callback(
@@ -170,16 +204,18 @@ def generate_modal_option(model, var, result, value):
     Output('e_option', 'children'),
     Output('modal_option', 'children'),
     Output('modal_option', 'is_open'),
-    Input('option_abort', 'n_clicks'),
-    Input('option_save', 'n_clicks'),
     Input("upload_tree", 'contents'),
     Input({'type': 'dd_e', 'index': ALL}, 'value'),
     Input({'type': 'b_e', 'index': ALL}, 'n_clicks'),
+    Input({'type': 'option_save', 'index': ALL}, 'n_clicks'),
+    Input({'type': 'option_abort', 'index': ALL}, 'n_clicks'),
     State('e_variable', 'children'),
     State('e_input', 'children'),
-    State('e_option', 'children')
+    State('e_option', 'children'),
+    State({'type': 'op_i', 'index': ALL}, 'value'),
 )
-def evid_gen(op_ab, op_sa, upload, dd_vals, b_e, e_var, e_in, e_op):
+def evid_gen(upload, dd_vals, b_e, op_s, op_a, e_var, e_in, e_op, op_i):
+    global modal_basic
     e_var: List[dict] = e_var
     e_in: List[dict] = e_in
     cb = ctx.triggered_id
@@ -193,20 +229,21 @@ def evid_gen(op_ab, op_sa, upload, dd_vals, b_e, e_var, e_in, e_op):
         except Exception as e:
             print("ModelLaden hat net geklappt!")
             print(e)
-            return e_var, e_in, e_op, [], False
+            return e_var, e_in, e_op, modal_basic, False
         e_var_n, e_in_n, e_op_n = reset_gui_button(io_model, "e")
         model = io_model
         priors = model.independent_marginals()
-        return e_var_n, e_in_n, e_op_n, [], False
+        return e_var_n, e_in_n, e_op_n, modal_basic, False
     elif cb.get("type") == "dd_e":
         if dd_vals[cb.get("index")] is None:
-            return del_selector_from_div_button(model, e_var, e_in, e_op, cb.get("index")), [], False
+            return *del_selector_from_div_button(model, e_var, e_in, e_op, cb.get("index")), [], False
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
             minimum = priors[variable].cdf.intervals[0].upper
             maximum = priors[variable].cdf.intervals[-1].lower
             e_in[cb.get("index")] = c.create_range_slider(minimum, maximum,
                                                           id={'type': 'i_e', 'index': cb.get("index")},
+                                                          value=[minimum, maximum],
                                                           dots=False,
                                                           tooltip={"placement": "bottom", "always_visible": False})
 
@@ -218,14 +255,63 @@ def evid_gen(op_ab, op_sa, upload, dd_vals, b_e, e_var, e_in, e_op):
                                                  multi=True, )
 
         if len(e_var) - 1 == cb.get("index"):
-            return add_selector_to_div_button(model, e_var, e_in, e_op, "e", cb.get("index") + 1), [], False
-    elif cb.get("type") == "b_e":
-        modal_body = generate_modal_option(model=model,var=e_var[cb.get("index")], result=result, value=e_in[cb.get("index")])
-    elif cb == "option_save":
-        pass
-    #"option_abort kann als Default gewertet werden, da es keinen Inpakt hat."
+            return *add_selector_to_div_button(model, e_var, e_in, e_op, "e", cb.get("index") + 1), [], False
+    elif cb.get("type") == "b_e" and dd_vals[cb.get("index")] != []:
+        # Dont Like dont know to do it other wise
+        global modal_var_index
+        modal_var_index = cb.get("index")
+        modal_body = generate_modal_option(model=model, var=e_var[cb.get("index")]['props']['value'],
+                                           value=e_in[cb.get("index")]['props']['drag_value'])
+        return e_var, e_in, e_op, modal_body, True
+    elif cb.get("type") == "option_save":
+        new_vals = []
+        sor_val = sorted(op_i, key=lambda x: x[0])
+        temp = []
+        for i in range(0,len(sor_val)-1):
+            if temp == []:
+                if sor_val[i][1] > sor_val[i + 1][0]:
+                    temp = [sor_val[i][1], sor_val[i+1][1] if sor_val[i+1][1] >= sor_val[i][1] else sor_val[i][1]]
+                else:
+                    new_vals.append(sor_val[i])
+            else:
+                if temp[1] > sor_val[i+1][0]:
+                    temp[1] = temp[1] if temp[1] > sor_val[i+1][1] else sor_val[i+1][1]
+                else:
+                    new_vals.append(temp)
+                    temp = []
+
+        e_in[modal_var_index]['props']['value'] = new_vals
+        e_in[modal_var_index]['props']['drag_value'] = new_vals
+        return e_var, e_in, e_op, [], False
+    # "option_abort kann als Default gewertet werden, da es keinen Inpakt hat."
     return c.update_free_vars_in_div(model, e_var), e_in, e_op, [], False
+
+
+@app.callback(
+    Output("mod_in", "children"),
+    Input("op_add", "n_clicks"),
+    State("mod_in", "children"),
+)
+def modal_router(op, m_in):
+    if not isinstance(m_in, list):
+        m_in_new = [m_in]
+    else:
+        m_in_new = m_in
+    index = m_in_new[0]['props']['id']['index']
+    type = m_in_new[0]['type']
+    if type == "RangeSlider":
+        min = m_in_new[0]['props']['min']
+        max = m_in_new[0]['props']['max']
+        m_in_new.append(c.create_range_slider(minimum=min, maximum=max, id=dict(type="op_i", index=index+1),
+                                              value=[min, max], dots=False,
+                                              tooltip={"placement": "bottom", "always_visible": False}))
+    print(m_in_new)
+    print("-----")
+    return m_in_new
 
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+#CSS SLIDER
+#Logik für Combenieren

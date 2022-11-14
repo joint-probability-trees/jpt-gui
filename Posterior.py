@@ -105,7 +105,7 @@ def post_router(upload, dd_vals, e_var, e_in, q_var):
         return e_var_n, e_in_n, c.create_prefix_text_query(len(e_var), len(e_var)), [q_var_n]
     elif cb.get("type") == "dd_e":
         if dd_vals[cb.get("index")] is None:
-            return c.del_selector_from_div(model, e_var, e_in), c.create_prefix_text_query(4, 4), q_var
+            return *c.del_selector_from_div(model, e_var, e_in, cb.get("index")), c.create_prefix_text_query(len(e_var), len(e_var)), q_var
 
         variable = model.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
@@ -159,6 +159,8 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
             return vals[page], plot_post(vals, page), False, False
         else:
             return vals[page], plot_post(vals, page), False, True
+    elif vals == []:
+        return [], [], True, True
     else:
         page = 0
         evidence_dict = c.div_to_variablemap(model, e_var, e_in)
@@ -168,7 +170,7 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
         except Exception as e:
             print("Error was", type(e), e)
             return "", [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True
-        if len(vals) >= 1:
+        if len(vals) > 1:
             return vals[page], plot_post(vals, page), True, False
         else:
             return vals[page], plot_post(vals, page), True, True

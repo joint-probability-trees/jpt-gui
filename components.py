@@ -149,6 +149,10 @@ def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
 
     return variable_list
 
+def reduce_index(index, number, list):
+    for i in range(index, len(list)):
+        list[i]['props']['id']['index'] -= number
+    return list
 
 def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_div: List, del_index: int) \
         -> (List, List):
@@ -163,8 +167,14 @@ def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_d
     variable_list = variable_div
     constrains_list = constrains_div
 
+    variable_list = reduce_index(del_index, 1, variable_list)
+    constrains_list = reduce_index(del_index, 1, constrains_list)
+
     variable_list.pop(del_index)
     constrains_list.pop(del_index)
+
+
+
 
     new_var_list = update_free_vars_in_div(model, variable_list)
     return new_var_list, constrains_list

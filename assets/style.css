@@ -41,3 +41,11 @@
  background-color: rgb(144, 144, 168);
   border: 0px;
 }
+
+#e_input .rc-slider-track[class$='2'],
+#e_input .rc-slider-track[class$='4'],
+#e_input .rc-slider-track[class$='6'],
+#e_input .rc-slider-track[class$='8'],
+#e_input.rc-slider-track[class$='0'] {
+  background-color: rgb(194, 194, 192);
+}
