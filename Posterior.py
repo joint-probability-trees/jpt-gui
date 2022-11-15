@@ -164,7 +164,12 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
     else:
         page = 0
         evidence_dict = c.div_to_variablemap(model, e_var, e_in)
+        print("lkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+        print(e_var)
+        print(evidence_dict)
+        print(e_in)
         try:
+            print(evidence_dict)
             result = model.posterior(evidence=evidence_dict)
             print("RESULT", result.distributions)
         except Exception as e:

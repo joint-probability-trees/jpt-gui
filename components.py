@@ -41,15 +41,16 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) 
     """
     var_dict = {}
     print(f'vars:{variables}  , cons{constrains}')
-    for i in range(0, len(variables) - 1):
-        if variables[i] is None:  # TODOO WIESO HAT DAS NULLS
-            break
-        variable = model.varnames[variables[i]]
-        if variable.numeric:
-            var_dict.update({variables[i]: constrains[i]})
+    for variable, constrain in zip(variables, constrains):
+        if variable is None or constrain is None:  # TODOO WIESO HAT DAS NULLS
+            continue
+
+        if model.varnames[variable].numeric:
+            var_dict[variable] = jpt.base.intervals.ContinuousSet(constrain[0], constrain[1])
         else:
-            var_dict.update({variables[i]: set(constrains[i])})
-        return jpt.variables.VariableMap([(model.varnames[k], v) for k, v in var_dict.items()])
+            var_dict[variable] = set(constrain)
+
+    return jpt.variables.VariableMap([(model.varnames[k], v) for k, v in var_dict.items()])
 
 
 def mpe_result_to_div(model: jpt.trees.JPT, res: List[jpt.trees.MPEResult]) -> List:
