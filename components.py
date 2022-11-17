@@ -5,6 +5,8 @@ import jpt.variables
 import jpt.base.intervals
 from typing import List
 
+default_tree = jpt.JPT.load('msft.jpt')
+
 
 def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
         dcc.RangeSlider:
@@ -25,10 +27,6 @@ def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
     slider = dcc.RangeSlider(**kwargs, min=math.floor(minimum), max=math.ceil(maximum), allowCross=False)
 
     return slider
-
-
-def real_set_to_rangeslider(realset: jpt.base.intervals.RealSet) -> dcc.RangeSlider:
-    pass
 
 
 def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) -> jpt.variables.VariableMap:
@@ -92,7 +90,7 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: List[jpt.trees.MPEResult]) -> L
     return return_div
 
 
-def create_prefix_text_query(len_fac_q: List, len_fac_e: int) -> List:
+def create_prefix_text_query(len_fac_q: int, len_fac_e: int) -> List:
     """
     Creates Dash Style Prefix for the query GUI
     :param len_fac_q:  Length of Query input used for Scaling
@@ -121,25 +119,40 @@ def create_prefix_text_mpe(len_fac: int) -> List:
     ]
 
 
-def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: List) -> List:
+def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: List) -> List[str]:
+    """
+    Peels the names out of variable_div elements and uses generate_free_variables_from_list for the Return
+    :param model: the JPT model of the Prob. Tree
+    :param variable_div: List of all Variabels that are being Used, in Dash Dropdown Class saved
+    :return: Returns List of String from the Names of all not used Variabels.
+    """
     variable_list = variable_div
     variables = []
     for v in variable_list:
         if len(v['props']) > 2:
-            print(v)
             variables += [v['props']['value']]
     return generate_free_variables_from_list(model, variables)
 
 
-def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list: List) -> List:
+def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list: List[str]) -> List[str]:
+    """
+    Deletes all used Variable Names out of a List of all Variables Names.
+    :param model: the JPT model of the Prob. Tree
+    :param variable_list: the List of in use Variable Names
+    :return: List of Variable Names that are not in use
+    """
     vars_free = model.varnames.copy()
-    # return [v for v in model.varnames if v not in varaible_list]
-    print(variable_list)
     for v in variable_list: vars_free.pop(v)
     return list(vars_free.keys())
 
 
 def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
+    """
+    Updates the Variable Options for a Dash Dropdown for choosing Variables, to all not in use Variables.
+    :param model: the JPT model of the Prob. Tree
+    :param variable_div: the Div to update the Options
+    :return: the Div withe updated variable Options
+    """
     variable_list = variable_div
     vars_free = generate_free_variables_from_div(model, variable_list)
 
@@ -150,7 +163,14 @@ def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
 
     return variable_list
 
-def reduce_index(index, number, list):
+def reduce_index(index, number, list) -> List:
+    """
+    Reduces the index in id from index in the list about the amount number
+    :param index: the start index to decrease the index
+    :param number: the amount to decrease
+    :param list: the List from Dash Components that should be decreased
+    :return: list with the decreased index implemented
+    """
     for i in range(index, len(list)):
         list[i]['props']['id']['index'] -= number
     return list
@@ -173,9 +193,6 @@ def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_d
 
     variable_list.pop(del_index)
     constrains_list.pop(del_index)
-
-
-
 
     new_var_list = update_free_vars_in_div(model, variable_list)
     return new_var_list, constrains_list
@@ -213,11 +230,22 @@ def reset_gui(model: jpt.trees.JPT, type: str) -> (List, List):
 # Postierior---
 
 def plot_symbolic_distribution(distribution: jpt.distributions.univariate.Multinomial) -> go.Bar:
+    """
+    generates a Bar graph for symbolic distribution in jpt.
+    :param distribution: the Distribution for the Bar Diagram
+    :return: the trace of a Bar Diagram for the symbolic variable.
+    """
     trace = go.Bar(x=list(distribution.labels.keys()), y=distribution._params)  # anstatt keys könnte values sein
     return trace
 
 
 def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
+    """
+    generates a jpt plot from a numeric variable
+    :param distribution: the Distribution of the variable for the Plot
+    :param padding: for the ends of the Plot, it is for visibility.
+    :return: scatter plot for the numeric variable
+    """
     x = []
     y = []
     for interval, function in zip(distribution.pdf.intervals[1:-1], distribution.pdf.functions[1:-1]):
@@ -232,6 +260,12 @@ def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding
 
 
 def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
+    """
+    generates a cdf plot from a numeric variable
+    :param distribution: the Distribution of the variable for the Plot
+    :param padding: for the ends of the Plot, it is for visibility.
+    :return: scatter plot for the numeric variable
+    """
     x = []
     y = []
 
@@ -250,6 +284,12 @@ def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding
 
 
 def plot_numeric_to_div(var_name: List, result) -> List:
+    """
+    Generates a Div where both plots are in for a numeric variable
+    :param var_name: the name of variable that will be plotted
+    :param result: the result generate from jpt.
+    :return: one div withe 2 Plots in.
+    """
     fig = go.Figure(layout=dict(title=f"Cumulative Density Function of {var_name}"))
     t = plot_numeric_cdf(result[var_name])
     fig.add_trace(t)
@@ -292,11 +332,14 @@ def plot_numeric_to_div(var_name: List, result) -> List:
 
 
 def plot_symbolic_to_div(var_name: str, result) -> List:
+    """
+    generates a div where a bar Diagram for a Symbolic Variable.
+    :param var_name: the name of the variable
+    :param result: the result generate from jpt
+    :return: a div withe one bar diagram in it.
+    """
     max_, arg_max = result[var_name].mpe()
     fig = go.Figure(layout=dict(title="Probability Distribution"))
-    # t = plot_symbolic_distribution(result[var_name])
-    # fig.add_trace(t)
-    # trace = go.Bar(x=list(distribution.labels.keys()), y=distribution._params)
     lis_x_max = []
     lis_y_max = []
     lis_x = []

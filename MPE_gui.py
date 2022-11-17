@@ -14,7 +14,7 @@ global model
 import json
 from typing import List
 
-model: jpt.trees.JPT = jpt.JPT.load('test.datei')
+model: jpt.trees.JPT = c.default_tree
 
 global priors
 priors = model.independent_marginals()
@@ -86,6 +86,15 @@ app.layout = dbc.Container(
     State('q_variable', 'children')
 )
 def evid_gen(upload, dd_vals, e_var, e_in, q_var):
+    """
+    Receives app.callback events and manages these to the correct
+    :param upload: Path to the new jpt Tree as a File
+    :param dd_vals: All Varietals used in Evidence Section are chosen
+    :param e_var: the Dropdown of variable of Evidence Section
+    :param e_in: the Input for the Variables of Evidence Section
+    :param q_var: the Dropdown of variable of Query Section
+    :return: Updatet Varibel List and the Input.
+    """
     e_var: List[dict] = e_var
     e_in: List[dict] = e_in
     cb = ctx.triggered_id
@@ -144,6 +153,15 @@ def evid_gen(upload, dd_vals, e_var, e_in, q_var):
     State({'type': 'i_e', 'index': ALL}, 'value'),
 )
 def erg_controller(n1, n2, n3, e_var, e_in):
+    """
+    Manages the MPE Reulst and the Switch if possible between Results
+    :param n1: event for generating Result
+    :param n2: the Previous Result
+    :param n3: the Next Result
+    :param e_var: the Dropdown of variable of Evidence Section
+    :param e_in: the Input for the Variables of Evidence Section
+    :return: Div of the Result and if Previous or Next Result exists
+    """
     global result
     global page
     cb = ctx.triggered_id
@@ -176,6 +194,11 @@ def erg_controller(n1, n2, n3, e_var, e_in):
 
 
 def mpe(res):
+    """
+    Generates the Result from Res of a Variable
+    :param res:  Results of a specific Variable
+    :return: Div around the generated mpe Result of the Variable
+    """
     return c.mpe_result_to_div(model, res)
 
 

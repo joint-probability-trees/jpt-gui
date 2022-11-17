@@ -16,7 +16,7 @@ import components as c
 from typing import List
 
 global model
-model = jpt.trees.JPT.load("test.datei")
+model = c.default_tree
 global priors
 priors = model.independent_marginals()
 global result
@@ -85,6 +85,15 @@ app.layout = dbc.Container(
     State('q_variable', 'children')
 )
 def post_router(upload, dd_vals, e_var, e_in, q_var):
+    """
+     Receives app.callback events and manages these to the correct
+    :param upload: Path to the new jpt Tree as a File
+    :param dd_vals: All Varietals used in Evidence Section are chosen
+   :param e_var: the Dropdown of variable of Evidence Section
+    :param e_in: the Input for the Variables of Evidence Section
+    :param q_var: the Dropdown of variable of Query Section
+    :return: returns evidence variable, evidence Input, text prefix, query Variable
+    """
     cb = ctx.triggered_id
     if cb == "upload_tree" and upload is not None:
         global model
@@ -143,6 +152,16 @@ def post_router(upload, dd_vals, e_var, e_in, q_var):
     State('q_variable', 'children'),
 )
 def erg_controller(n1, n2, n3, e_var, e_in, q_var):
+    """
+    Conntroller for the Results and the Displays
+    :param n1: event for generating Result
+    :param n2: the Previous Result
+    :param n3: the Next Result
+    :param e_var: the Dropdown of variable of Evidence Section
+    :param e_in: the Input for the Variables of Evidence Section
+    :param q_var: the Dropdown of variable of Query Section
+    :return: Returns the Name of The Variabel, the plot of the Variable, if there is a pre or post result
+    """
     global result
     global page
     vals = q_var[0]['props']['value']
@@ -164,10 +183,6 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
     else:
         page = 0
         evidence_dict = c.div_to_variablemap(model, e_var, e_in)
-        print("lkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-        print(e_var)
-        print(evidence_dict)
-        print(e_in)
         try:
             print(evidence_dict)
             result = model.posterior(evidence=evidence_dict)
@@ -182,7 +197,13 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
 
 
 
-def plot_post(vars, n):
+def plot_post(vars: List, n: int):
+    """
+    Generates the Plots for a Varibel in Vars postion n
+    :param vars: List of Variabel
+    :param n: Postion of the Choosen Variabel
+    :return:  Plot
+    """
     var_name = vars[n]
     variable = model.varnames[var_name]
     if variable.numeric:

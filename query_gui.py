@@ -16,7 +16,7 @@ from typing import List
 
 
 global model
-model = jpt.trees.JPT.load("test.datei")
+model = c.default_tree
 
 global priors
 priors = model.independent_marginals()
@@ -60,7 +60,14 @@ app.layout = dbc.Container(
 )
 
 
-def query_gen(dd_vals, q_var, q_in):
+def query_gen(dd_vals: List, q_var: List, q_in: List):
+    """
+    Handel all action in the Query Part of the GUI (Extend Change Reduce)
+    :param dd_vals: All Varietals used in Query Section are chosen
+    :param q_var: the Dropdown of variable of Query Section
+    :param q_in: the Input for the Variables of Query Section
+    :return: Updatet Varibel List and the Input.
+    """
     q_var: List[dict] = q_var
     q_in: List[dict] = q_in
 
@@ -88,6 +95,13 @@ def query_gen(dd_vals, q_var, q_in):
 
 
 def evid_gen(dd_vals, e_var, e_in):
+    """
+    Handel all action in the Evidence Part of the GUI (Extend Change Reduce)
+    :param dd_vals: All Varietals used in Evidence Section are chosen
+    :param e_var: the Dropdown of variable of Evidence Section
+    :param e_in: the Input for the Variables of Evidence Section
+    :return: Updatet Varibel List and the Input.
+    """
     e_var: List[dict] = e_var
     e_in: List[dict] = e_in
     cb = ctx.triggered_id
@@ -106,11 +120,8 @@ def evid_gen(dd_vals, e_var, e_in):
                                              options={k: v for k, v in zip(variable.domain.labels.values(),
                                                                            variable.domain.labels.values())},
                                              value=list(variable.domain.labels.values()), multi=True, )
-
     if len(e_var) - 1 == cb.get("index"):
         return c.add_selector_to_div(model,e_var, e_in, "e", cb.get("index")+1)
-
-
     return c.update_free_vars_in_div(model, e_var), e_in
 
 
@@ -135,6 +146,17 @@ def evid_gen(dd_vals, e_var, e_in):
     State('e_input', 'children'),
 )
 def query_router(upload, q_dd, e_dd, q_var, q_in, e_var, e_in):
+    """
+    Receives app.callback events and manages/redirects these to the correct functions.
+    :param upload: Path to the new jpt Tree as a File
+    :param q_dd: Query Varibels Names
+    :param e_dd: Evidence Variable Names
+    :param q_var: Div of the Query Variable
+    :param q_in: Div or the Input of Query
+    :param e_var: Div of the Evidence Variable
+    :param e_in: Div or the Input of Evidence
+    :return: Query Varibels, Query Input, Evidence Variable, Evidence Input, Text Prefix.
+    """
     cb = ctx.triggered_id
     print(cb)
     if cb == "upload_tree" and upload is not None:
@@ -176,6 +198,15 @@ def query_router(upload, q_dd, e_dd, q_var, q_in, e_var, e_in):
     State({'type': 'i_e', 'index': ALL}, 'value'),
 )
 def infer(n1, q_var, q_in, e_var, e_in):
+    """
+    Calculates withe Jpt the Probilty of query and evidence
+    :param n1: Button to trigger the Calculation
+    :param q_var: Div of the Query Variable
+    :param q_in: Div or the Input of Query
+    :param e_var: Div of the Evidence Variable
+    :param e_in: Div or the Input of Evidence
+    :return: Probability as String
+    """
     query = c.div_to_variablemap(model, q_var, q_in)
     evidence = c.div_to_variablemap(model, e_var, e_in)
     print(f'qery:{query}, evi:{evidence}')
