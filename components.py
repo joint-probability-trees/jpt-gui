@@ -3,9 +3,89 @@ from dash import dcc, html
 import plotly.graph_objects as go
 import jpt.variables
 import jpt.base.intervals
+import dash_bootstrap_components as dbc
 from typing import List
 
 default_tree = jpt.JPT.load('msft.jpt')
+
+#---MODAL_EYE____
+modal_basic = [
+        dbc.ModalHeader(dbc.ModalTitle('temp')),
+        dbc.ModalBody([
+            html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
+        ]),
+        dbc.ModalFooter(
+            [
+                dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
+                dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+            ]
+        ),
+    ]
+
+modal_option = dbc.Modal(
+    [
+        # #Chidlren? alles Generieren
+        dbc.ModalHeader(dbc.ModalTitle('temp')),
+        dbc.ModalBody([
+            html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
+        ]),
+        dbc.ModalFooter(
+            [
+                dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
+                dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+            ]
+        ),
+    ],
+    id="modal_option", is_open=False, size="xl", backdrop="static")
+
+#---/MODAL-EYE---
+#--- MODAL-FUNC ---
+def correct_input_div(variable, value, priors):
+    if variable.numeric:
+        minimum = priors[variable].cdf.intervals[0].upper
+        maximum = priors[variable].cdf.intervals[-1].lower
+        rang = create_range_slider(minimum, maximum, id={'type': 'op_i', 'index': 0}, value=value, dots=False, tooltip={"placement": "bottom", "always_visible": False})
+        return rang
+    else:
+        return dcc.Dropdown(id={'type': 'op_i', 'index': 0}, options=value, value=value)
+
+
+def generate_modal_option(model, var, value, priors):
+    modal_layout = []
+    modal_layout.append(dbc.ModalHeader(dbc.ModalTitle(var)))
+    variable = model.varnames[var]
+    result = model.posterior(evidence={})
+    print(f"value= {value}")
+
+    body = dbc.ModalBody([
+        dbc.Row([  # Grapicen
+            dbc.Col([
+                plot_numeric_to_div(var, result) if variable.numeric else plot_symbolic_to_div(var, result)
+            ], width=12),
+        ]),
+        dbc.Row([
+            dbc.Col([  # Inputs
+                html.Div(correct_input_div(variable, value, priors=priors), id="mod_in"),
+                #html.Div([dcc.RangeSlider(id={'type': 'op_i', 'index': 0}, min=0, max=10, value=[2, 6], dots=False, tooltip={"placement": "bottom", "always_visible": False})], id="mod_in"),
+            ], width=6, className="d-grid ps-2")
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)
+            ], width=6, className="d-grid ps2")
+        ])
+    ])
+
+    foot = dbc.ModalFooter(children=[
+        dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
+        dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+    ])
+    modal_layout.append(body)
+    modal_layout.append(foot)
+    return modal_layout
+
+
+#--- /MODAL_FUNC ---
 
 
 def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
@@ -27,6 +107,25 @@ def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
     slider = dcc.RangeSlider(**kwargs, min=math.floor(minimum), max=math.ceil(maximum), allowCross=False)
 
     return slider
+
+def fuse_overlapping_range(ranges: List) -> List:
+    new_vals = []
+    new_list = []
+    sor_val = sorted(ranges, key=lambda x: x[0])
+    while sor_val != []:
+        if len(sor_val) > 1 and sor_val[0][1] >= sor_val[1][0]:
+            if sor_val[0][1] >= sor_val[1][1]:
+                sor_val.pop(1)
+            else:
+                sor_val[0] = [sor_val[0][0], sor_val[1][1]]
+                sor_val.pop(1)
+        else:
+            new_vals.append(sor_val[0][0])
+            new_vals.append(sor_val[0][1])
+
+            new_list.append(sor_val[0])
+            sor_val.pop(0)
+    return new_vals
 
 
 def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) -> jpt.variables.VariableMap:
@@ -219,6 +318,69 @@ def add_selector_to_div(model: jpt.trees.JPT, variable_div: List, constrains_div
                      options=variable_list[0]['props']['options'][1:]))
     constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True))
     return variable_list, constrains_list
+
+#--- Button Func ---
+def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_div, option_div, type: str,
+                               index: int) \
+        -> (List[dcc.Dropdown], List, List):
+    """
+    :param model: the JPT model of the Prob. Tree
+    :param variable_div: list of Components to Chose Variable in the GUI
+    :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
+    :param type: the Type of the Component for the ID
+    :param index: the index Number of the Component for the ID
+    :return: Variable Children and Constrains Children for the GUI withe one more Row
+    """
+    variable_list = variable_div
+    constrains_list = constrains_div
+    option_list = option_div
+
+    variable_list = update_free_vars_in_div(model, variable_list)
+    option_list[-1]['props']['disabled'] = False
+
+    variable_list.append(
+        dcc.Dropdown(id={'type': f'dd_{type}', 'index': index},
+                     options=variable_list[0]['props']['options'][1:]))
+    constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True))
+    option_list.append(
+        dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=True, n_clicks=0, className="me-2 mb-3",
+                   size="sm"))
+    return variable_list, constrains_list, option_list
+
+
+def reset_gui_button(model: jpt.trees.JPT, type: str):
+    var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
+    in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
+    op_div = [dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2",
+                         size="sm")]
+    return var_div, in_div, op_div
+
+
+def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, constrains_div: List, option_div: List,
+                                 del_index: int) \
+        -> (List, List):
+    """
+    Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
+    :param model: the JPT model of the Prob. Tree
+    :param variable_div: list of Components to Chose Variable in the GUI
+    :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
+    :param del_index: the Value on what Position the to delete Row is.
+    :return: Variable Children and Constrains Children for the GUI withe Update options
+    """
+    variable_list = variable_div
+    constrains_list = constrains_div
+    option_list = option_div
+
+    variable_list.pop(del_index)
+    constrains_list.pop(del_index)
+    option_list.pop(del_index)
+    new_var_list = update_free_vars_in_div(model, variable_list)
+    option_list[-1]['props']['disabled'] = True
+    return new_var_list, constrains_list, option_list
+
+
+#--- Button Func ---
+
 
 
 def reset_gui(model: jpt.trees.JPT, type: str) -> (List, List):

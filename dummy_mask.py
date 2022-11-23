@@ -15,7 +15,7 @@ from typing import List
 global model
 import json
 
-model: jpt.trees.JPT = jpt.JPT.load('test.datei')
+model: jpt.trees.JPT = c.default_tree
 
 global priors
 priors = model.independent_marginals()
@@ -41,7 +41,7 @@ modal_basic = [
                 dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
             ]
         ),
-    ],
+    ]
 
 
 
@@ -85,7 +85,7 @@ app.layout = dbc.Container(
                         children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3,
                         className="d-grid gx-0 ps-2 "),
                 dbc.Col(children=[html.Div(id="e_option", children=[
-                    dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=False, n_clicks=0, className="me-2 mb-3",
+                    dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
                                size="sm")], className=" d-grid border-end border-secondary border-3 rounded-4")
                                   ],
                         width=1, className="d-grid gx-1 d-md-flex align-self-center"),
@@ -112,13 +112,14 @@ def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_di
     option_list = option_div
 
     variable_list = c.update_free_vars_in_div(model, variable_list)
+    option_list[-1]['props']['disabled'] = False
 
     variable_list.append(
         dcc.Dropdown(id={'type': f'dd_{type}', 'index': index},
                      options=variable_list[0]['props']['options'][1:]))
     constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True))
     option_list.append(
-        dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=False, n_clicks=0, className="me-2 mb-3",
+        dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=True, n_clicks=0, className="me-2 mb-3",
                    size="sm"))
     return variable_list, constrains_list, option_list
 
@@ -126,7 +127,7 @@ def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_di
 def reset_gui_button(model: jpt.trees.JPT, type: str):
     var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
     in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
-    op_div = [dbc.Button("O", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2",
+    op_div = [dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2",
                          size="sm")]
     return var_div, in_div, op_div
 
@@ -150,6 +151,7 @@ def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, const
     constrains_list.pop(del_index)
     option_list.pop(del_index)
     new_var_list = c.update_free_vars_in_div(model, variable_list)
+    option_list[-1]['props']['disabled'] = True
     return new_var_list, constrains_list, option_list
 
 
@@ -265,20 +267,21 @@ def evid_gen(upload, dd_vals, b_e, op_s, op_a, e_var, e_in, e_op, op_i):
         return e_var, e_in, e_op, modal_body, True
     elif cb.get("type") == "option_save":
         new_vals = []
+        #new_list = []
         sor_val = sorted(op_i, key=lambda x: x[0])
-        temp = []
-        for i in range(0,len(sor_val)-1):
-            if temp == []:
-                if sor_val[i][1] > sor_val[i + 1][0]:
-                    temp = [sor_val[i][1], sor_val[i+1][1] if sor_val[i+1][1] >= sor_val[i][1] else sor_val[i][1]]
+        while sor_val != []:
+            if len(sor_val) > 1 and sor_val[0][1] >= sor_val[1][0]:
+                if sor_val[0][1] >= sor_val[1][1]:
+                    sor_val.pop(1)
                 else:
-                    new_vals.append(sor_val[i])
+                    sor_val[0] = [sor_val[0][0], sor_val[1][1]]
+                    sor_val.pop(1)
             else:
-                if temp[1] > sor_val[i+1][0]:
-                    temp[1] = temp[1] if temp[1] > sor_val[i+1][1] else sor_val[i+1][1]
-                else:
-                    new_vals.append(temp)
-                    temp = []
+                new_vals.append(sor_val[0][0])
+                new_vals.append(sor_val[0][1])
+
+                #new_list.append(sor_val[0])
+                sor_val.pop(0)
 
         e_in[modal_var_index]['props']['value'] = new_vals
         e_in[modal_var_index]['props']['drag_value'] = new_vals

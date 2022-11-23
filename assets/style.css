@@ -49,3 +49,10 @@
 #e_input.rc-slider-track[class$='0'] {
   background-color: rgb(194, 194, 192);
 }
+#q_input .rc-slider-track[class$='2'],
+#q_input .rc-slider-track[class$='4'],
+#q_input .rc-slider-track[class$='6'],
+#q_input .rc-slider-track[class$='8'],
+#q_input.rc-slider-track[class$='0'] {
+  background-color: rgb(194, 194, 192);
+}
