@@ -102,14 +102,13 @@ app.layout = dbc.Container(
     Input({'type': 'dd_e', 'index': ALL}, 'value'),
     Input({'type': 'b_e', 'index': ALL}, 'n_clicks'),
     Input({'type': 'option_save', 'index': ALL}, 'n_clicks'),
-    Input({'type': 'option_abort', 'index': ALL}, 'n_clicks'),
     State('e_variable', 'children'),
     State('e_input', 'children'),
     State('q_variable', 'children'),
     State('e_option', 'children'),
     State({'type': 'op_i', 'index': ALL}, 'value'),
 )
-def evid_gen(upload, dd_vals, b_e, op_s, op_a, e_var, e_in, q_var, e_op, op_i):
+def evid_gen(upload, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     """
     Receives appCallback events and manages these to the correct
     :param upload: Path to the new jpt Tree as a File
@@ -165,36 +164,69 @@ def evid_gen(upload, dd_vals, b_e, op_s, op_a, e_var, e_in, q_var, e_op, op_i):
         global modal_var_index
         modal_var_index = cb.get("index")
         modal_body = c.generate_modal_option(model=model, var=e_var[cb.get("index")]['props']['value'],
-                                           value=e_in[cb.get("index")]['props']['drag_value'], priors=priors)
+                                             value=e_in[cb.get("index")]['props'].get('value',
+                                                                                      [e_in[cb.get("index")]['props'][
+                                                                                           'min'],
+                                                                                       e_in[cb.get("index")]['props'][
+                                                                                           'max']]), priors=priors)
         return e_var, e_in, e_op, c.create_prefix_text_mpe(len(e_var)), q_var, modal_body, True
     elif cb.get("type") == "option_save":
         new_vals = c.fuse_overlapping_range(op_i)
         e_in[modal_var_index]['props']['value'] = new_vals
-        e_in[modal_var_index]['props']['drag_value'] = new_vals
         return e_var, e_in, e_op, c.create_prefix_text_mpe(len(e_var)), q_var, modal_basic, False
 
     return c.update_free_vars_in_div(model, e_var), e_in, e_op, c.create_prefix_text_mpe(len(e_var)), \
            q_var, modal_basic, False
 
+
 @app.callback(
-    Output("mod_in", "children"),
+    Output("modal_input", "children"),
     Input("op_add", "n_clicks"),
-    State("mod_in", "children"),
+    Input({'type': 'op_i', 'index': ALL}, 'value'),
+    State("modal_input", "children"),
+    State({'type': 'dd_e', 'index': ALL}, 'value'),
 )
-def modal_router(op, m_in):
-    if not isinstance(m_in, list):
-        m_in_new = [m_in]
+def modal_router(op, op_i, m_bod, dd):
+    cb = ctx.triggered_id
+    global modal_var_index
+    var = dd[modal_var_index]
+    if not isinstance(m_bod, list):
+        m_in_new = [m_bod]
     else:
-        m_in_new = m_in
-    index = m_in_new[0]['props']['id']['index']
-    type = m_in_new[0]['type']
-    if type == "RangeSlider":
-        min = m_in_new[0]['props']['min']
-        max = m_in_new[0]['props']['max']
-        m_in_new.append(c.create_range_slider(minimum=min, maximum=max, id=dict(type="op_i", index=index+1),
-                                              value=[min, max], dots=False,
-                                              tooltip={"placement": "bottom", "always_visible": False}))
-    return m_in_new
+        m_in_new = m_bod
+    if cb == "op_add":
+        index = m_in_new[-2]['props']['children'][0]['props']['children'][1]['props']['id']['index']
+        type = m_in_new[1]['props']['children'][0]['props']['children'][1]['type']
+        if type == "RangeSlider":
+
+            mini = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['min']
+            maxi = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['max']
+            range_string = html.Div(f"Range {index + 2}",
+                                    style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            n_slider = c.create_range_slider(minimum=mini, maximum=maxi,id={'type': 'op_i', 'index': index + 1},
+                                             value=[mini, maxi], dots=False,
+                                             tooltip={"placement": "bottom", "always_visible": False},
+                                             className="flex-fill")
+            var_map = c.div_to_variablemap(model, [var], [[mini, maxi]])
+            prob = model.infer(var_map, {})
+
+            prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            m_in_new.insert(len(m_in_new) - 1, dbc.Row([
+                html.Div([range_string, n_slider, prob_div], id=f"modal_color_{(index + 1) % (len(c.color_list_modal)-1)}", className="d-flex flex-nowrap justify-content-center ps-2")
+            ],className="d-flex justify-content-center"))
+            return m_in_new
+        else:
+            # Sollte nicht Triggerbar sein, da bei DDMenu der +Buttone nicht Aktiv ist
+            return m_in_new
+    else:  # if cb.get("type") == "op_i"
+        id = cb.get("index")
+        value = m_in_new[id + 1]['props']['children'][0]['props']['children'][1]['props']['value']
+        var_map = c.div_to_variablemap(model, [var], [value])
+        prob = model.infer(var_map, {})
+        prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[id % (len(c.color_list_modal)-1)]))
+        m_in_new[id + 1]['props']['children'][0]['props']['children'][2] = prob_div
+        return m_in_new
+
 
 
 

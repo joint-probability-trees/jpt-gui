@@ -8,43 +8,56 @@ from typing import List
 
 default_tree = jpt.JPT.load('msft.jpt')
 
-#---MODAL_EYE____
+color_list_modal = ["#ccff66", "MediumSeaGreen", "Tomato", "SlateBlue", "Violet"]
+
+# ---MODAL_EYE____
 modal_basic = [
-        dbc.ModalHeader(dbc.ModalTitle('temp')),
-        dbc.ModalBody([
-            html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
-        ]),
-        dbc.ModalFooter(
-            [
-                dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
-                dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
-            ]
-        ),
-    ]
+    dbc.ModalHeader(dbc.ModalTitle('temp')),
+    dbc.ModalBody([
+        html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
+    ]),
+    dbc.ModalFooter(
+        [
+            dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+        ]
+    ),
+]
 
 modal_option = dbc.Modal(
     [
         # #Chidlren? alles Generieren
-        dbc.ModalHeader(dbc.ModalTitle('temp')),
+        dbc.ModalHeader(dbc.ModalTitle('temp'), id="mod_header"),
         dbc.ModalBody([
-            html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
-        ]),
-        dbc.ModalFooter(
-            [
-                dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
-                dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
-            ]
-        ),
-    ],
-    id="modal_option", is_open=False, size="xl", backdrop="static")
 
-#---/MODAL-EYE---
-#--- MODAL-FUNC ---
-def correct_input_div(variable, value, priors):
+            dbc.Row(id="modal_input", children=[
+                dbc.Col([], id="{'type': 'op_i', 'index': 0}",
+                        className="d-flex flex-nowrap justify-content-center ps-2")
+            ], className="d-flex justify-content-center"),
+            dbc.Row([
+                dbc.Col([
+                    dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0,
+                               disabled=True)
+                ], width=6, className="d-grid ps2")
+            ]),
+            dbc.ModalFooter(
+                [
+                    dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+                ]
+            ),
+        ],)
+    ],
+    id="modal_option", is_open=False, size="xl", backdrop="static"
+)
+
+
+# ---/MODAL-EYE---
+# --- MODAL-FUNC ---
+def correct_input_div(variable, value, priors, **kwargs):
     if variable.numeric:
         minimum = priors[variable].cdf.intervals[0].upper
         maximum = priors[variable].cdf.intervals[-1].lower
-        rang = create_range_slider(minimum, maximum, id={'type': 'op_i', 'index': 0}, value=value, dots=False, tooltip={"placement": "bottom", "always_visible": False})
+        rang = create_range_slider(minimum, maximum, id={'type': 'op_i', 'index': 0}, value=value, dots=False,
+                                   tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
         return rang
     else:
         return dcc.Dropdown(id={'type': 'op_i', 'index': 0}, options=value, value=value)
@@ -55,29 +68,31 @@ def generate_modal_option(model, var, value, priors):
     modal_layout.append(dbc.ModalHeader(dbc.ModalTitle(var)))
     variable = model.varnames[var]
     result = model.posterior(evidence={})
-    print(f"value= {value}")
+    map = div_to_variablemap(model, [var], [value])
+    probs = model.infer(map, {})
 
-    body = dbc.ModalBody([
+    body = dbc.ModalBody(id="modal_input", children=[
         dbc.Row([  # Grapicen
             dbc.Col([
                 plot_numeric_to_div(var, result) if variable.numeric else plot_symbolic_to_div(var, result)
             ], width=12),
         ]),
-        dbc.Row([
-            dbc.Col([  # Inputs
-                html.Div(correct_input_div(variable, value, priors=priors), id="mod_in"),
-                #html.Div([dcc.RangeSlider(id={'type': 'op_i', 'index': 0}, min=0, max=10, value=[2, 6], dots=False, tooltip={"placement": "bottom", "always_visible": False})], id="mod_in"),
-            ], width=6, className="d-grid ps-2")
-        ]),
+        dbc.Row(children=[
+            html.Div([  # Inputs
+                html.Div("Range 1" if variable.numeric else "Dropmenu", style=dict(color=color_list_modal[0])),
+                correct_input_div(variable, value, priors=priors, className="flex-fill"),
+                html.Div(f"{probs}", style=dict(color=color_list_modal[0])),
+            ], id="modal_color_0", className="d-flex flex-nowrap justify-content-center ps-2")
+        ],className="d-flex justify-content-center"),
         dbc.Row([
             dbc.Col([
-                dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)
+                dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0,
+                           disabled=True if variable.symbolic else False)
             ], width=6, className="d-grid ps2")
         ])
     ])
 
     foot = dbc.ModalFooter(children=[
-        dbc.Button("Abort", id=dict(type="option_abort", index=0), className="ms-auto", n_clicks=0),
         dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
     ])
     modal_layout.append(body)
@@ -85,7 +100,7 @@ def generate_modal_option(model, var, value, priors):
     return modal_layout
 
 
-#--- /MODAL_FUNC ---
+# --- /MODAL_FUNC ---
 
 
 def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
@@ -107,6 +122,7 @@ def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
     slider = dcc.RangeSlider(**kwargs, min=math.floor(minimum), max=math.ceil(maximum), allowCross=False)
 
     return slider
+
 
 def fuse_overlapping_range(ranges: List) -> List:
     new_vals = []
@@ -139,7 +155,7 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) 
     var_dict = {}
     print(f'vars:{variables}  , cons{constrains}')
     for variable, constrain in zip(variables, constrains):
-        if variable is None or constrain is None:  # TODOO WIESO HAT DAS NULLS
+        if variable is None or constrain is None:
             continue
 
         if model.varnames[variable].numeric:
@@ -262,6 +278,7 @@ def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
 
     return variable_list
 
+
 def reduce_index(index, number, list) -> List:
     """
     Reduces the index in id from index in the list about the amount number
@@ -273,6 +290,7 @@ def reduce_index(index, number, list) -> List:
     for i in range(index, len(list)):
         list[i]['props']['id']['index'] -= number
     return list
+
 
 def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_div: List, del_index: int) \
         -> (List, List):
@@ -319,7 +337,8 @@ def add_selector_to_div(model: jpt.trees.JPT, variable_div: List, constrains_div
     constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True))
     return variable_list, constrains_list
 
-#--- Button Func ---
+
+# --- Button Func ---
 def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_div, option_div, type: str,
                                index: int) \
         -> (List[dcc.Dropdown], List, List):
@@ -379,8 +398,7 @@ def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, const
     return new_var_list, constrains_list, option_list
 
 
-#--- Button Func ---
-
+# --- Button Func ---
 
 
 def reset_gui(model: jpt.trees.JPT, type: str) -> (List, List):
@@ -486,11 +504,11 @@ def plot_numeric_to_div(var_name: List, result) -> List:
     fig.add_trace(go.Scatter(x=[expectation, expectation], y=[0, 1], name="Exp", mode="lines+markers",
                              marker=dict(opacity=[0, 1])))
     if is_dirac:
-        return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2")],className="pb-3")
+        return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2")], className="pb-3")
     else:
         fig2.add_trace(go.Scatter(x=[expectation, expectation], y=[0, max_ * 1.1], name="Exp", mode="lines+markers",
                                   marker=dict(opacity=[0, 1])))
-        return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2"), dcc.Graph(figure=fig2)],className="pb-3")
+        return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2"), dcc.Graph(figure=fig2)], className="pb-3")
 
 
 def plot_symbolic_to_div(var_name: str, result) -> List:

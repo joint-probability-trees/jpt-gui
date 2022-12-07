@@ -160,7 +160,6 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     Input({'type': 'b_q', 'index': ALL}, 'n_clicks'),
     Input({'type': 'b_e', 'index': ALL}, 'n_clicks'),
     Input({'type': 'option_save', 'index': ALL}, 'n_clicks'),
-    Input({'type': 'option_abort', 'index': ALL}, 'n_clicks'),
     State('q_variable', 'children'),
     State('q_input', 'children'),
     State('e_variable', 'children'),
@@ -169,7 +168,7 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     State('e_option', 'children'),
     State({'type': 'op_i', 'index': ALL}, 'value'),
 )
-def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, op_a, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
+def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
     """
     Receives app callback events and manages/redirects these to the correct functions.
     :param upload: Path to the new jpt Tree as a File
@@ -214,16 +213,23 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, op_a, q_var, q_in, e_var, e
 
         modal_var_index = cb.get("index")
         modal_type = 1
+        #Wenn kein Value exestiert wird min max genommen
         modal_body = c.generate_modal_option(model=model, var=e_var[cb.get("index")]['props']['value'],
-                                             value=e_in[cb.get("index")]['props']['drag_value'], priors=priors)
+                                             value=e_in[cb.get("index")]['props']
+                                             .get('value', [e_in[cb.get("index")]['props']['min'],
+                                                           e_in[cb.get("index")]['props']['max']]),
+                                             priors=priors)
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
     elif cb.get("type") == "b_q" and q_dd[cb.get("index")] != []:
 
         modal_var_index = cb.get("index")
         modal_type = 0
+
+
         modal_body = c.generate_modal_option(model=model, var=q_var[cb.get("index")]['props']['value'],
-                                             value=q_in[cb.get("index")]['props']['drag_value'], priors=priors)
+                                             value=q_in[cb.get("index")]['props'].get('value',
+                                                                                      [q_in[cb.get("index")]['props']['min'], q_in[cb.get("index")]['props']['max']]), priors=priors)
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
     elif cb.get("type") == "option_save":
@@ -244,24 +250,55 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, op_a, q_var, q_in, e_var, e
 
 
 @app.callback(
-    Output("mod_in", "children"),
+    Output("modal_input", "children"),
     Input("op_add", "n_clicks"),
-    State("mod_in", "children"),
+    Input({'type': 'op_i', 'index': ALL}, 'value'),
+    State("modal_input", "children"),
+    State({'type': 'dd_e', 'index': ALL}, 'value'),
+    State({'type': 'dd_q', 'index': ALL}, 'value'),
 )
-def modal_router(op, m_in):
-    if not isinstance(m_in, list):
-        m_in_new = [m_in]
+def modal_router(op, op_i, m_bod, dd_e, dd_q):
+    cb = ctx.triggered_id
+    global modal_var_index
+    global modal_type
+    dd = dd_e if modal_type == 1 else dd_q
+    var = dd[modal_var_index]
+    if not isinstance(m_bod, list):
+        m_in_new = [m_bod]
     else:
-        m_in_new = m_in
-    index = m_in_new[0]['props']['id']['index']
-    type = m_in_new[0]['type']
-    if type == "RangeSlider":
-        min = m_in_new[0]['props']['min']
-        max = m_in_new[0]['props']['max']
-        m_in_new.append(c.create_range_slider(minimum=min, maximum=max, id=dict(type="op_i", index=index + 1),
-                                              value=[min, max], dots=False,
-                                              tooltip={"placement": "bottom", "always_visible": False}))
-    return m_in_new
+        m_in_new = m_bod
+    if cb == "op_add":
+        index = m_in_new[-2]['props']['children'][0]['props']['children'][1]['props']['id']['index']
+        type = m_in_new[1]['props']['children'][0]['props']['children'][1]['type']
+        if type == "RangeSlider":
+
+            mini = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['min']
+            maxi = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['max']
+            range_string = html.Div(f"Range {index + 2}",
+                                    style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            n_slider = c.create_range_slider(minimum=mini, maximum=maxi,id={'type': 'op_i', 'index': index + 1},
+                                             value=[mini, maxi], dots=False,
+                                             tooltip={"placement": "bottom", "always_visible": False},
+                                             className="flex-fill")
+            var_map = c.div_to_variablemap(model, [var], [[mini, maxi]])
+            prob = model.infer(var_map, {})
+
+            prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            m_in_new.insert(len(m_in_new) - 1, dbc.Row([
+                html.Div([range_string, n_slider, prob_div], id=f"modal_color_{(index + 1) % (len(c.color_list_modal)-1)}", className="d-flex flex-nowrap justify-content-center ps-2")
+            ],className="d-flex justify-content-center"))
+            return m_in_new
+        else:
+            # Sollte nicht Triggerbar sein, da bei DDMenu der +Buttone nicht Aktiv ist
+            return m_in_new
+    else:  # if cb.get("type") == "op_i"
+        id = cb.get("index")
+        value = m_in_new[id + 1]['props']['children'][0]['props']['children'][1]['props']['value']
+        var_map = c.div_to_variablemap(model, [var], [value])
+        prob = model.infer(var_map, {})
+        prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[id % (len(c.color_list_modal)-1)]))
+        m_in_new[id + 1]['props']['children'][0]['props']['children'][2] = prob_div
+        return m_in_new
 
 
 @app.callback(
@@ -285,9 +322,10 @@ def infer(n1, q_var, q_in, e_var, e_in):
     """
     query = c.div_to_variablemap(model, q_var, q_in)
     evidence = c.div_to_variablemap(model, e_var, e_in)
-    print(f'qery:{query}, evi:{evidence}')
+    print(f'query:{query}, evi:{evidence}')
     try:
         result = model.infer(query, evidence)
+
     except Exception as e:
         print(e)
         return "Unsatasfiable"

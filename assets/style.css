@@ -53,6 +53,27 @@
 #q_input .rc-slider-track[class$='4'],
 #q_input .rc-slider-track[class$='6'],
 #q_input .rc-slider-track[class$='8'],
-#q_input.rc-slider-track[class$='0'] {
+#q_input .rc-slider-track[class$='0'] {
   background-color: rgb(194, 194, 192);
+}
+
+
+#modal_color_0 .rc-slider-track{
+  background-color: #ccff66;
+}
+
+#modal_color_1 .rc-slider-track{
+  background-color: MediumSeaGreen;
+}
+
+#modal_color_2 .rc-slider-track{
+  background-color: Tomato;
+}
+
+#modal_color_3 .rc-slider-track{
+  background-color: SlateBlue;
+}
+
+#modal_color_4 .rc-slider-track{
+  background-color: Violet;
 }
