@@ -53,6 +53,14 @@ modal_option = dbc.Modal(
 # ---/MODAL-EYE---
 # --- MODAL-FUNC ---
 def correct_input_div(variable, value, priors, **kwargs):
+    '''
+    Generate a Dash Componant for the Varibael, that can be used in the zoom Modal
+    :param variable: The Variabel wich is be displayed
+    :param value:  The Value of the Variable chosen from the User
+    :param priors: the Priors of the modael
+    :param kwargs: further specifation for the Dash Componant
+    :return: a Dash Componant that displays the variable
+    '''
     if variable.numeric:
         minimum = priors[variable].cdf.intervals[0].upper
         maximum = priors[variable].cdf.intervals[-1].lower
@@ -60,10 +68,18 @@ def correct_input_div(variable, value, priors, **kwargs):
                                    tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
         return rang
     else:
-        return dcc.Dropdown(id={'type': 'op_i', 'index': 0}, options=value, value=value)
+        return dcc.Dropdown(id={'type': 'op_i', 'index': 0}, options=value, value=value, **kwargs)
 
 
 def generate_modal_option(model, var, value, priors):
+    '''
+    Creates a modal for Zoom for a chosen Variabel, the Style is static
+    :param model: the model of the Tree
+    :param var: the Variabel wiche will be displayed
+    :param value: the User chosen Values from the Varibale
+    :param priors: the Priors pre calculatet
+    :return: Zoom Modal for the Variabel in var
+    '''
     modal_layout = []
     modal_layout.append(dbc.ModalHeader(dbc.ModalTitle(var)))
     variable = model.varnames[var]

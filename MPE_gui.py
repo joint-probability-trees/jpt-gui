@@ -113,9 +113,13 @@ def evid_gen(upload, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     Receives appCallback events and manages these to the correct
     :param upload: Path to the new jpt Tree as a File
     :param dd_vals: All Varietals used in Evidence Section are chosen
+    :param b_e: Trigger if the Zoom Button in the Evidence is Pressed
+    :param op_s: Trigger if the Modal parameter from a Zoom should be saved
     :param e_var: the Dropdown of variable of Evidence Section
     :param e_in: the Input for the Variables of Evidence Section
     :param q_var: the Dropdown of variable of Query Section
+    :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
+    :param op_i: The Values choosen in the Zoom Modal
     :return: Updatet Varibel List and the Input.
     """
 
@@ -187,6 +191,14 @@ def evid_gen(upload, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     State({'type': 'dd_e', 'index': ALL}, 'value'),
 )
 def modal_router(op, op_i, m_bod, dd):
+    """
+    Recessive all App Calls that are change the Modal for the zoom Function
+    :param op: Trigger to add More Input Option by Numeric Variabel
+    :param op_i: Trigger to update Chance for the Chosen values
+    :param m_bod: The State of the Modal
+    :param dd: div withe the chosen values
+    :return: update Modal Body for the Zoom
+    """
     cb = ctx.triggered_id
     global modal_var_index
     var = dd[modal_var_index]

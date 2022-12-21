@@ -81,13 +81,13 @@ app.layout = dbc.Container(
     ], fluid=True
 )
 
-
 def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
     """
     Handel all action in the Query Part of the GUI (Extend Change Reduce)
     :param dd_vals: All Varietals used in Query Section are chosen
     :param q_var: the Dropdown of variable of Query Section
     :param q_in: the Input for the Variables of Query Section
+    :param q_op:  the Variabel  who is selected for the Zoom
     :return: Updatet Varibel List and the Input.
     """
     cb = ctx.triggered_id
@@ -119,6 +119,7 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     :param dd_vals: All Varietals used in Evidence Section are chosen
     :param e_var: the Dropdown of variable of Evidence Section
     :param e_in: the Input for the Variables of Evidence Section
+    :param q_op:  the Variabel  who is selected for the Zoom
     :return: Updatet Varibel List and the Input.
     """
     e_var: List[dict] = e_var
@@ -169,17 +170,23 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     State({'type': 'op_i', 'index': ALL}, 'value'),
 )
 def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
-    """
+    '''
     Receives app callback events and manages/redirects these to the correct functions.
     :param upload: Path to the new jpt Tree as a File
     :param q_dd: Query Varibels Names
     :param e_dd: Evidence Variable Names
+    :param b_q: Trigger if the Zoom Button in the Query is Pressed
+    :param b_e: Trigger if the Zoom Button in the Evidence is Pressed
+    :param op_s: Trigger if the Modal parameter from a Zoom should be saved
     :param q_var: Div of the Query Variable
     :param q_in: Div or the Input of Query
     :param e_var: Div of the Evidence Variable
     :param e_in: Div or the Input of Evidence
+    :param q_op: Information of whiche Zoom Button was pressed in the Query section
+    :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
+    :param op_i: The Values choosen in the Zoom Modal
     :return: Query Varibels, Query Input, Evidence Variable, Evidence Input, Text Prefix.
-    """
+    '''
     global modal_var_index
     global modal_type  # 0 = q and 1 = e
 
@@ -258,6 +265,15 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
     State({'type': 'dd_q', 'index': ALL}, 'value'),
 )
 def modal_router(op, op_i, m_bod, dd_e, dd_q):
+    '''
+    Recessive all App Calls that are change the Modal for the zoom Function
+    :param op: Trigger to add More Input Option by Numeric Variabel
+    :param op_i: Trigger to update Chance for the Chosen values
+    :param m_bod: The State of the Modal
+    :param dd_e: div withe the chosen values in the Evidence Section
+    :param dd_q: div withe the chosen values in the Query Section
+    :return: update Modal Body for the Zoom
+    '''
     cb = ctx.triggered_id
     global modal_var_index
     global modal_type
@@ -336,13 +352,12 @@ def infer(n1, q_var, q_in, e_var, e_in):
 if __name__ == '__main__':
     app.run_server(debug=True)
 
-# DUBILCA VERBIERTEN
+
 
 # 2. Posterior RESULTS
 # 3. MASKE DTAILS GUI
 # 4. MEHER SLIDER ODER IN MPE UND QUERY
 # 5. https://observablehq.com/@d3/tree-of-life
-# 6. ERKLÄREN QUERY Button EXPLAN
 # PIP
 # JPT Update
 # Landing page
