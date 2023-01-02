@@ -10,6 +10,29 @@ default_tree = jpt.JPT.load('msft.jpt')
 
 color_list_modal = ["#ccff66", "MediumSeaGreen", "Tomato", "SlateBlue", "Violet"]
 
+# default_tree.varnames
+# default_tree.features
+# default_tree.targets
+# FRontpage alle werte
+# Nav
+# TItle (Name der Datei)
+# Number of Paras
+# List Varnames in Farben
+
+def get_tree():
+    return default_tree
+
+def set_tree(filepath: str):
+    try:
+        new_tree = jpt.JPT.load(filepath)
+        default_tree = new_tree
+    except FileNotFoundError:
+        print("no JPT File found!")
+    except IOError:
+        print("the JPT could not be read \n Is the tree compatible with JPT version?")
+    except:
+        print("unknown Error")
+
 # ---MODAL_EYE____
 modal_basic = [
     dbc.ModalHeader(dbc.ModalTitle('temp')),

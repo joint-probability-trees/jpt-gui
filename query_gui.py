@@ -14,7 +14,7 @@ import components as c
 from typing import List
 
 global model
-model: jpt.trees.JPT = c.default_tree
+model: jpt.trees.JPT = c.get_tree()
 
 global priors
 priors = model.independent_marginals()
