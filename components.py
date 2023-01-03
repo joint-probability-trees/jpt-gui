@@ -34,48 +34,49 @@ def set_tree(filepath: str):
         print("unknown Error")
 
 # ---MODAL_EYE____
-modal_basic = [
-    dbc.ModalHeader(dbc.ModalTitle('temp')),
-    dbc.ModalBody([
-        html.Div([dcc.Dropdown(id={'type': 'op_i', 'index': 0}), dbc.Button(id="op_add")], id="mod_in")
-    ]),
-    dbc.ModalFooter(
-        [
-            dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
-        ]
-    ),
-]
-
-modal_option = dbc.Modal(
-    [
-        # #Chidlren? alles Generieren
-        dbc.ModalHeader(dbc.ModalTitle('temp'), id="mod_header"),
+def gen_modal_basic_id(id: str):
+    return [
+        dbc.ModalHeader(dbc.ModalTitle('temp')),
         dbc.ModalBody([
+            html.Div([dcc.Dropdown(id={'type': f'op_i{id}', 'index': 0}), dbc.Button(id=f"op_add{id}")], id="mod_in")
+        ]),
+        dbc.ModalFooter(
+            [
+                dbc.Button("Save", id=dict(type=f"option_save{id}", index=0), className="ms-auto", n_clicks=0)
+            ]
+        ),
+    ]
+def gen_modal_option_id(id: str):
+    return dbc.Modal(
+        [
+            # #Chidlren? alles Generieren
+            dbc.ModalHeader(dbc.ModalTitle('temp'), id="mod_header"),
+            dbc.ModalBody([
 
-            dbc.Row(id="modal_input", children=[
-                dbc.Col([], id="{'type': 'op_i', 'index': 0}",
-                        className="d-flex flex-nowrap justify-content-center ps-2")
-            ], className="d-flex justify-content-center"),
-            dbc.Row([
-                dbc.Col([
-                    dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0,
-                               disabled=True)
-                ], width=6, className="d-grid ps2")
-            ]),
-            dbc.ModalFooter(
-                [
-                    dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
-                ]
-            ),
-        ],)
-    ],
-    id="modal_option", is_open=False, size="xl", backdrop="static"
-)
+                dbc.Row(id=f"modal_input{id}", children=[
+                    dbc.Col([], id={'type': f'op_i{id}', 'index': 0},
+                            className="d-flex flex-nowrap justify-content-center ps-2")
+                ], className="d-flex justify-content-center"),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Button("+", id=f"op_add{id}", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0,
+                                   disabled=True)
+                    ], width=6, className="d-grid ps2")
+                ]),
+                dbc.ModalFooter(
+                    [
+                        dbc.Button("Save", id=dict(type=f"option_save{id}", index=0), className="ms-auto", n_clicks=0)
+                    ]
+                ),
+            ],)
+        ],
+        id=f"modal_option{id}", is_open=False, size="xl", backdrop="static"
+    )
 
 
 # ---/MODAL-EYE---
 # --- MODAL-FUNC ---
-def correct_input_div(variable, value, priors, **kwargs):
+def correct_input_div(variable, value, priors, id, **kwargs):
     '''
     Generate a Dash Componant for the Varibael, that can be used in the zoom Modal
     :param variable: The Variabel wich is be displayed
@@ -87,20 +88,21 @@ def correct_input_div(variable, value, priors, **kwargs):
     if variable.numeric:
         minimum = priors[variable].cdf.intervals[0].upper
         maximum = priors[variable].cdf.intervals[-1].lower
-        rang = create_range_slider(minimum, maximum, id={'type': 'op_i', 'index': 0}, value=value, dots=False,
+        rang = create_range_slider(minimum, maximum, id={'type': f'op_i{id}', 'index': 0}, value=value, dots=False,
                                    tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
         return rang
     else:
-        return dcc.Dropdown(id={'type': 'op_i', 'index': 0}, options=value, value=value, **kwargs)
+        return dcc.Dropdown(id={'type': f'op_i{id}', 'index': 0}, options=value, value=value, **kwargs)
 
 
-def generate_modal_option(model, var, value, priors):
+def generate_modal_option(model, var, value, priors, id):
     '''
     Creates a modal for Zoom for a chosen Variabel, the Style is static
     :param model: the model of the Tree
     :param var: the Variabel wiche will be displayed
     :param value: the User chosen Values from the Varibale
     :param priors: the Priors pre calculatet
+    :param id: id from Modal will be modal_input_id because the callbacks cant be duplicated
     :return: Zoom Modal for the Variabel in var
     '''
     modal_layout = []
@@ -110,7 +112,7 @@ def generate_modal_option(model, var, value, priors):
     map = div_to_variablemap(model, [var], [value])
     probs = model.infer(map, {})
 
-    body = dbc.ModalBody(id="modal_input", children=[
+    body = dbc.ModalBody(id=f"modal_input{id}", children=[
         dbc.Row([  # Grapicen
             dbc.Col([
                 plot_numeric_to_div(var, result) if variable.numeric else plot_symbolic_to_div(var, result)
@@ -119,20 +121,20 @@ def generate_modal_option(model, var, value, priors):
         dbc.Row(children=[
             html.Div([  # Inputs
                 html.Div("Range 1" if variable.numeric else "Dropmenu", style=dict(color=color_list_modal[0])),
-                correct_input_div(variable, value, priors=priors, className="flex-fill"),
+                correct_input_div(variable, value, priors=priors, id=id ,className="flex-fill"),
                 html.Div(f"{probs}", style=dict(color=color_list_modal[0])),
             ], id="modal_color_0", className="d-flex flex-nowrap justify-content-center ps-2")
         ],className="d-flex justify-content-center"),
         dbc.Row([
             dbc.Col([
-                dbc.Button("+", id="op_add", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0,
+                dbc.Button("+", id=f"op_add{id}", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0,
                            disabled=True if variable.symbolic else False)
             ], width=6, className="d-grid ps2")
         ])
     ])
 
     foot = dbc.ModalFooter(children=[
-        dbc.Button("Save", id=dict(type="option_save", index=0), className="ms-auto", n_clicks=0)
+        dbc.Button("Save", id=dict(type=f"option_save{id}", index=0), className="ms-auto", n_clicks=0)
     ])
     modal_layout.append(body)
     modal_layout.append(foot)

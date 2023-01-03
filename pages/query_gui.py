@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from jpt.base.utils import list2interval
 import dash
-from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
+from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL, callback
 import math
 import json
 import components as c
@@ -26,22 +26,20 @@ global modal_type
 # 0 = q and 1 = e
 modal_type = -1
 
-global modal_basic
-modal_basic = c.modal_basic
+global modal_basic_que
+modal_basic_que = c.gen_modal_basic_id("_que")
 
-modal_option = c.modal_option
+modal_option_que = c.gen_modal_option_id("_que")
 
-app = dash.Dash(__name__, prevent_initial_callbacks=True,
-                meta_tags=[{'name': 'viewport',
-                            'content': 'width=device-width, initial-scale=1.0'}]
-                )
-app.layout = dbc.Container(
+dash.register_page(__name__)
+
+layout = dbc.Container(
     [
         dbc.Row(
             [
                 dbc.Col(html.H1("Query", className='text-center mb-4'), width=12),
                 dbc.Col(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className="position-absolute top-0 end-0"),
-                                   id="upload_tree"))
+                                   id="upload_tree_que"))
             ]
         ),
         dbc.Row(
@@ -49,35 +47,35 @@ app.layout = dbc.Container(
                 dbc.Col([
                     html.Div("P ", className="align-self-center text-end float-end",
                              style={'fontSize': 40, 'padding-top': 0}),
-                ], id="text_l", align="center", className="", width=2),
-                dbc.Col(id="q_variable",
-                        children=[dcc.Dropdown(id={'type': 'dd_q', 'index': 0}, options=sorted(model.varnames))],
+                ], id="text_l_que", align="center", className="", width=2),
+                dbc.Col(id="q_variable_que",
+                        children=[dcc.Dropdown(id={'type': 'dd_q_que', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-3 border-start border-secondary border-3 rounded-4"),
-                dbc.Col(id="q_input",
-                        children=[dcc.Dropdown(id={'type': 'i_q', 'index': 0}, disabled=True)], width=3,
+                dbc.Col(id="q_input_que",
+                        children=[dcc.Dropdown(id={'type': 'i_q_que', 'index': 0}, disabled=True)], width=3,
                         className="d-grid gap-3 "),
-                dbc.Col(children=[html.Div(id="q_option", children=[
-                    dbc.Button("👁️", id=dict(type='b_q', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
+                dbc.Col(children=[html.Div(id="q_option_que", children=[
+                    dbc.Button("👁️", id=dict(type='b_q_que', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
                                size="sm")], className=" d-grid align-self-start")
                                   ],
                         className="d-grid gap-0 gx-0 d-flex align-items-stretch flex-grow-0 align-self-stretch border-end border-3 border-secondary "),
-                dbc.Col(id="e_variable",
-                        children=[dcc.Dropdown(id={'type': 'dd_e', 'index': 0}, options=sorted(model.varnames))],
+                dbc.Col(id="e_variable_que",
+                        children=[dcc.Dropdown(id={'type': 'dd_e_que', 'index': 0}, options=sorted(model.varnames))],
                         width=1, className="d-grid gap-0 border-start border-3 border-secondary ps-3"),
-                dbc.Col(id="e_input",
-                        children=[dcc.Dropdown(id={'type': 'i_e', 'index': 0}, disabled=True)], width=3,
+                dbc.Col(id="e_input_que",
+                        children=[dcc.Dropdown(id={'type': 'i_e_que', 'index': 0}, disabled=True)], width=3,
                         className="d-grid gap-3 "),
-                dbc.Col(children=[html.Div(id="e_option", children=[
-                    dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
+                dbc.Col(children=[html.Div(id="e_option_que", children=[
+                    dbc.Button("👁️", id=dict(type='b_e_que', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
                                size="sm")],
                                            className=" d-grid border-end border-secondary border-3 rounded-4")
                                   ],
                         className="d-grid gx-1 d-md-flex align-self-center"),
             ], className="justify-content-center",
         ),
-        dbc.Row(dbc.Button("=", id="erg_b", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
-        dbc.Row(dbc.Col(html.Div("", id="erg_text", className="fs-1 text text-center pt-3 "))),
-        modal_option
+        dbc.Row(dbc.Button("=", id="erg_b_que", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
+        dbc.Row(dbc.Col(html.Div("", id="erg_text_que", className="fs-1 text text-center pt-3 "))),
+        modal_option_que
     ], fluid=True
 )
 
@@ -98,11 +96,11 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
     if variable.numeric:
         minimum = priors[variable].cdf.intervals[0].upper
         maximum = priors[variable].cdf.intervals[-1].lower
-        q_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_q', 'index': cb.get("index")},
+        q_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_q_que', 'index': cb.get("index")},
                                                       tooltip={"placement": "bottom", "always_visible": False})
 
     elif variable.symbolic:
-        q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q", "index": cb.get("index")},
+        q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q_que", "index": cb.get("index")},
                                              options={k: v for k, v in zip(variable.domain.labels.values(),
                                                                            variable.domain.labels.values())},
                                              value=list(variable.domain.labels.values()),
@@ -133,10 +131,10 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     if variable.numeric:
         minimum = priors[variable].cdf.intervals[0].upper
         maximum = priors[variable].cdf.intervals[-1].lower
-        e_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_e', 'index': cb.get("index")},
+        e_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_e_que', 'index': cb.get("index")},
                                                       tooltip={"placement": "bottom", "always_visible": False})
     elif variable.symbolic:
-        e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e", "index": cb.get("index")},
+        e_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_e_que", "index": cb.get("index")},
                                              options={k: v for k, v in zip(variable.domain.labels.values(),
                                                                            variable.domain.labels.values())},
                                              value=list(variable.domain.labels.values()), multi=True, )
@@ -145,29 +143,29 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     return c.update_free_vars_in_div(model, e_var), e_in, e_op
 
 
-@app.callback(
-    Output('q_variable', 'children'),
-    Output('q_input', 'children'),
-    Output('q_option', 'children'),
-    Output('e_variable', 'children'),
-    Output('e_input', 'children'),
-    Output('e_option', 'children'),
-    Output('text_l', 'children'),
-    Output('modal_option', 'children'),
-    Output('modal_option', 'is_open'),
-    Input("upload_tree", "contents"),
-    Input({'type': 'dd_q', 'index': ALL}, 'value'),
-    Input({'type': 'dd_e', 'index': ALL}, 'value'),
-    Input({'type': 'b_q', 'index': ALL}, 'n_clicks'),
-    Input({'type': 'b_e', 'index': ALL}, 'n_clicks'),
-    Input({'type': 'option_save', 'index': ALL}, 'n_clicks'),
-    State('q_variable', 'children'),
-    State('q_input', 'children'),
-    State('e_variable', 'children'),
-    State('e_input', 'children'),
-    State('q_option', 'children'),
-    State('e_option', 'children'),
-    State({'type': 'op_i', 'index': ALL}, 'value'),
+@callback(
+    Output('q_variable_que', 'children'),
+    Output('q_input_que', 'children'),
+    Output('q_option_que', 'children'),
+    Output('e_variable_que', 'children'),
+    Output('e_input_que', 'children'),
+    Output('e_option_que', 'children'),
+    Output('text_l_que', 'children'),
+    Output('modal_option_que', 'children'),
+    Output('modal_option_que', 'is_open'),
+    Input("upload_tree_que", "contents"),
+    Input({'type': 'dd_q_que', 'index': ALL}, 'value'),
+    Input({'type': 'dd_e_que', 'index': ALL}, 'value'),
+    Input({'type': 'b_q_que', 'index': ALL}, 'n_clicks'),
+    Input({'type': 'b_e_que', 'index': ALL}, 'n_clicks'),
+    Input({'type': 'option_save_que', 'index': ALL}, 'n_clicks'),
+    State('q_variable_que', 'children'),
+    State('q_input_que', 'children'),
+    State('e_variable_que', 'children'),
+    State('e_input_que', 'children'),
+    State('q_option_que', 'children'),
+    State('e_option_que', 'children'),
+    State({'type': 'op_i_que', 'index': ALL}, 'value'),
 )
 def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
     '''
@@ -190,9 +188,12 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
     global modal_var_index
     global modal_type  # 0 = q and 1 = e
 
-    cb = ctx.triggered_id
+    cb = ctx.triggered_id if not None else None
+    if cb is None:
+        return q_var, q_in, q_op, e_var, e_in, e_op, \
+            c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
 
-    if cb == "upload_tree" and upload is not None:
+    if cb == "upload_tree_que" and upload is not None:
         global model
         global priors
         try:
@@ -203,20 +204,20 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
             print("ModelLaden hat net geklappt!")
             print(e)
             return q_var, q_in, q_op, e_var, e_in, e_op, \
-                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic, False
+                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
 
         model = io_model
         priors = model.independent_marginals()
         return *c.reset_gui_button(io_model, "q"), *c.reset_gui_button(io_model, "e"), \
-               c.create_prefix_text_query(len_fac_q=2, len_fac_e=2), modal_basic, False
-    elif cb.get("type") == "dd_q":
+               c.create_prefix_text_query(len_fac_q=2, len_fac_e=2), modal_basic_que, False
+    elif cb.get("type") == "dd_q_que":
         return *query_gen(q_dd, q_var, q_in, q_op), e_var, e_in, e_op, \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic, False
-    elif cb.get("type") == "dd_e":
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+    elif cb.get("type") == "dd_e_que":
 
         return q_var, q_in, q_op, *evid_gen(e_dd, e_var, e_in, e_op), \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic, False
-    elif cb.get("type") == "b_e" and e_dd[cb.get("index")] != []:
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+    elif cb.get("type") == "b_e_que" and e_dd[cb.get("index")] != []:
 
         modal_var_index = cb.get("index")
         modal_type = 1
@@ -225,10 +226,10 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
                                              value=e_in[cb.get("index")]['props']
                                              .get('value', [e_in[cb.get("index")]['props']['min'],
                                                            e_in[cb.get("index")]['props']['max']]),
-                                             priors=priors)
+                                             priors=priors, id="_que")
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
-    elif cb.get("type") == "b_q" and q_dd[cb.get("index")] != []:
+    elif cb.get("type") == "b_q_que" and q_dd[cb.get("index")] != []:
 
         modal_var_index = cb.get("index")
         modal_type = 0
@@ -236,33 +237,33 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
 
         modal_body = c.generate_modal_option(model=model, var=q_var[cb.get("index")]['props']['value'],
                                              value=q_in[cb.get("index")]['props'].get('value',
-                                                                                      [q_in[cb.get("index")]['props']['min'], q_in[cb.get("index")]['props']['max']]), priors=priors)
+                                                                                      [q_in[cb.get("index")]['props']['min'], q_in[cb.get("index")]['props']['max']]), priors=priors, id="_que")
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
-    elif cb.get("type") == "option_save":
+    elif cb.get("type") == "option_save_que":
         new_vals = c.fuse_overlapping_range(op_i)
         if modal_type == 1:
             e_in[modal_var_index]['props']['value'] = new_vals
             e_in[modal_var_index]['props']['drag_value'] = new_vals
             return q_var, q_in, q_op, e_var, e_in, e_op, \
-                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic, False
+                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
         else:
             q_in[modal_var_index]['props']['value'] = new_vals
             q_in[modal_var_index]['props']['drag_value'] = new_vals
             return q_var, q_in, q_op, e_var, e_in, e_op, \
-                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic, False
+                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
     else:
         return q_var, q_in, q_op, e_var, e_in, e_op, \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic, False
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
 
 
-@app.callback(
-    Output("modal_input", "children"),
-    Input("op_add", "n_clicks"),
-    Input({'type': 'op_i', 'index': ALL}, 'value'),
-    State("modal_input", "children"),
-    State({'type': 'dd_e', 'index': ALL}, 'value'),
-    State({'type': 'dd_q', 'index': ALL}, 'value'),
+@callback(
+    Output("modal_input_que", "children"),
+    Input("op_add_que", "n_clicks"),
+    Input({'type': 'op_i_que', 'index': ALL}, 'value'),
+    State("modal_input_que", "children"),
+    State({'type': 'dd_e_que', 'index': ALL}, 'value'),
+    State({'type': 'dd_q_que', 'index': ALL}, 'value'),
 )
 def modal_router(op, op_i, m_bod, dd_e, dd_q):
     '''
@@ -274,7 +275,9 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
     :param dd_q: div withe the chosen values in the Query Section
     :return: update Modal Body for the Zoom
     '''
-    cb = ctx.triggered_id
+    cb = ctx.triggered_id if not None else None
+    if cb is None:
+        return m_bod
     global modal_var_index
     global modal_type
     dd = dd_e if modal_type == 1 else dd_q
@@ -283,7 +286,7 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
         m_in_new = [m_bod]
     else:
         m_in_new = m_bod
-    if cb == "op_add":
+    if cb == "op_add_que":
         index = m_in_new[-2]['props']['children'][0]['props']['children'][1]['props']['id']['index']
         type = m_in_new[1]['props']['children'][0]['props']['children'][1]['type']
         if type == "RangeSlider":
@@ -292,7 +295,7 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
             maxi = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['max']
             range_string = html.Div(f"Range {index + 2}",
                                     style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
-            n_slider = c.create_range_slider(minimum=mini, maximum=maxi,id={'type': 'op_i', 'index': index + 1},
+            n_slider = c.create_range_slider(minimum=mini, maximum=maxi,id={'type': 'op_i_que', 'index': index + 1},
                                              value=[mini, maxi], dots=False,
                                              tooltip={"placement": "bottom", "always_visible": False},
                                              className="flex-fill")
@@ -317,14 +320,14 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
         return m_in_new
 
 
-@app.callback(
-    Output("erg_text", "children"),
-    Input("erg_b", "n_clicks"),
+@callback(
+    Output("erg_text_que", "children"),
+    Input("erg_b_que", "n_clicks"),
 
-    State({'type': 'dd_q', 'index': ALL}, 'value'),
-    State({'type': 'i_q', 'index': ALL}, 'value'),
-    State({'type': 'dd_e', 'index': ALL}, 'value'),
-    State({'type': 'i_e', 'index': ALL}, 'value'),
+    State({'type': 'dd_q_que', 'index': ALL}, 'value'),
+    State({'type': 'i_q_que', 'index': ALL}, 'value'),
+    State({'type': 'dd_e_que', 'index': ALL}, 'value'),
+    State({'type': 'i_e_que', 'index': ALL}, 'value'),
 )
 def infer(n1, q_var, q_in, e_var, e_in):
     """
@@ -336,6 +339,9 @@ def infer(n1, q_var, q_in, e_var, e_in):
     :param e_in: Div or the Input of Evidence
     :return: Probability as String
     """
+    cb = ctx.triggered_id if not None else None
+    if cb is None:
+        return ""
     query = c.div_to_variablemap(model, q_var, q_in)
     evidence = c.div_to_variablemap(model, e_var, e_in)
     print(f'query:{query}, evi:{evidence}')
@@ -347,11 +353,6 @@ def infer(n1, q_var, q_in, e_var, e_in):
         return "Unsatasfiable"
     print(result)
     return "{}%".format(round(result.result * 100, 2))
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
-
 
 
 # 2. Posterior RESULTS
