@@ -6,7 +6,11 @@ import jpt.base.intervals
 import dash_bootstrap_components as dbc
 from typing import List
 
-default_tree = jpt.JPT.load('msft.jpt')
+in_use_tree = jpt.JPT([jpt.variables.NumericVariable("")])
+
+priors = None
+
+
 
 color_list_modal = ["#ccff66", "MediumSeaGreen", "Tomato", "SlateBlue", "Violet"]
 
@@ -19,19 +23,7 @@ color_list_modal = ["#ccff66", "MediumSeaGreen", "Tomato", "SlateBlue", "Violet"
 # Number of Paras
 # List Varnames in Farben
 
-def get_tree():
-    return default_tree
-
-def set_tree(filepath: str):
-    try:
-        new_tree = jpt.JPT.load(filepath)
-        default_tree = new_tree
-    except FileNotFoundError:
-        print("no JPT File found!")
-    except IOError:
-        print("the JPT could not be read \n Is the tree compatible with JPT version?")
-    except:
-        print("unknown Error")
+#LAden BUtten TaskLeiste Breiter machen Button fixen Home func schrieben
 
 # ---MODAL_EYE____
 def gen_modal_basic_id(id: str):

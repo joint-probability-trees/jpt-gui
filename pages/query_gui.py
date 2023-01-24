@@ -13,11 +13,7 @@ import json
 import components as c
 from typing import List
 
-global model
-model: jpt.trees.JPT = c.get_tree()
 
-global priors
-priors = model.independent_marginals()
 
 global modal_var_index
 modal_var_index = -1
@@ -33,13 +29,12 @@ modal_option_que = c.gen_modal_option_id("_que")
 
 dash.register_page(__name__)
 
-layout = dbc.Container(
+def layout_que():
+    return dbc.Container(
     [
         dbc.Row(
             [
                 dbc.Col(html.H1("Query", className='text-center mb-4'), width=12),
-                dbc.Col(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className="position-absolute top-0 end-0"),
-                                   id="upload_tree_que"))
             ]
         ),
         dbc.Row(
@@ -49,7 +44,7 @@ layout = dbc.Container(
                              style={'fontSize': 40, 'padding-top': 0}),
                 ], id="text_l_que", align="center", className="", width=2),
                 dbc.Col(id="q_variable_que",
-                        children=[dcc.Dropdown(id={'type': 'dd_q_que', 'index': 0}, options=sorted(model.varnames))],
+                        children=[dcc.Dropdown(id={'type': 'dd_q_que', 'index': 0}, options=sorted(c.in_use_tree.varnames))],
                         width=1, className="d-grid gap-3 border-start border-secondary border-3 rounded-4"),
                 dbc.Col(id="q_input_que",
                         children=[dcc.Dropdown(id={'type': 'i_q_que', 'index': 0}, disabled=True)], width=3,
@@ -60,7 +55,7 @@ layout = dbc.Container(
                                   ],
                         className="d-grid gap-0 gx-0 d-flex align-items-stretch flex-grow-0 align-self-stretch border-end border-3 border-secondary "),
                 dbc.Col(id="e_variable_que",
-                        children=[dcc.Dropdown(id={'type': 'dd_e_que', 'index': 0}, options=sorted(model.varnames))],
+                        children=[dcc.Dropdown(id={'type': 'dd_e_que', 'index': 0}, options=sorted(c.in_use_tree.varnames))],
                         width=1, className="d-grid gap-0 border-start border-3 border-secondary ps-3"),
                 dbc.Col(id="e_input_que",
                         children=[dcc.Dropdown(id={'type': 'i_e_que', 'index': 0}, disabled=True)], width=3,
@@ -79,6 +74,8 @@ layout = dbc.Container(
     ], fluid=True
 )
 
+layout = layout_que
+
 def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
     """
     Handel all action in the Query Part of the GUI (Extend Change Reduce)
@@ -90,12 +87,12 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
     """
     cb = ctx.triggered_id
     if dd_vals[cb.get("index")] is None:
-        return c.del_selector_from_div_button(model, q_var, q_in, q_op, cb.get("index"))
+        return c.del_selector_from_div_button(c.in_use_tree, q_var, q_in, q_op, cb.get("index"))
 
-    variable = model.varnames[dd_vals[cb.get("index")]]
+    variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
     if variable.numeric:
-        minimum = priors[variable].cdf.intervals[0].upper
-        maximum = priors[variable].cdf.intervals[-1].lower
+        minimum = c.priors[variable].cdf.intervals[0].upper
+        maximum = c.priors[variable].cdf.intervals[-1].lower
         q_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_q_que', 'index': cb.get("index")},
                                                       tooltip={"placement": "bottom", "always_visible": False})
 
@@ -107,8 +104,8 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
                                              multi=True, )  # list(variable.domain.labels.keys())
 
     if len(q_var) - 1 == cb.get("index"):
-        return c.add_selector_to_div_button(model, q_var, q_in, q_op, 'q', cb.get("index") + 1)
-    return c.update_free_vars_in_div(model, q_var), q_in, q_op
+        return c.add_selector_to_div_button(c.in_use_tree, q_var, q_in, q_op, 'q_que', cb.get("index") + 1)
+    return c.update_free_vars_in_div(c.in_use_tree, q_var), q_in, q_op
 
 
 def evid_gen(dd_vals, e_var, e_in, e_op):
@@ -125,12 +122,12 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     cb = ctx.triggered_id
     print(cb)
     if dd_vals[cb.get("index")] is None:
-        return c.del_selector_from_div_button(model, e_var, e_in, e_op, cb.get('index'))
+        return c.del_selector_from_div_button(c.in_use_tree, e_var, e_in, e_op, cb.get('index'))
 
-    variable = model.varnames[dd_vals[cb.get("index")]]
+    variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
     if variable.numeric:
-        minimum = priors[variable].cdf.intervals[0].upper
-        maximum = priors[variable].cdf.intervals[-1].lower
+        minimum = c.priors[variable].cdf.intervals[0].upper
+        maximum = c.priors[variable].cdf.intervals[-1].lower
         e_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_e_que', 'index': cb.get("index")},
                                                       tooltip={"placement": "bottom", "always_visible": False})
     elif variable.symbolic:
@@ -139,8 +136,8 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
                                                                            variable.domain.labels.values())},
                                              value=list(variable.domain.labels.values()), multi=True, )
     if len(e_var) - 1 == cb.get("index"):
-        return c.add_selector_to_div_button(model, e_var, e_in, e_op, "e", cb.get("index") + 1)
-    return c.update_free_vars_in_div(model, e_var), e_in, e_op
+        return c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_que", cb.get("index") + 1)
+    return c.update_free_vars_in_div(c.in_use_tree, e_var), e_in, e_op
 
 
 @callback(
@@ -153,7 +150,6 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     Output('text_l_que', 'children'),
     Output('modal_option_que', 'children'),
     Output('modal_option_que', 'is_open'),
-    Input("upload_tree_que", "contents"),
     Input({'type': 'dd_q_que', 'index': ALL}, 'value'),
     Input({'type': 'dd_e_que', 'index': ALL}, 'value'),
     Input({'type': 'b_q_que', 'index': ALL}, 'n_clicks'),
@@ -167,10 +163,9 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     State('e_option_que', 'children'),
     State({'type': 'op_i_que', 'index': ALL}, 'value'),
 )
-def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
+def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
     '''
     Receives app callback events and manages/redirects these to the correct functions.
-    :param upload: Path to the new jpt Tree as a File
     :param q_dd: Query Varibels Names
     :param e_dd: Evidence Variable Names
     :param b_q: Trigger if the Zoom Button in the Query is Pressed
@@ -193,23 +188,6 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
         return q_var, q_in, q_op, e_var, e_in, e_op, \
             c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
 
-    if cb == "upload_tree_que" and upload is not None:
-        global model
-        global priors
-        try:
-            content_type, content_string = upload.split(',')
-            decoded = base64.b64decode(content_string)
-            io_model = jpt.JPT.from_json(json.loads(decoded))
-        except Exception as e:
-            print("ModelLaden hat net geklappt!")
-            print(e)
-            return q_var, q_in, q_op, e_var, e_in, e_op, \
-                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
-
-        model = io_model
-        priors = model.independent_marginals()
-        return *c.reset_gui_button(io_model, "q"), *c.reset_gui_button(io_model, "e"), \
-               c.create_prefix_text_query(len_fac_q=2, len_fac_e=2), modal_basic_que, False
     elif cb.get("type") == "dd_q_que":
         return *query_gen(q_dd, q_var, q_in, q_op), e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
@@ -222,11 +200,11 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
         modal_var_index = cb.get("index")
         modal_type = 1
         #Wenn kein Value exestiert wird min max genommen
-        modal_body = c.generate_modal_option(model=model, var=e_var[cb.get("index")]['props']['value'],
+        modal_body = c.generate_modal_option(model=c.in_use_tree, var=e_var[cb.get("index")]['props']['value'],
                                              value=e_in[cb.get("index")]['props']
                                              .get('value', [e_in[cb.get("index")]['props']['min'],
                                                            e_in[cb.get("index")]['props']['max']]),
-                                             priors=priors, id="_que")
+                                             priors=c.priors, id="_que")
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
     elif cb.get("type") == "b_q_que" and q_dd[cb.get("index")] != []:
@@ -235,9 +213,9 @@ def query_router(upload, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q
         modal_type = 0
 
 
-        modal_body = c.generate_modal_option(model=model, var=q_var[cb.get("index")]['props']['value'],
+        modal_body = c.generate_modal_option(model=c.in_use_tree, var=q_var[cb.get("index")]['props']['value'],
                                              value=q_in[cb.get("index")]['props'].get('value',
-                                                                                      [q_in[cb.get("index")]['props']['min'], q_in[cb.get("index")]['props']['max']]), priors=priors, id="_que")
+                                                                                      [q_in[cb.get("index")]['props']['min'], q_in[cb.get("index")]['props']['max']]), priors=c.priors, id="_que")
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
     elif cb.get("type") == "option_save_que":
@@ -299,8 +277,8 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
                                              value=[mini, maxi], dots=False,
                                              tooltip={"placement": "bottom", "always_visible": False},
                                              className="flex-fill")
-            var_map = c.div_to_variablemap(model, [var], [[mini, maxi]])
-            prob = model.infer(var_map, {})
+            var_map = c.div_to_variablemap(c.in_use_tree, [var], [[mini, maxi]])
+            prob = c.in_use_tree.infer(var_map, {})
 
             prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
             m_in_new.insert(len(m_in_new) - 1, dbc.Row([
@@ -313,8 +291,8 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
     else:  # if cb.get("type") == "op_i"
         id = cb.get("index")
         value = m_in_new[id + 1]['props']['children'][0]['props']['children'][1]['props']['value']
-        var_map = c.div_to_variablemap(model, [var], [value])
-        prob = model.infer(var_map, {})
+        var_map = c.div_to_variablemap(c.in_use_tree, [var], [value])
+        prob = c.in_use_tree.infer(var_map, {})
         prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[id % (len(c.color_list_modal)-1)]))
         m_in_new[id + 1]['props']['children'][0]['props']['children'][2] = prob_div
         return m_in_new
@@ -342,11 +320,11 @@ def infer(n1, q_var, q_in, e_var, e_in):
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return ""
-    query = c.div_to_variablemap(model, q_var, q_in)
-    evidence = c.div_to_variablemap(model, e_var, e_in)
+    query = c.div_to_variablemap(c.in_use_tree, q_var, q_in)
+    evidence = c.div_to_variablemap(c.in_use_tree, e_var, e_in)
     print(f'query:{query}, evi:{evidence}')
     try:
-        result = model.infer(query, evidence)
+        result = c.in_use_tree.infer(query, evidence)
 
     except Exception as e:
         print(e)

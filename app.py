@@ -1,3 +1,5 @@
+import base64
+
 import jpt
 import jpt.distributions.univariate
 import igraph
@@ -13,20 +15,19 @@ import json
 import components as c
 from typing import List
 
-global model
-model: jpt.trees.JPT = c.get_tree()
 
 
-app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=True, suppress_callback_exceptions=True,
+app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=False, suppress_callback_exceptions=True,
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}],
-
                 )
 
 
 navbar = dbc.Navbar(
             dbc.Container([
                 dbc.Row(dbc.NavbarBrand("JPT", className="ms-2")),
+                dbc.Row(dbc.NavItem(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className=""),
+                                               id="upload_tree"))),
                 dbc.Row([
                     dbc.Col([
                         dbc.Nav([
@@ -38,14 +39,37 @@ navbar = dbc.Navbar(
             ]), color="dark", dark=True,
         )
 
-app.layout = dbc.Container(
-    [
-        dbc.Row(navbar),
-        dash.page_container
+def serve_layout():
+    return dbc.Container(
+        [
+            dbc.Row(navbar),
+            dash.page_container,
+            dcc.ConfirmDialog(id="tree_change_info", message="Tree was changed!"),
+            dcc.Location(id="url")
+        ]
+    )
 
-    ]
+app.layout = serve_layout
+
+
+@app.callback(
+    Output('tree_change_info', 'displayed'),
+    Output('url', "pathname"),
+    Input("upload_tree", "contents"),
 )
-
+def tree_update(upload):
+    if upload is not None:
+        try:
+            content_type, content_string = upload.split(',')
+            decoded = base64.b64decode(content_string)
+            io_tree = jpt.JPT.from_json(json.loads(decoded))
+        except Exception as e:
+            print(e)
+            return False, "/"
+        c.in_use_tree = io_tree
+        c.priors = io_tree.independent_marginals()
+        return True, "/empty"
+    return False, "/"
 
 
 if __name__ == '__main__':
