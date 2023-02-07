@@ -83,9 +83,22 @@ def correct_input_div(variable, value, priors, id, **kwargs):
         rang = create_range_slider(minimum, maximum, id={'type': f'op_i{id}', 'index': 0}, value=value, dots=False,
                                    tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
         return rang
-    else:
+    elif variable.symbolic:
         return dcc.Dropdown(id={'type': f'op_i{id}', 'index': 0}, options=value, value=value, **kwargs)
+    elif variable.integer:
+        lab = variable.distribution().labels
+        return create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
+                                                      id={'type': f'op_i{id}', 'index': 0}, dots=False,
+                                                      tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
 
+
+def generate_correct_plots(variable, var, result):
+    if variable.numeric:
+        return plot_numeric_to_div(var, result=result)
+    elif variable.symbolic:
+        return plot_symbolic_to_div(var, result=result)
+    elif variable.integer:
+        return plot_symbolic_to_div(var, result=result)
 
 def generate_modal_option(model, var, value, priors, id):
     '''
@@ -107,12 +120,12 @@ def generate_modal_option(model, var, value, priors, id):
     body = dbc.ModalBody(id=f"modal_input{id}", children=[
         dbc.Row([  # Grapicen
             dbc.Col([
-                plot_numeric_to_div(var, result) if variable.numeric else plot_symbolic_to_div(var, result)
+                generate_correct_plots(variable, var, result)
             ], width=12),
         ]),
         dbc.Row(children=[
             html.Div([  # Inputs
-                html.Div("Range 1" if variable.numeric else "Dropmenu", style=dict(color=color_list_modal[0])),
+                html.Div("Range 1" if variable.numeric or variable.integer else "Dropmenu", style=dict(color=color_list_modal[0])),
                 correct_input_div(variable, value, priors=priors, id=id ,className="flex-fill"),
                 html.Div(f"{probs}", style=dict(color=color_list_modal[0])),
             ], id="modal_color_0", className="d-flex flex-nowrap justify-content-center ps-2")
@@ -186,7 +199,7 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) 
     :return: VariableMap of the Variables with its associated Constraints
     """
     var_dict = {}
-    print(f'vars:{variables}  , cons{constrains}')
+
     for variable, constrain in zip(variables, constrains):
         if variable is None or constrain is None:
             continue
@@ -209,7 +222,7 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: List[jpt.trees.MPEResult]) -> L
 
     for variable, restriction in res.maximum.items():
 
-        if variable.numeric:
+        if variable.numeric or variable.integer:
             value = []
             for interval in res.maximum[variable].intervals:
                 value += [interval.lower, interval.upper]
@@ -306,7 +319,6 @@ def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
 
     for v in variable_list:
         if len(v['props']) > 2:
-            print(v)
             v['props']['options'] = [v['props']['value']] + vars_free
 
     return variable_list
@@ -568,3 +580,17 @@ def plot_symbolic_to_div(var_name: str, result) -> List:
     fig.add_trace(go.Bar(x=lis_x_max, y=lis_y_max, name="Max", marker=dict(color="LightSalmon")))
     fig.add_trace(go.Bar(x=lis_x, y=lis_y, name="Prob", marker=dict(color="CornflowerBlue")))
     return html.Div([dcc.Graph(figure=fig)], className="pb-3")
+
+
+def gen_Nav_pages(pages, toIgnoreName):
+    '''
+    Genartes the Navigation Page Links, withe out the toIgnoreNames
+    :param pages: All Pages that are in the GUI
+    :param toIgnoreName: Names of Pages that shouldnt be displayed (Empty)
+    :return: Dash Struct for Navgation of Pages
+    '''
+    navs = [p for p in pages if p['name'].lower() not in [x.lower() for x in toIgnoreName]]
+    navItems = []
+    for page in navs:
+        navItems.append(dbc.NavItem(dbc.NavLink(f"{page['name']}", href=page['relative_path'])))
+    return navItems

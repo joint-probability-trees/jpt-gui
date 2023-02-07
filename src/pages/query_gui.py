@@ -1,16 +1,7 @@
-import base64
-
-import jpt
-import igraph
-from igraph import Graph, EdgeSeq
-import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
-from jpt.base.utils import list2interval
 import dash
-from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL, callback
-import math
-import json
-import components as c
+from dash import dcc, html, Input, Output, State, ctx, ALL, callback
+from src import components as c
 from typing import List
 
 
@@ -102,6 +93,11 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
                                                                            variable.domain.labels.values())},
                                              value=list(variable.domain.labels.values()),
                                              multi=True, )  # list(variable.domain.labels.keys())
+    elif variable.integer:
+        lab = variable.distribution().labels
+        q_in[cb.get("index")] = c.create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
+                                                      id={'type': 'i_q_que', 'index': cb.get("index")}, dots=False,
+                                                      tooltip={"placement": "bottom", "always_visible": False})
 
     if len(q_var) - 1 == cb.get("index"):
         return c.add_selector_to_div_button(c.in_use_tree, q_var, q_in, q_op, 'q_que', cb.get("index") + 1)
@@ -135,6 +131,11 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
                                              options={k: v for k, v in zip(variable.domain.labels.values(),
                                                                            variable.domain.labels.values())},
                                              value=list(variable.domain.labels.values()), multi=True, )
+    elif variable.integer:
+        lab = variable.distribution().labels
+        e_in[cb.get("index")] = c.create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
+                                                      id={'type': 'i_e_que', 'index': cb.get("index")}, dots=False,
+                                                      tooltip={"placement": "bottom", "always_visible": False})
     if len(e_var) - 1 == cb.get("index"):
         return c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_que", cb.get("index") + 1)
     return c.update_free_vars_in_div(c.in_use_tree, e_var), e_in, e_op

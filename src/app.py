@@ -25,15 +25,12 @@ app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=False, suppr
 
 navbar = dbc.Navbar(
             dbc.Container([
-                dbc.Row(dbc.NavbarBrand("JPT", className="ms-2")),
+                dbc.Row(dbc.NavbarBrand("Joint Probability Tree", className="ms-2")),
                 dbc.Row(dbc.NavItem(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className=""),
                                                id="upload_tree"))),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Nav([
-                           dbc.NavItem(dbc.NavLink(f"{page['name']}", href=page["relative_path"]))
-                            for page in dash.page_registry.values()],
-                            navbar=True, )
+                        dbc.Nav(c.gen_Nav_pages(dash.page_registry.values(), ["Empty"]), navbar=True,)
                     ])
                 ], align="center")
             ]), color="dark", dark=True,

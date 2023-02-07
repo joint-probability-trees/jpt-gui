@@ -1,17 +1,9 @@
 import jpt
 import jpt.variables
-import igraph
-from igraph import Graph, EdgeSeq
-import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
-from jpt.base.utils import list2interval
 import dash
-from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL, callback
-import math
-import base64
-import components as c
-import json
-from typing import List
+from dash import dcc, html, Input, Output, State, ctx, ALL, callback
+from src import components as c
 
 global result
 
@@ -139,6 +131,11 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
                                                                                variable.domain.labels.values())},
                                                  value=list(variable.domain.labels.values()),
                                                  multi=True, )
+        elif variable.integer:
+            lab = variable.distribution().labels
+            e_in[cb.get("index")] = c.create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
+                                                      id={'type': 'i_e_mpe', 'index': cb.get("index")}, dots=False,
+                                                      tooltip={"placement": "bottom", "always_visible": False})
 
         if len(e_var) - 1 == cb.get("index"):
             return *c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_mpe", cb.get("index") + 1), \
