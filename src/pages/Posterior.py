@@ -93,8 +93,8 @@ layout = layout_pos
     State({'type': 'op_i_pos', 'index': ALL}, 'value'),
 )
 def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
-    """
-    Receives callback events and manages these to the correct
+    '''
+        Receives callback events and manages these to the correct
     :param dd_vals: All Varietals used in Evidence Section are chosen
     :param b_e: Trigger if the Zoom Button in the Evidence is Pressed
     :param op_s: Trigger if the Modal parameter from a Zoom should be saved
@@ -104,7 +104,7 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
     :param op_i: The Values choosen in the Zoom Modal
     :return: returns evidence variable, evidence Input, text prefix, query Variable
-    """
+    '''
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
@@ -116,7 +116,7 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
 
-            minimum = c.priors[variable].cdf.intervals[0].upper
+            minimum = c.priors[variable.name].cdf.intervals[0].upper
             maximum = c.priors[variable].cdf.intervals[-1].lower
             e_in[cb.get("index")] = c.create_range_slider(minimum, maximum,
                                                           id={'type': 'i_e_pos', 'index': cb.get("index")},
@@ -168,14 +168,14 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     State({'type': 'dd_e_pos', 'index': ALL}, 'value'),
 )
 def modal_router(op, op_i, m_bod, dd):
-    """
-    Recessive all App Calls that are change the Modal for the zoom Function
+    '''
+        Recessive all App Calls that are change the Modal for the zoom Function
     :param op: Trigger to add More Input Option by Numeric Variabel
     :param op_i: Trigger to update Chance for the Chosen values
     :param m_bod: The State of the Modal
     :param dd: div withe the chosen values
     :return: update Modal Body for the Zoom
-    """
+    '''
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return m_bod
@@ -235,8 +235,8 @@ def modal_router(op, op_i, m_bod, dd):
     State('q_variable_pos', 'children'),
 )
 def erg_controller(n1, n2, n3, e_var, e_in, q_var):
-    """
-    Conntroller for the Results and the Displays
+    '''
+        Conntroller for the Results and the Displays
     :param n1: event for generating Result
     :param n2: the Previous Result
     :param n3: the Next Result
@@ -244,7 +244,7 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
     :param e_in: the Input for the Variables of Evidence Section
     :param q_var: the Dropdown of variable of Query Section
     :return: Returns the Name of The Variabel, the plot of the Variable, if there is a pre or post result
-    """
+    '''
     global result
     global page
     vals = q_var[0]['props']['value']
@@ -271,7 +271,7 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
         try:
             print(evidence_dict)
             result = c.in_use_tree.posterior(evidence=evidence_dict)
-            print("RESULT", result.distributions)
+            print("RESULT", result)
         except Exception as e:
             print("Error was", type(e), e)
             return "", [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True
@@ -282,12 +282,12 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
 
 
 def plot_post(vars: List, n: int):
-    """
-    Generates the Plots for a Varibel in Vars postion n
+    '''
+        Generates the Plots for a Varibel in Vars postion n
     :param vars: List of Variabel
     :param n: Postion of the Choosen Variabel
     :return:  Plot
-    """
+    '''
     var_name = vars[n]
     variable = c.in_use_tree.varnames[var_name]
     if variable.numeric:

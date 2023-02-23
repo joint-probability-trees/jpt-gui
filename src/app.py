@@ -12,10 +12,12 @@ import dash
 from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
 import json
-import components as c
+from src import components as c
 from typing import List
 
-
+'''
+This is the main Programming where the Server will be started and the navigator are constructed.
+'''
 
 app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=False, suppress_callback_exceptions=True,
                 meta_tags=[{'name': 'viewport',
@@ -25,7 +27,7 @@ app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=False, suppr
 
 navbar = dbc.Navbar(
             dbc.Container([
-                dbc.Row(dbc.NavbarBrand("Joint Probability Tree", className="ms-2")),
+                dbc.Row(dbc.NavbarBrand("Joint Probability Trees", className="ms-2")),
                 dbc.Row(dbc.NavItem(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className=""),
                                                id="upload_tree"))),
                 dbc.Row([
@@ -36,7 +38,11 @@ navbar = dbc.Navbar(
             ]), color="dark", dark=True,
         )
 
-def serve_layout():
+def server_layout():
+    '''
+        Returns the Dash Strucktur of the JPT-GUI where the pages are Contained
+    :return: Dash Container of the Static Page Elements
+    '''
     return dbc.Container(
         [
             dbc.Row(navbar),
@@ -46,7 +52,7 @@ def serve_layout():
         ]
     )
 
-app.layout = serve_layout
+app.layout = server_layout
 
 
 @app.callback(
@@ -55,6 +61,12 @@ app.layout = serve_layout
     Input("upload_tree", "contents"),
 )
 def tree_update(upload):
+    '''
+        Loads a chosen jpt Tree and Refresehs to home page
+        if it dosnt load nothing happens (Empty page default back to home)
+    :param upload: the Paramter Dash generats from chosen a File
+    :return: if the Tree was Changed and which page to load
+    '''
     if upload is not None:
         try:
             content_type, content_string = upload.split(',')
@@ -64,10 +76,12 @@ def tree_update(upload):
             print(e)
             return False, "/"
         c.in_use_tree = io_tree
-        c.priors = io_tree.independent_marginals()
+        c.priors = io_tree.priors
         return True, "/empty"
     return False, "/"
 
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+    #Dash Hover Upload beim Samen

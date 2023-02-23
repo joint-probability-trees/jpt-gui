@@ -1,0 +1,51 @@
+:py:mod:`app`
+=============
+
+.. py:module:: app
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   app.serve_layout
+   app.tree_update
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   app.app
+   app.navbar
+   app.layout
+
+
+.. py:data:: app
+   
+
+   
+
+.. py:data:: navbar
+   
+
+   
+
+.. py:function:: serve_layout()
+
+
+.. py:data:: layout
+   
+
+   
+
+.. py:function:: tree_update(upload)
+
+

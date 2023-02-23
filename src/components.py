@@ -5,6 +5,7 @@ import jpt.variables
 import jpt.base.intervals
 import dash_bootstrap_components as dbc
 from typing import List
+import os
 
 in_use_tree = jpt.JPT([jpt.variables.NumericVariable("")])
 
@@ -27,6 +28,11 @@ color_list_modal = ["#ccff66", "MediumSeaGreen", "Tomato", "SlateBlue", "Violet"
 
 # ---MODAL_EYE____
 def gen_modal_basic_id(id: str):
+    '''
+        Generates the zoom Modal style Basic Dash Objects withe the Correct ID
+    :param id: The Id to Specify the Components for Dash Callbacks
+    :return: Zoom Modal Dash Object List
+    '''
     return [
         dbc.ModalHeader(dbc.ModalTitle('temp')),
         dbc.ModalBody([
@@ -39,6 +45,11 @@ def gen_modal_basic_id(id: str):
         ),
     ]
 def gen_modal_option_id(id: str):
+    '''
+        Generates the Zoom Modal Obtions where the Inteative Components will be set
+    :param id: The Id to Specify the Components for Dash Callbacks
+    :return: Modal Components withe the base for the Inteactive parts
+    '''
     return dbc.Modal(
         [
             # #Chidlren? alles Generieren
@@ -70,7 +81,7 @@ def gen_modal_option_id(id: str):
 # --- MODAL-FUNC ---
 def correct_input_div(variable, value, priors, id, **kwargs):
     '''
-    Generate a Dash Componant for the Varibael, that can be used in the zoom Modal
+        Generate a Dash Componant for the Varibael, that can be used in the zoom Modal
     :param variable: The Variabel wich is be displayed
     :param value:  The Value of the Variable chosen from the User
     :param priors: the Priors of the modael
@@ -78,8 +89,8 @@ def correct_input_div(variable, value, priors, id, **kwargs):
     :return: a Dash Componant that displays the variable
     '''
     if variable.numeric:
-        minimum = priors[variable].cdf.intervals[0].upper
-        maximum = priors[variable].cdf.intervals[-1].lower
+        minimum = priors[variable.name].cdf.intervals[0].upper
+        maximum = priors[variable.name].cdf.intervals[-1].lower
         rang = create_range_slider(minimum, maximum, id={'type': f'op_i{id}', 'index': 0}, value=value, dots=False,
                                    tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
         return rang
@@ -100,9 +111,9 @@ def generate_correct_plots(variable, var, result):
     elif variable.integer:
         return plot_symbolic_to_div(var, result=result)
 
-def generate_modal_option(model, var, value, priors, id):
+def generate_modal_option(model: jpt.trees.JPT, var: str, value: List[str or int or float], priors, id):
     '''
-    Creates a modal for Zoom for a chosen Variabel, the Style is static
+        Creates a modal for Zoom for a chosen Variabel, the Style is static
     :param model: the model of the Tree
     :param var: the Variabel wiche will be displayed
     :param value: the User chosen Values from the Varibale
@@ -151,15 +162,14 @@ def generate_modal_option(model, var, value, priors, id):
 
 def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
         dcc.RangeSlider:
-    """
-    Generate a RangeSlider that resembles a continuous set.
-
+    '''
+        Generate a RangeSlider that resembles a continuous set.
     :param minimum: lowest number possible in the Range of the slider (left-Side)
     :param maximum: the Highest number possible in the Range of the slider (right-Side)
     :param args: Further styling for plotly dash components
     :param kwargs: Further styling for plotly dash components
     :return: The slider as dcc component
-    """
+    '''
 
     if min == max:
         minimum = min - 1
@@ -191,13 +201,13 @@ def fuse_overlapping_range(ranges: List) -> List:
 
 
 def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) -> jpt.variables.VariableMap:
-    """
-    Transforms variable and Constrains List form the GUI to a VariableMap
+    '''
+        Transforms variable and Constrains List form the GUI to a VariableMap
     :param model: the JPT model of the Prob. Tree
     :param variables: The list of chosen Variables
     :param constrains:  The list of for the Variables on the same Index
     :return: VariableMap of the Variables with its associated Constraints
-    """
+    '''
     var_dict = {}
 
     for variable, constrain in zip(variables, constrains):
@@ -212,19 +222,20 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) 
     return jpt.variables.VariableMap([(model.varnames[k], v) for k, v in var_dict.items()])
 
 
-def mpe_result_to_div(model: jpt.trees.JPT, res: List[jpt.trees.MPEResult]) -> List:
-    """
+def mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likelihood: float) -> List:
+    '''
         Generate Visuel Dash Representation for result of the mpe jpt func
     :param res: one of the Results from mpe func
+    :param likelihood: The likelihood of the maxima
     :return: Children's List from Dash Components to display the Results in res
-    """
+    '''
     return_div = []
 
-    for variable, restriction in res.maximum.items():
+    for variable, restriction in res.items():
 
         if variable.numeric or variable.integer:
             value = []
-            for interval in res.maximum[variable].intervals:
+            for interval in res[variable].intervals:
                 value += [interval.lower, interval.upper]
 
             minimum = model.priors[variable.name].cdf.intervals[0].upper
@@ -245,19 +256,19 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: List[jpt.trees.MPEResult]) -> L
 
     return_div = [html.Div([dcc.Dropdown(options=["Likelihood"], value="Likelihood", disabled=True,
                                          className="margin10"),
-                            dcc.Dropdown(options=[res.result], value=res.result, disabled=True, className="ps-3 pb-2")],
+                            dcc.Dropdown(options=[likelihood], value=likelihood, disabled=True, className="ps-3 pb-2")],
                            id="likelihood", style={"display": "grid", "grid-template-columns": "30% 70%"})] + return_div
 
     return return_div
 
 
 def create_prefix_text_query(len_fac_q: int, len_fac_e: int) -> List:
-    """
-    Creates Dash Style Prefix for the query GUI
+    '''
+        Creates Dash Style Prefix for the query GUI
     :param len_fac_q:  Length of Query input used for Scaling
     :param len_fac_e:  Length of Evidence input used for Scaling
     :return: Children div for the prefix query GUI
-    """
+    '''
     return [
         html.Div("P ", className="align-self-center text-end float-end",
                  style={"width": "50%", "height": "100%",
@@ -267,11 +278,11 @@ def create_prefix_text_query(len_fac_q: int, len_fac_e: int) -> List:
 
 
 def create_prefix_text_mpe(len_fac: int) -> List:
-    """
-    Creates Dash Style Prefix for the MPE GUI
+    '''
+        Creates Dash Style Prefix for the MPE GUI
     :param len_fac: Length of Evidence input used for Scaling
     :return: Children div for the prefix MPE GUI
-    """
+    '''
     return [
         html.Div("argmax ", className="pe-3",
                  style={'padding-top': 0, 'fontSize': len_fac * 10 if len_fac * 10 < 40 else 40}),
@@ -281,12 +292,12 @@ def create_prefix_text_mpe(len_fac: int) -> List:
 
 
 def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: List) -> List[str]:
-    """
-    Peels the names out of variable_div elements and uses generate_free_variables_from_list for the Return
+    '''
+        Peels the names out of variable_div elements and uses generate_free_variables_from_list for the Return
     :param model: the JPT model of the Prob. Tree
     :param variable_div: List of all Variabels that are being Used, in Dash Dropdown Class saved
     :return: Returns List of String from the Names of all not used Variabels.
-    """
+    '''
     variable_list = variable_div
     variables = []
     for v in variable_list:
@@ -296,24 +307,24 @@ def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: List) -
 
 
 def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list: List[str]) -> List[str]:
-    """
-    Deletes all used Variable Names out of a List of all Variables Names.
+    '''
+        Deletes all used Variable Names out of a List of all Variables Names.
     :param model: the JPT model of the Prob. Tree
     :param variable_list: the List of in use Variable Names
     :return: List of Variable Names that are not in use
-    """
+    '''
     vars_free = model.varnames.copy()
     for v in variable_list: vars_free.pop(v)
     return list(vars_free.keys())
 
 
 def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
-    """
-    Updates the Variable Options for a Dash Dropdown for choosing Variables, to all not in use Variables.
+    '''
+        Updates the Variable Options for a Dash Dropdown for choosing Variables, to all not in use Variables.
     :param model: the JPT model of the Prob. Tree
     :param variable_div: the Div to update the Options
     :return: the Div withe updated variable Options
-    """
+    '''
     variable_list = variable_div
     vars_free = generate_free_variables_from_div(model, variable_list)
 
@@ -325,13 +336,13 @@ def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
 
 
 def reduce_index(index, number, list) -> List:
-    """
-    Reduces the index in id from index in the list about the amount number
+    '''
+        Reduces the index in id from index in the list about the amount number
     :param index: the start index to decrease the index
     :param number: the amount to decrease
     :param list: the List from Dash Components that should be decreased
     :return: list with the decreased index implemented
-    """
+    '''
     for i in range(index, len(list)):
         list[i]['props']['id']['index'] -= number
     return list
@@ -339,14 +350,14 @@ def reduce_index(index, number, list) -> List:
 
 def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_div: List, del_index: int) \
         -> (List, List):
-    """
-    Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
+    '''
+        Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
     :param model: the JPT model of the Prob. Tree
     :param variable_div: list of Components to Chose Variable in the GUI
     :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
     :param del_index: the Value on what Position the to delete Row is.
     :return: Variable Children and Constrains Children for the GUI withe Update options
-    """
+    '''
     variable_list = variable_div
     constrains_list = constrains_div
 
@@ -363,14 +374,15 @@ def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_d
 def add_selector_to_div(model: jpt.trees.JPT, variable_div: List, constrains_div: list, type: str,
                         index: int) \
         -> (List[dcc.Dropdown], List):
-    """
+    '''
+        Genrats the Correct Selector Components for the div
     :param model: the JPT model of the Prob. Tree
     :param variable_div: list of Components to Chose Variable in the GUI
     :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
     :param type: the Type of the Component for the ID
     :param index: the index Number of the Component for the ID
     :return: Variable Children and Constrains Children for the GUI withe one more Row
-    """
+    '''
     variable_list = variable_div
     constrains_list = constrains_div
 
@@ -387,14 +399,15 @@ def add_selector_to_div(model: jpt.trees.JPT, variable_div: List, constrains_div
 def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_div, option_div, type: str,
                                index: int) \
         -> (List[dcc.Dropdown], List, List):
-    """
+    '''
+        Genrates teh Selector for the div withe a Button
     :param model: the JPT model of the Prob. Tree
     :param variable_div: list of Components to Chose Variable in the GUI
     :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
     :param type: the Type of the Component for the ID
     :param index: the index Number of the Component for the ID
     :return: Variable Children and Constrains Children for the GUI withe one more Row
-    """
+    '''
     variable_list = variable_div
     constrains_list = constrains_div
     option_list = option_div
@@ -413,6 +426,12 @@ def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_di
 
 
 def reset_gui_button(model: jpt.trees.JPT, type: str):
+    '''
+        Resets the GUI Parts back to Start + Button
+    :param model: the JPT Tree
+    :param type: What Type of ID it is
+    :return: Clean Start Style of Components for the GUI
+    '''
     var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
     in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
     op_div = [dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2",
@@ -423,14 +442,14 @@ def reset_gui_button(model: jpt.trees.JPT, type: str):
 def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, constrains_div: List, option_div: List,
                                  del_index: int) \
         -> (List, List):
-    """
-    Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
+    '''
+        Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
     :param model: the JPT model of the Prob. Tree
     :param variable_div: list of Components to Chose Variable in the GUI
     :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
     :param del_index: the Value on what Position the to delete Row is.
     :return: Variable Children and Constrains Children for the GUI withe Update options
-    """
+    '''
     variable_list = variable_div
     constrains_list = constrains_div
     option_list = option_div
@@ -447,6 +466,12 @@ def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, const
 
 
 def reset_gui(model: jpt.trees.JPT, type: str) -> (List, List):
+    '''
+        Resets the GUI Parts back to Start
+    :param model: the JPT Tree
+    :param type: What Type of ID it is
+    :return: Clean Start Style of Components for the GUI
+    '''
     var_div = [dcc.Dropdown(id={'type': f'dd_{type}', 'index': 0}, options=sorted(model.varnames))]
     in_div = [dcc.Dropdown(id={'type': f'i_{type}', 'index': 0}, disabled=True)]
     return var_div, in_div
@@ -455,22 +480,22 @@ def reset_gui(model: jpt.trees.JPT, type: str) -> (List, List):
 # Postierior---
 
 def plot_symbolic_distribution(distribution: jpt.distributions.univariate.Multinomial) -> go.Bar:
-    """
-    generates a Bar graph for symbolic distribution in jpt.
+    '''
+        generates a Bar graph for symbolic distribution in jpt.
     :param distribution: the Distribution for the Bar Diagram
     :return: the trace of a Bar Diagram for the symbolic variable.
-    """
+    '''
     trace = go.Bar(x=list(distribution.labels.keys()), y=distribution._params)  # anstatt keys könnte values sein
     return trace
 
 
 def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
-    """
-    generates a jpt plot from a numeric variable
+    '''
+        generates a jpt plot from a numeric variable
     :param distribution: the Distribution of the variable for the Plot
     :param padding: for the ends of the Plot, it is for visibility.
     :return: scatter plot for the numeric variable
-    """
+    '''
     x = []
     y = []
     for interval, function in zip(distribution.pdf.intervals[1:-1], distribution.pdf.functions[1:-1]):
@@ -485,12 +510,12 @@ def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding
 
 
 def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
-    """
-    generates a cdf plot from a numeric variable
+    '''
+        generates a cdf plot from a numeric variable
     :param distribution: the Distribution of the variable for the Plot
     :param padding: for the ends of the Plot, it is for visibility.
     :return: scatter plot for the numeric variable
-    """
+    '''
     x = []
     y = []
 
@@ -509,12 +534,12 @@ def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding
 
 
 def plot_numeric_to_div(var_name: List, result) -> List:
-    """
-    Generates a Div where both plots are in for a numeric variable
+    '''
+        Generates a Div where both plots are in for a numeric variable
     :param var_name: the name of variable that will be plotted
     :param result: the result generate from jpt.
     :return: one div withe 2 Plots in.
-    """
+    '''
     fig = go.Figure(layout=dict(title=f"Cumulative Density Function of {var_name}"))
     t = plot_numeric_cdf(result[var_name])
     fig.add_trace(t)
@@ -557,12 +582,12 @@ def plot_numeric_to_div(var_name: List, result) -> List:
 
 
 def plot_symbolic_to_div(var_name: str, result) -> List:
-    """
-    generates a div where a bar Diagram for a Symbolic Variable.
+    '''
+        generates a div where a bar Diagram for a Symbolic Variable.
     :param var_name: the name of the variable
     :param result: the result generate from jpt
     :return: a div withe one bar diagram in it.
-    """
+    '''
     max_, arg_max = result[var_name].mpe()
     fig = go.Figure(layout=dict(title="Probability Distribution"))
     lis_x_max = []
@@ -584,13 +609,31 @@ def plot_symbolic_to_div(var_name: str, result) -> List:
 
 def gen_Nav_pages(pages, toIgnoreName):
     '''
-    Genartes the Navigation Page Links, withe out the toIgnoreNames
+        Genartes the Navigation Page Links, withe out the toIgnoreNames
     :param pages: All Pages that are in the GUI
     :param toIgnoreName: Names of Pages that shouldnt be displayed (Empty)
     :return: Dash Struct for Navgation of Pages
     '''
-    navs = [p for p in pages if p['name'].lower() not in [x.lower() for x in toIgnoreName]]
+    nav = [p for p in pages if p['name'].lower() not in [x.lower() for x in toIgnoreName]]
+    nav_posi = dict(Home = 0, Query = 1, Most_Probable_Explanation = 2, Posterior = 3)
+    navs = oder_Nav(nav_posi, nav)
     navItems = []
     for page in navs:
         navItems.append(dbc.NavItem(dbc.NavLink(f"{page['name']}", href=page['relative_path'])))
+        #Liste solle Home Query Most probable explanation Posterior Rest sein
+
     return navItems
+
+def oder_Nav(nav_positions: dict, nav : List):
+    # sollte in Kontext gehen ohne wieder holte sortieren
+    sor = True
+    while sor:
+        sor = False
+        for index, n in enumerate(nav):
+            posi = nav_positions.get(n['name'], -1)
+            if posi != index and posi != -1:
+                sor = True
+                nav[posi], nav[index] = nav[index], nav[posi]
+
+    return nav
+

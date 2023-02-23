@@ -5,10 +5,19 @@ import dash
 from dash import dcc, html, Input, Output, State, ctx, ALL, callback
 from src import components as c
 
-global result
+'''
+    Most Probable Explanation GUI here can be chosen which Variabel to be consider (Default are all)
+    Left kan chosen what be Given Information in the Moment. 
+    After the Equals Button the Values will be Displayed, that can be change if Multi Results are exsisting. 
+'''
+
+global maxima
 
 global page
 page = 0
+
+global likelihood
+likelihood = 0.0
 
 global modal_var_index
 modal_var_index = -1
@@ -22,6 +31,10 @@ dash.register_page(__name__)
 
 
 def layout_mpe():
+    '''
+        Generad the Default style for the MPE Gui
+    :return:  Dash HTML Construkt
+    '''
     return dbc.Container(
         [
             dbc.Row(
@@ -95,8 +108,8 @@ layout = layout_mpe
     State({'type': 'op_i_mpe', 'index': ALL}, 'value'),
 )
 def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
-    """
-    Receives appCallback events and manages these to the correct
+    '''
+        Receives appCallback events and manages these to the correct
     :param dd_vals: All Varietals used in Evidence Section are chosen
     :param b_e: Trigger if the Zoom Button in the Evidence is Pressed
     :param op_s: Trigger if the Modal parameter from a Zoom should be saved
@@ -106,7 +119,7 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
     :param op_i: The Values choosen in the Zoom Modal
     :return: Updatet Varibel List and the Input.
-    """
+    '''
 
     cb = ctx.triggered_id if not None else None
     if cb is None:
@@ -118,8 +131,8 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
 
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
-            minimum = c.priors[variable].cdf.intervals[0].upper
-            maximum = c.priors[variable].cdf.intervals[-1].lower
+            minimum = c.priors[variable.name].cdf.intervals[0].upper
+            maximum = c.priors[variable.name].cdf.intervals[-1].lower
             e_in[cb.get("index")] = c.create_range_slider(minimum, maximum,
                                                           id={'type': 'i_e_mpe', 'index': cb.get("index")}
                                                           , dots=False,
@@ -169,14 +182,14 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     State({'type': 'dd_e_mpe', 'index': ALL}, 'value'),
 )
 def modal_router(op, op_i, m_bod, dd):
-    """
-    Recessive all App Calls that are change the Modal for the zoom Function
+    '''
+        Recessive all App Calls that are change the Modal for the zoom Function
     :param op: Trigger to add More Input Option by Numeric Variabel
     :param op_i: Trigger to update Chance for the Chosen values
     :param m_bod: The State of the Modal
     :param dd: div withe the chosen values
     :return: update Modal Body for the Zoom
-    """
+    '''
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return m_bod
@@ -234,52 +247,54 @@ def modal_router(op, op_i, m_bod, dd):
     State({'type': 'i_e_mpe', 'index': ALL}, 'value'),
 )
 def erg_controller(n1, n2, n3, e_var, e_in):
-    """
-    Manages the MPE Reulst and the Switch if possible between Results
+    '''
+        Manages the MPE Reulst and the Switch if possible between Results
     :param n1: event for generating Result
     :param n2: the Previous Result
     :param n3: the Next Result
     :param e_var: the Dropdown of variable of Evidence Section
     :param e_in: the Input for the Variables of Evidence Section
     :return: Div of the Result and if Previous or Next Result exists
-    """
-    global result
+    '''
+    global maxima
     global page
+    global likelihood
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return [], True, True
     if cb == "b_erg_pre_mpe":
         page -= 1
         if page == 0:
-            return mpe(result[page]), True, False
+            return mpe(maxima[page], likelihood), True, False
         else:
-            return mpe(result[page]), False, False
+            return mpe(maxima[page], likelihood), False, False
     elif cb == "b_erg_next_mpe":
         page += 1
-        if len(result) > page + 1:
-            return mpe(result[page]), False, False
+        if len(maxima) > page + 1:
+            return mpe(maxima[page], likelihood), False, False
         else:
-            return mpe(result[page]), False, True
+            return mpe(maxima[page], likelihood), False, True
     else:
         page = 0
         evidence_dict = c.div_to_variablemap(c.in_use_tree, e_var, e_in)
         try:
-            result = c.in_use_tree.mpe(evidence=jpt.variables.VariableMap(evidence_dict.items()))
-            print(result[0].maximum)
+            evi = jpt.variables.LabelAssignment(evidence_dict.items())
+            maxima, likelihood = c.in_use_tree.mpe(evidence=evi)
 
         except Exception as e:
             print("Error was", type(e), e)
             return [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True
-        if len(result) > 1:
-            return mpe(result[0]), True, False
+        if len(maxima) > 1:
+            return mpe(maxima[0], likelihood), True, False
         else:
-            return mpe(result[0]), True, True
+            return mpe(maxima[0], likelihood), True, True
 
 
-def mpe(res):
+def mpe(res, likelihood):
     """
-    Generates the Result from Res of a Variable
+        Generates the Result from Res of a Variable
     :param res:  Results of a specific Variable
+    :param likelihood: The likelihood of the maxima
     :return: Div around the generated mpe Result of the Variable
     """
-    return c.mpe_result_to_div(c.in_use_tree, res)
+    return c.mpe_result_to_div(c.in_use_tree, res, likelihood)

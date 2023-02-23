@@ -1,0 +1,14 @@
+:py:mod:`pages.empty`
+=====================
+
+.. py:module:: pages.empty
+
+
+Module Contents
+---------------
+
+.. py:data:: layout
+   
+
+   
+
