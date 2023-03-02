@@ -263,7 +263,7 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
             return vals[page], plot_post(vals, page), False, False
         else:
             return vals[page], plot_post(vals, page), False, True
-    elif vals == []:
+    elif vals == [] or cb == "b_erg_pos":
         return [], [], True, True
     else:
         page = 0

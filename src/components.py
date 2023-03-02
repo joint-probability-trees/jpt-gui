@@ -488,7 +488,8 @@ def plot_symbolic_distribution(distribution: jpt.distributions.univariate.Multin
     trace = go.Bar(x=list(distribution.labels.keys()), y=distribution._params)  # anstatt keys könnte values sein
     return trace
 
-
+#TODOO
+#X nach Externe Konvertierenn
 def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
     '''
         generates a jpt plot from a numeric variable
