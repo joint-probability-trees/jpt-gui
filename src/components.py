@@ -615,7 +615,7 @@ def gen_Nav_pages(pages, toIgnoreName):
     :return: Dash Struct for Navgation of Pages
     '''
     nav = [p for p in pages if p['name'].lower() not in [x.lower() for x in toIgnoreName]]
-    nav_posi = dict(Home = 0, Query = 1, Most_Probable_Explanation = 2, Posterior = 3)
+    nav_posi = dict(Home = 0, Query = 1, Most_Probable_Explanation = 3, Posterior = 2)
     navs = oder_Nav(nav_posi, nav)
     navItems = []
     for page in navs:

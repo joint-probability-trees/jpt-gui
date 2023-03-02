@@ -1,6 +1,7 @@
 import dash
 from dash import html, Input, Output, callback
 from src import components as c
+import dash_bootstrap_components as dbc
 
 dash.register_page(__name__, path='/')
 
@@ -22,13 +23,15 @@ def gen_varnames(children):
             mini = c.priors[variable.name].cdf.intervals[0].upper
             maxi = c.priors[variable.name].cdf.intervals[-1].lower
             stri = f" {var_name} ∈ [{round(mini,3)}, {round(maxi, 3)}]"
-            var_divs.append(html.Div(stri))
+            childStr = [html.Div(var_name, className="fs-4  flex-nowrap flex-grow-0 text-nowrap text-start"), html.Div(" ∈ ", className="pe-2 ps-1 fs-4  flex-nowrap flex-grow-0 text-nowrap text-start"), html.Div(f"[{round(mini,3)}, {round(maxi, 3)}]", className="fs-4  flex-nowrap flex-grow-0 text-nowrap text-start")]
+            var_divs.append(html.Div(childStr, className="d-flex justify-content-center flex-grow-0"))
         else:
             print(list(c.priors[variable.name].labels.keys()))
             vals = list(variable.domain.labels.values())
             #c.priors[var_name]
             stri = f"{var_name} ∈ ({vals})"
-            var_divs.append(html.Div(stri))
+            childStr = [html.Div(var_name, className="fs-4 flex-nowrap flex-grow-0 text-nowrap text-start"), html.Div(" ∈ ", className="pe-2 ps-1 fs-4 flex-nowrap flex-grow-0 text-nowrap text-start"), html.Div(f"({vals})", className="fs-4 flex-nowrap flex-grow-0 text-nowrap text-start")]
+            var_divs.append(html.Div(childStr, className="d-flex justify-content-center flex-grow-0"))
     return var_divs
 
     return html.Div(children=var_divs)
@@ -36,7 +39,7 @@ def gen_varnames(children):
 
 layout = html.Div([
     html.H1("Home"),
-    html.Div(children=[], id="list"),
+    html.Div(children=[], id="list", className=""),
 ])
 
 # Home Name , Type , Range, AUGEN EMOTION HTML Sektion bigger and better

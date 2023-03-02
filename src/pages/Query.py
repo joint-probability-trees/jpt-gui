@@ -103,9 +103,12 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
                                              value=list(variable.domain.labels.values()),
                                              multi=True, )  # list(variable.domain.labels.keys())
     elif variable.integer:
-        lab = variable.distribution().labels
-        q_in[cb.get("index")] = c.create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
-                                                      id={'type': 'i_q_que', 'index': cb.get("index")}, dots=False,
+        lab = list(variable.domain.labels.values())
+        mini = min(lab)
+        maxi = max(lab)
+        markings = dict(zip(lab, map(str, lab)))
+        q_in[cb.get("index")] = c.create_range_slider(minimum=mini-1, maximum=maxi+1, value=[mini, maxi],
+                                                      id={'type': 'i_q_que', 'index': cb.get("index")}, dots=False, marks = markings,
                                                       tooltip={"placement": "bottom", "always_visible": False})
 
     if len(q_var) - 1 == cb.get("index"):
@@ -141,9 +144,13 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
                                                                            variable.domain.labels.values())},
                                              value=list(variable.domain.labels.values()), multi=True, )
     elif variable.integer:
-        lab = variable.distribution().labels
-        e_in[cb.get("index")] = c.create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
+        lab = list(variable.domain.labels.values())
+        mini = min(lab)
+        maxi = max(lab)
+        markings = dict(zip(lab, map(str, lab)))
+        e_in[cb.get("index")] = c.create_range_slider(minimum=mini - 1, maximum=maxi + 1, value=[mini, maxi],
                                                       id={'type': 'i_e_que', 'index': cb.get("index")}, dots=False,
+                                                      marks=markings,
                                                       tooltip={"placement": "bottom", "always_visible": False})
     if len(e_var) - 1 == cb.get("index"):
         return c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_que", cb.get("index") + 1)

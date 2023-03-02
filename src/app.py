@@ -71,6 +71,7 @@ def tree_update(upload):
         try:
             content_type, content_string = upload.split(',')
             decoded = base64.b64decode(content_string)
+            content_decided_string = decoded.decode("utf-8")
             io_tree = jpt.JPT.from_json(json.loads(decoded))
         except Exception as e:
             print(e)
