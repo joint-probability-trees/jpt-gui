@@ -90,9 +90,12 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
         return c.del_selector_from_div_button(c.in_use_tree, q_var, q_in, q_op, cb.get("index"))
 
     variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
+
+
     if variable.numeric:
         minimum = c.priors[variable.name].cdf.intervals[0].upper
         maximum = c.priors[variable.name].cdf.intervals[-1].lower
+
         q_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_q_que', 'index': cb.get("index")},
                                                       tooltip={"placement": "bottom", "always_visible": False})
 

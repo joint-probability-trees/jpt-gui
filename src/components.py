@@ -171,9 +171,9 @@ def create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> \
     :return: The slider as dcc component
     '''
 
-    if min == max:
-        minimum = min - 1
-        maximum = max + 1
+    if minimum == maximum:
+        minimum -= 1
+        maximum += 1
 
     slider = dcc.RangeSlider(**kwargs, min=math.floor(minimum), max=math.ceil(maximum), allowCross=False)
 
@@ -216,6 +216,8 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) 
 
         if model.varnames[variable].numeric:
             var_dict[variable] = jpt.base.intervals.ContinuousSet(constrain[0], constrain[1])
+        elif model.varnames[variable].integer:
+            var_dict[variable] = set([round(x) for x in constrain])
         else:
             var_dict[variable] = set(constrain)
 
@@ -299,10 +301,11 @@ def generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: List) -
     :return: Returns List of String from the Names of all not used Variabels.
     '''
     variable_list = variable_div
+
     variables = []
     for v in variable_list:
         if len(v['props']) > 2:
-            variables += [v['props']['value']]
+            variables += [v['props'].get('value', [])]
     return generate_free_variables_from_list(model, variables)
 
 
@@ -314,7 +317,10 @@ def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list: List[
     :return: List of Variable Names that are not in use
     '''
     vars_free = model.varnames.copy()
-    for v in variable_list: vars_free.pop(v)
+    print(variable_list)
+    for v in variable_list:
+        if v != []:
+            vars_free.pop(v)
     return list(vars_free.keys())
 
 
@@ -327,11 +333,14 @@ def update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List:
     '''
     variable_list = variable_div
     vars_free = generate_free_variables_from_div(model, variable_list)
+    d = dict(a="a", b="b")
 
     for v in variable_list:
         if len(v['props']) > 2:
-            v['props']['options'] = [v['props']['value']] + vars_free
-
+            if v['props'].get('value', "NULL") == "NULL":
+                v['props']['options'] = vars_free
+            else:
+                v['props']['options'] = [v['props'].get('value')] + vars_free
     return variable_list
 
 
@@ -369,6 +378,38 @@ def del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_d
 
     new_var_list = update_free_vars_in_div(model, variable_list)
     return new_var_list, constrains_list
+
+def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, constrains_div: List, option_div: List,
+                                 del_index: int) \
+        -> (List, List):
+    '''
+        Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
+    :param model: the JPT model of the Prob. Tree
+    :param variable_div: list of Components to Chose Variable in the GUI
+    :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
+    :param del_index: the Value on what Position the to delete Row is.
+    :return: Variable Children and Constrains Children for the GUI withe Update options
+    '''
+
+    variable_list = variable_div
+    constrains_list = constrains_div
+    option_list = option_div
+
+    # if len(variable_list) == 1:
+    #     variable_list[0]['props']['value'] = ""
+    # else:
+
+    variable_list = reduce_index(del_index, 1, variable_list)
+    constrains_list = reduce_index(del_index, 1, constrains_list)
+    option_list = reduce_index(del_index, 1, option_list)
+
+    variable_list.pop(del_index)
+    constrains_list.pop(del_index)
+    option_list.pop(del_index)
+
+    new_var_list = update_free_vars_in_div(model, variable_list)
+    option_list[-1]['props']['disabled'] = True
+    return new_var_list, constrains_list, option_list
 
 
 def add_selector_to_div(model: jpt.trees.JPT, variable_div: List, constrains_div: list, type: str,
@@ -437,29 +478,6 @@ def reset_gui_button(model: jpt.trees.JPT, type: str):
     op_div = [dbc.Button("👁️", id=dict(type='b_e', index=0), disabled=True, n_clicks=0, className="me-2",
                          size="sm")]
     return var_div, in_div, op_div
-
-
-def del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, constrains_div: List, option_div: List,
-                                 del_index: int) \
-        -> (List, List):
-    '''
-        Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
-    :param model: the JPT model of the Prob. Tree
-    :param variable_div: list of Components to Chose Variable in the GUI
-    :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
-    :param del_index: the Value on what Position the to delete Row is.
-    :return: Variable Children and Constrains Children for the GUI withe Update options
-    '''
-    variable_list = variable_div
-    constrains_list = constrains_div
-    option_list = option_div
-
-    variable_list.pop(del_index)
-    constrains_list.pop(del_index)
-    option_list.pop(del_index)
-    new_var_list = update_free_vars_in_div(model, variable_list)
-    option_list[-1]['props']['disabled'] = True
-    return new_var_list, constrains_list, option_list
 
 
 # --- Button Func ---
