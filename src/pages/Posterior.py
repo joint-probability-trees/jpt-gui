@@ -40,20 +40,18 @@ def layout_pos():
                                 dcc.Dropdown(id="text_var_pos", options=sorted(c.in_use_tree.varnames),
                                              value=sorted(c.in_use_tree.varnames),
                                              multi=True, disabled=False)],
-                            width=4, className="d-grid gap-3 border-start border-secondary border-3 rounded-4"),
+                            width=4, className="row row-cols-1 g-1 gy-2 align-items-center border-start border-3 rounded-4 border-secondary"),
                     dbc.Col(id="e_variable_pos",
                             children=[dcc.Dropdown(id={'type': 'dd_e_pos', 'index': 0},
                                                    options=sorted(c.in_use_tree.varnames))],
-                            width=1, className="d-grid gap-3 border-start border-3 border-secondary ps-3"),
+                            width=2, className="row row-cols-1 g-1 gy-2 align-items-center border-start border-3 border-secondary"),
                     dbc.Col(id="e_input_pos",
                             children=[dcc.Dropdown(id={'type': 'i_e_pos', 'index': 0}, disabled=True)], width=3,
-                            className="d-grid gap-3 "),
-                    dbc.Col(children=[html.Div(id="e_option_pos", children=[
+                            className="row row-cols-1 g-1 gy-2 align-items-center"),
+                    dbc.Col(id="e_option_pos", children=[
                         dbc.Button("👁️", id=dict(type='b_e_pos', index=0), disabled=True, n_clicks=0,
-                                   className="me-2 mb-3",
-                                   size="sm")], className=" d-grid border-end border-secondary border-3 rounded-4")
-                                      ],
-                            width=1, className="d-grid gx-1 d-md-flex align-self-center"),
+                                   className="",
+                                   size="sm")],className=" row row-cols-1 g-1 gy-2 align-items-center pe-3 ps-1 border-end border-secondary border-3 rounded-4")
                 ], className="justify-content-md-center"
             ),
             dbc.Row(dbc.Button("=", id="erg_b_pos", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
@@ -62,7 +60,7 @@ def layout_pos():
                 [
                     dbc.Col(dbc.Button("<", id="b_erg_pre_pos", n_clicks=0, disabled=True),
                             className="d-flex justify-content-end align-self-stretch"),
-                    dbc.Col(children=[], id="pos_erg_pos", className=""),
+                    dbc.Col(children=[], id="pos_erg_pos", className="", width=8),
                     dbc.Col(dbc.Button(">", id="b_erg_next_pos", n_clicks=0, disabled=True),
                             className="d-flex justify-content-start align-self-stretch")
                 ], className="pt-3", align="center"),
@@ -249,9 +247,10 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
     global page
     vals = q_var[0]['props']['value']
     cb = ctx.triggered_id if not None else None
+    print(cb)
     if cb is None:
         return [], [], True, True
-    if cb == "b_erg_pre":
+    if cb == "b_erg_pre_pos":
         page -= 1
         if page == 0:
             return vals[page], plot_post(vals, page), True, False

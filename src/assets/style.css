@@ -16,12 +16,19 @@
   border-color: #5bc0de;
 }
 
-#mpe_erg .rc-slider-track[class$='1'],
-#mpe_erg .rc-slider-track[class$='3'],
-#mpe_erg .rc-slider-track[class$='5'],
-#mpe_erg .rc-slider-track[class$='7'],
-#mpe_erg .rc-slider-track[class$='9'] {
+ .rc-slider-track[class$='1'],
+ .rc-slider-track[class$='3'],
+ .rc-slider-track[class$='5'],
+ .rc-slider-track[class$='7'],
+ .rc-slider-track[class$='9'] {
   background-color: rgba(91, 192, 222, 0.8);
+}
+ .rc-slider-track[class$='2'],
+ .rc-slider-track[class$='4'],
+ .rc-slider-track[class$='6'],
+ .rc-slider-track[class$='8'],
+ .rc-slider-track[class$='0'] {
+  background-color: #e9e9e9;
 }
 
 #mpe_erg .Select-control{

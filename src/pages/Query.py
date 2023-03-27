@@ -40,36 +40,32 @@ def layout_que():
         dbc.Row(
             [
                 dbc.Col([
-                    html.Div("P ", className="align-self-center text-end float-end",
-                             style={'fontSize': 40, 'padding-top': 0}),
-                ], id="text_l_que", align="center", className="", width=2),
+                    html.Div("P ", className="", #align-self-center text-end float-end
+                             style={'fontSize': 40, 'padding-top': 0, 'padding-left': 0}),
+                ], id="text_l_que", align="center", className="", width=1),
                 dbc.Col(id="q_variable_que",
-                        children=[dcc.Dropdown(id={'type': 'dd_q_que', 'index': 0}, options=sorted(c.in_use_tree.varnames))],
-                        width=1, className="d-grid gap-3 border-start border-secondary border-3 rounded-4"),
+                        children=[dcc.Dropdown(id={'type': 'dd_q_que', 'index': 0}, options=sorted(c.in_use_tree.varnames), className="")],
+                        width=2, className="row row-cols-1 g-1 gy-2 align-items-center border-start border-secondary border-3 rounded-4"), #d-grid gap-3 border-start border-secondary border-3 rounded-4
                 dbc.Col(id="q_input_que",
                         children=[dcc.Dropdown(id={'type': 'i_q_que', 'index': 0}, disabled=True)], width=3,
-                        className="d-grid gap-3 "),
-                dbc.Col(children=[html.Div(id="q_option_que", children=[
-                    dbc.Button("👁️", id=dict(type='b_q_que', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
-                               size="sm")], className=" d-grid align-self-start")
-                                  ],
-                        className="d-grid gap-0 gx-0 d-flex align-items-stretch flex-grow-0 align-self-stretch border-end border-3 border-secondary "),
+                        className="row row-cols-1 g-1 gy-2 align-items-center"), #d-grid gap-3
+                dbc.Col(id="q_option_que", children=[
+                    dbc.Button("👁️", id=dict(type='b_q_que', index=0), disabled=True, n_clicks=0, className="",
+                               size="sm")], className="row row-cols-1 g-1 gy-2 align-items-center pe-3 ps-1 border-end border-3 border-secondary") #d-grid align-self-start
+                                  , #d-grid gap-0 gx-0 d-flex align-items-stretch flex-grow-0 align-self-stretch border-end border-3 border-secondary
                 dbc.Col(id="e_variable_que",
                         children=[dcc.Dropdown(id={'type': 'dd_e_que', 'index': 0}, options=sorted(c.in_use_tree.varnames))],
-                        width=1, className="d-grid gap-0 border-start border-3 border-secondary ps-3"),
+                        width=2, className="row row-cols-1 g-1 gy-2 align-items-center border-start border-3 border-secondary"), #d-grid gap-0 border-start border-3 border-secondary ps-3
                 dbc.Col(id="e_input_que",
                         children=[dcc.Dropdown(id={'type': 'i_e_que', 'index': 0}, disabled=True)], width=3,
-                        className="d-grid gap-3 "),
-                dbc.Col(children=[html.Div(id="e_option_que", children=[
-                    dbc.Button("👁️", id=dict(type='b_e_que', index=0), disabled=True, n_clicks=0, className="me-2 mb-3",
-                               size="sm")],
-                                           className=" d-grid border-end border-secondary border-3 rounded-4")
-                                  ],
-                        className="d-grid gx-1 d-md-flex align-self-center"),
-            ], className="justify-content-center",
+                        className="row row-cols-1 g-1 gy-2 align-items-center"), #d-grid gap-3
+                dbc.Col(id="e_option_que", children=[
+                    dbc.Button("👁️", id=dict(type='b_e_que', index=0), disabled=True, n_clicks=0, className="",
+                               size="sm")], className="row row-cols-1 g-1 gy-2 align-items-center pe-3 ps-1 border-end border-secondary border-3 rounded-4"), #d-grid border-end border-secondary border-3 rounded-4 #d-grid gx-1 d-md-flex align-self-center
+            ], className="row row-cols-8 g-1 gy-2 mb-3" #justify-content-center
         ),
-        dbc.Row(dbc.Button("=", id="erg_b_que", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
-        dbc.Row(dbc.Col(html.Div("", id="erg_text_que", className="fs-1 text text-center pt-3 "))),
+        dbc.Row(dbc.Button("=", id="erg_b_que", className="d-grid gap-2 col-6 mx-auto", n_clicks=0)), #d-grid gap-2 col-3 mt-3 mx-auto
+        dbc.Row(dbc.Col(html.Div("", id="erg_text_que", className="fs-1 text text-center pt-3"))),
         modal_option_que
     ], fluid=True
 )
@@ -97,7 +93,7 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
         maximum = c.priors[variable.name].cdf.intervals[-1].lower
 
         q_in[cb.get("index")] = c.create_range_slider(minimum, maximum, id={'type': 'i_q_que', 'index': cb.get("index")},
-                                                      tooltip={"placement": "bottom", "always_visible": False})
+                                                      tooltip={"placement": "bottom", "always_visible": False}, className="")
 
     elif variable.symbolic:
         q_in[cb.get("index")] = dcc.Dropdown(id={"type": "i_q_que", "index": cb.get("index")},
@@ -353,10 +349,3 @@ def infer(n1, q_var, q_in, e_var, e_in):
     return "{}%".format(round(result * 100, 2))
 
 
-# 2. Posterior RESULTS
-# 3. MASKE DTAILS GUI
-# 4. MEHER SLIDER ODER IN MPE UND QUERY
-# 5. https://observablehq.com/@d3/tree-of-life
-# PIP
-# JPT Update
-# Landing page

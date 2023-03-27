@@ -6,6 +6,8 @@ import jpt.base.intervals
 import dash_bootstrap_components as dbc
 from typing import List
 import os
+import jpt.base.utils
+from jpt.base.utils import list2interval
 
 in_use_tree = jpt.JPT([jpt.variables.NumericVariable("")])
 
@@ -221,7 +223,8 @@ def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) 
         else:
             var_dict[variable] = set(constrain)
 
-    return jpt.variables.VariableMap([(model.varnames[k], v) for k, v in var_dict.items()])
+    return model.bind(var_dict)
+    #return jpt.variables.VariableMap([(model.varnames[k], v) for k, v in var_dict.items()])
 
 
 def mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likelihood: float) -> List:
@@ -234,8 +237,10 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likeliho
     return_div = []
 
     for variable, restriction in res.items():
+        if variable.integer:
+            print("F")
 
-        if variable.numeric or variable.integer:
+        if variable.numeric:
             value = []
             for interval in res[variable].intervals:
                 value += [interval.lower, interval.upper]
@@ -247,7 +252,7 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likeliho
                  create_range_slider(minimum, maximum, value=value, disabled=True, className="margin10",
                                      tooltip={"placement": "bottom", "always_visible": True})]
                 , style={"display": "grid", "grid-template-columns": "30% 70%"})]
-        elif variable.symbolic:
+        elif variable.symbolic or variable.integer:
             return_div += [html.Div(
                 [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True),
                  dcc.Dropdown(
@@ -272,7 +277,7 @@ def create_prefix_text_query(len_fac_q: int, len_fac_e: int) -> List:
     :return: Children div for the prefix query GUI
     '''
     return [
-        html.Div("P ", className="align-self-center text-end float-end",
+        html.Div("P ", className="pe-3",
                  style={"width": "50%", "height": "100%",
                         'fontSize': (len_fac_q if len_fac_q >= len_fac_e else len_fac_e) * 20,
                         'padding-top': (len_fac_q * 1 if len_fac_q >= len_fac_e else len_fac_e * 1)}),
@@ -287,7 +292,7 @@ def create_prefix_text_mpe(len_fac: int) -> List:
     '''
     return [
         html.Div("argmax ", className="pe-3",
-                 style={'padding-top': 0, 'fontSize': len_fac * 10 if len_fac * 10 < 40 else 40}),
+                 style={'padding-top': 0, 'fontSize': len_fac * 10 if len_fac * 10 < 40 else 25}),
         html.Div("P ", className="ps-3",
                  style={'padding-top': 0, "height": "100%", 'fontSize': len_fac * 15 if len_fac * 15 < 75 else 75}),
     ]
@@ -458,10 +463,10 @@ def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_di
 
     variable_list.append(
         dcc.Dropdown(id={'type': f'dd_{type}', 'index': index},
-                     options=variable_list[0]['props']['options'][1:]))
-    constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True))
+                     options=variable_list[0]['props']['options'][1:], className=""))
+    constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True, className="", style={'padding-top': 0}))
     option_list.append(
-        dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=True, n_clicks=0, className="me-2 mb-3",
+        dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=True, n_clicks=0, className="",
                    size="sm"))
     return variable_list, constrains_list, option_list
 
@@ -517,14 +522,18 @@ def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding
     '''
     x = []
     y = []
+
     for interval, function in zip(distribution.pdf.intervals[1:-1], distribution.pdf.functions[1:-1]):
         x += [interval.lower, interval.upper, interval.upper]
         y += [function.value, function.value, None]
 
+    x = [distribution.value2label(x_) for x_ in x ]
     range = x[-1] - x[0]
     x = [x[0] - (range * padding), x[0], x[0]] + x + [x[-1], x[-1], x[-1] + (range * padding)]
     y = [0, 0, None] + y + [None, 0, 0]
+
     trace = go.Scatter(x=x, y=y, name="PDF")
+
     return trace
 
 
@@ -542,6 +551,7 @@ def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding
         x += [interval.lower]
         y += [function.eval(interval.lower)]
 
+    x = [distribution.value2label(x_) for x_ in x ]
     range = x[-1] - x[0]
     if range == 0:
         range = 1
@@ -570,13 +580,14 @@ def plot_numeric_to_div(var_name: List, result) -> List:
 
     expectation = result[var_name].expectation()
     max_, arg_max = result[var_name].mpe()
-
+    arg_max = result[var_name].value2label(arg_max)
     for interval in arg_max.intervals:
         if interval.size() <= 1:
             continue
+
         fig.add_trace(go.Scatter(x=[interval.lower, interval.upper, interval.upper, interval.lower],
-                                 y=[0, 0, result[var_name].cdf.eval(interval.upper),
-                                    result[var_name].cdf.eval(interval.lower)],
+                                 y=[0, 0,result[var_name].p(list2interval([-float("inf"), interval.upper])),
+                                    result[var_name].p(list2interval([-float("inf"), interval.lower]))],
                                  fillcolor="LightSalmon",
                                  opacity=0.5,
                                  mode="lines",
