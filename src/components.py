@@ -632,6 +632,9 @@ def plot_symbolic_to_div(var_name: str, result) -> List:
             lis_x += [list(result[var_name].labels.keys())[i]]
             lis_y += [result[var_name]._params[i]]
 
+    lis_x = [result[var_name].value2label(x_) for x_ in lis_x]
+    lis_x_max = [result[var_name].value2label(x_) for x_ in lis_x_max]
+
     fig.add_trace(go.Bar(x=lis_x_max, y=lis_y_max, name="Max", marker=dict(color="LightSalmon")))
     fig.add_trace(go.Bar(x=lis_x, y=lis_y, name="Prob", marker=dict(color="CornflowerBlue")))
     return html.Div([dcc.Graph(figure=fig)], className="pb-3")
