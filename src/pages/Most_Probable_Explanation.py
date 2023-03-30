@@ -1,3 +1,5 @@
+from typing import List
+
 import jpt
 import jpt.variables
 import dash_bootstrap_components as dbc
@@ -155,16 +157,25 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
         # Dont Like dont know to do it other wise
         global modal_var_index
         modal_var_index = cb.get("index")
-        modal_body = c.generate_modal_option(model=c.in_use_tree, var=e_var[cb.get("index")]['props']['value'],
-                                             value=e_in[cb.get("index")]['props'].get('value',
-                                                                                      [e_in[cb.get("index")]['props'][
-                                                                                           'min'],
-                                                                                       e_in[cb.get("index")]['props'][
-                                                                                           'max']]), priors=c.priors,
-                                             id="_mpe")
+        variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
+        modal_body = List
+        if variable.numeric:
+            modal_body = c.generate_modal_option(model=c.in_use_tree, var=e_var[cb.get("index")]['props']['value'],
+                                                 value=[e_in[cb.get("index")]['props']['min'],
+                                                        e_in[cb.get("index")]['props']['max']],
+                                                 priors=c.priors, id="_mpe")
+        elif variable.symbolic or variable.integer:
+            modal_body = c.generate_modal_option(model=c.in_use_tree, var=e_var[cb.get("index")]['props']['value'],
+                                                 value=e_in[cb.get("index")]['props'].get('value'), priors=c.priors,
+                                                 id="_mpe")
+
         return e_var, e_in, e_op, c.create_prefix_text_mpe(len(e_var)), q_var, modal_body, True
     elif cb.get("type") == "option_save_mpe":
-        new_vals = c.fuse_overlapping_range(op_i)
+        new_vals = List
+        if c.in_use_tree.varnames[dd_vals[cb.get("index")]].numeric:
+            new_vals = c.fuse_overlapping_range(op_i)
+        else:
+            new_vals = op_i[0]  # is List of a List
         e_in[modal_var_index]['props']['value'] = new_vals
         return e_var, e_in, e_op, c.create_prefix_text_mpe(len(e_var)), q_var, modal_basic_mpe, False
 

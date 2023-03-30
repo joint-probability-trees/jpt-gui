@@ -8,6 +8,7 @@ from typing import List
 import os
 import jpt.base.utils
 from jpt.base.utils import list2interval
+import numpy as np
 
 in_use_tree = jpt.JPT([jpt.variables.NumericVariable("")])
 
@@ -97,7 +98,9 @@ def correct_input_div(variable, value, priors, id, **kwargs):
                                    tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
         return rang
     elif variable.symbolic:
-        return dcc.Dropdown(id={'type': f'op_i{id}', 'index': 0}, options=value, value=value, **kwargs)
+        return dcc.Dropdown(id={'type': f'op_i{id}', 'index': 0},
+                            options={k: v for k, v in zip(variable.domain.labels.values(), variable.domain.labels.values())},
+                            value=value, multi=True, **kwargs)
     elif variable.integer:
         lab = variable.distribution().labels
         return create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
@@ -139,10 +142,10 @@ def generate_modal_option(model: jpt.trees.JPT, var: str, value: List[str or int
         dbc.Row(children=[
             html.Div([  # Inputs
                 html.Div("Range 1" if variable.numeric or variable.integer else "Dropmenu", style=dict(color=color_list_modal[0])),
-                correct_input_div(variable, value, priors=priors, id=id ,className="flex-fill"),
+                correct_input_div(variable, value, priors=priors, id=id ,className="d-flex flex-fill"),
                 html.Div(f"{probs}", style=dict(color=color_list_modal[0])),
-            ], id="modal_color_0", className="d-flex flex-nowrap justify-content-center ps-2")
-        ],className="d-flex justify-content-center"),
+            ], id="modal_color_0", className="d-flex justify-content-evenly ps-2")
+        ],className="d-flex justify-content-evenly"),
         dbc.Row([
             dbc.Col([
                 dbc.Button("+", id=f"op_add{id}", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0,
@@ -534,7 +537,11 @@ def plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding
 
     trace = go.Scatter(x=x, y=y, name="PDF")
 
-    return trace
+    # generate logarithmic scaled trace
+    log_y = [np.log(y_) if y_ is not None and y_ > 0 else None for y_ in y]
+    log_trace = go.Scatter(x=x, y=log_y, name="Logarithmic PDF", visible='legendonly')
+
+    return trace, log_trace
 
 
 def plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> go.Scatter:
@@ -575,12 +582,19 @@ def plot_numeric_to_div(var_name: List, result) -> List:
     is_dirac = result[var_name].is_dirac_impulse()
     if not is_dirac:
         fig2 = go.Figure(layout=dict(title=f"Probability Density Function of {var_name}"))
-        t2 = plot_numeric_pdf(result[var_name])
+        t2, t3 = plot_numeric_pdf(result[var_name])
         fig2.add_trace(t2)
+        fig2.add_trace(t3)
+
 
     expectation = result[var_name].expectation()
     max_, arg_max = result[var_name].mpe()
     arg_max = result[var_name].value2label(arg_max)
+
+    arg_max = arg_max.simplify()
+    if isinstance(arg_max, jpt.base.intervals.ContinuousSet):
+        arg_max = jpt.base.intervals.RealSet([arg_max])
+
     for interval in arg_max.intervals:
         if interval.size() <= 1:
             continue
@@ -635,8 +649,8 @@ def plot_symbolic_to_div(var_name: str, result) -> List:
     lis_x = [result[var_name].value2label(x_) for x_ in lis_x]
     lis_x_max = [result[var_name].value2label(x_) for x_ in lis_x_max]
 
-    fig.add_trace(go.Bar(x=lis_x_max, y=lis_y_max, name="Max", marker=dict(color="LightSalmon")))
-    fig.add_trace(go.Bar(x=lis_x, y=lis_y, name="Prob", marker=dict(color="CornflowerBlue")))
+    fig.add_trace(go.Bar(y=lis_x_max, x=lis_y_max, name="Max", marker=dict(color="LightSalmon"), orientation="h"))
+    fig.add_trace(go.Bar(y=lis_x, x=lis_y, name="Prob", marker=dict(color="CornflowerBlue"), orientation='h',))
     return html.Div([dcc.Graph(figure=fig)], className="pb-3")
 
 

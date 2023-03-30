@@ -215,27 +215,42 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
 
         modal_var_index = cb.get("index")
         modal_type = 1
-        #Wenn kein Value exestiert wird min max genommen
-        modal_body = c.generate_modal_option(model=c.in_use_tree, var=e_var[cb.get("index")]['props']['value'],
-                                             value=e_in[cb.get("index")]['props']
-                                             .get('value', [e_in[cb.get("index")]['props']['min'],
-                                                           e_in[cb.get("index")]['props']['max']]),
-                                             priors=c.priors, id="_que")
+        variable = c.in_use_tree.varnames[e_dd[cb.get("index")]]
+        modal_body = List
+        if variable.numeric:
+            modal_body = c.generate_modal_option(model=c.in_use_tree, var=e_var[cb.get("index")]['props']['value'],
+                                                 value=[e_in[cb.get("index")]['props']['min'],
+                                                        e_in[cb.get("index")]['props']['max']],
+                                                 priors=c.priors, id="_que")
+        elif variable.symbolic or variable.integer:
+            modal_body = c.generate_modal_option(model=c.in_use_tree, var=e_var[cb.get("index")]['props']['value'],
+                                                 value=e_in[cb.get("index")]['props'].get('value'), priors=c.priors,
+                                                 id="_que")
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
     elif cb.get("type") == "b_q_que" and q_dd[cb.get("index")] != []:
 
         modal_var_index = cb.get("index")
         modal_type = 0
-
-
-        modal_body = c.generate_modal_option(model=c.in_use_tree, var=q_var[cb.get("index")]['props']['value'],
-                                             value=q_in[cb.get("index")]['props'].get('value',
-                                                                                      [q_in[cb.get("index")]['props']['min'], q_in[cb.get("index")]['props']['max']]), priors=c.priors, id="_que")
+        variable = c.in_use_tree.varnames[q_dd[cb.get("index")]]
+        if variable.numeric:
+            modal_body = c.generate_modal_option(model=c.in_use_tree, var=q_var[cb.get("index")]['props']['value'],
+                                                 value=[q_in[cb.get("index")]['props']['min'],
+                                                        q_in[cb.get("index")]['props']['max']],
+                                                 priors=c.priors, id="_que")
+        elif variable.symbolic or variable.integer:
+            modal_body = c.generate_modal_option(model=c.in_use_tree, var=q_var[cb.get("index")]['props']['value'],
+                                                 value=q_in[cb.get("index")]['props'].get('value'), priors=c.priors,
+                                                 id="_que")
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
     elif cb.get("type") == "option_save_que":
-        new_vals = c.fuse_overlapping_range(op_i)
+        new_vals = List
+        variable = c.in_use_tree.varnames[q_dd[cb.get("index")]] if modal_type == 0 else c.in_use_tree.varnames[e_dd[cb.get("index")]]
+        if variable.numeric:
+            new_vals = c.fuse_overlapping_range(op_i)
+        else:
+            new_vals = op_i[0]#is List of a List
         if modal_type == 1:
             e_in[modal_var_index]['props']['value'] = new_vals
             e_in[modal_var_index]['props']['drag_value'] = new_vals
