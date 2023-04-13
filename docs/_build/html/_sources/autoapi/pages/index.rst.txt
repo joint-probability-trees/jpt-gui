@@ -1,0 +1,19 @@
+:py:mod:`pages`
+===============
+
+.. py:module:: pages
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Home/index.rst
+   Most_Probable_Explanation/index.rst
+   Posterior/index.rst
+   Query/index.rst
+   empty/index.rst
+
+

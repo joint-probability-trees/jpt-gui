@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Guide &mdash; JPT-GUI 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="JPT-GUI’s documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> JPT-GUI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#home">Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#query">Query</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#posterior">Posterior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#most-probable-explanation">Most Probable Explanation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">JPT-GUI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">User Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/user_guide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="user-guide">
+<h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h1>
+<p>With the Navigation, it can be chosen, what Utility to use for the chosen Tree.
+To load a Tree, see Load Tree.
+Every Page except the Home Page is split to 2 Inputs, a Query and Evidence.
+The Query is always on the Left Side and the Evidence is on the Right.
+The Specific Interaction is readable under the Page Section.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Changeing of Pages resetts all inputs on the Page!</p>
+</div>
+<p><strong>Load Tree</strong></p>
+<p>To load a Tree, one need to press the Sampling Button in the Navigational.
+This opens a File window where one need to open a JPT appropriate file.
+If a correct File is loaded, the Page will be Reset to the Home page and all made Changes are reset.</p>
+<img alt="_images/openTree.png" src="_images/openTree.png" />
+<p><strong>Detail Button</strong></p>
+<p>Every Time a Variable and its Parameter can be Chosen, there is an Eye-Button. This Button open a Modal in which Paramedics of the Variable is Displayed, and the Input can be Chosen in more detail.</p>
+<img alt="_images/Mondal.png" src="_images/Mondal.png" />
+<section id="home">
+<h2>Home<a class="headerlink" href="#home" title="Permalink to this heading"></a></h2>
+<p>Here is a Display of all Variables in the Tree with their ranges.
+At the Start before loading is it empty because an Empty Tree is loaded.</p>
+</section>
+<section id="query">
+<h2>Query<a class="headerlink" href="#query" title="Permalink to this heading"></a></h2>
+<p>The Query Page uses is to find out what Probity a Given Query with a given evidence is.
+As State on the Left side is the Query Part of the Process and on the Right the Evidence part.
+With the Press of the =-Button, the Likelihood of the chosen Parameter will be Display under the Button.</p>
+<img alt="_images/QueryUseCase.png" src="_images/QueryUseCase.png" />
+</section>
+<section id="posterior">
+<h2>Posterior<a class="headerlink" href="#posterior" title="Permalink to this heading"></a></h2>
+<p>The Posterior Page Generate Graphs of the chosen parameters. On the Left Side are the Chosen Variables of the Tree that should be considered. On the Right Side is the Evidence Part which value are given. After the =-Button, the Graphs of a Chosen Variable will be shown. This can be swapped with the Left and Right arrow button.</p>
+<img alt="_images/PosteriorAfter.png" src="_images/PosteriorAfter.png" />
+</section>
+<section id="most-probable-explanation">
+<h2>Most Probable Explanation<a class="headerlink" href="#most-probable-explanation" title="Permalink to this heading"></a></h2>
+<p>The MPE Page gives out the values of the Most Probable Explanation of the Chooses parameters.
+On the Left Side are the Chosen Variables of the Tree that should be considered. On the Right Side is the Evidence Part which value are given. After pressing the =-Button follows the Values of the MPE if there are more than one MPE it can be Swapped with the Right arrow Button and back with the Left arrow Button.</p>
+<img alt="_images/MPE2.png" src="_images/MPE2.png" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="JPT-GUI’s documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Maximilian N..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

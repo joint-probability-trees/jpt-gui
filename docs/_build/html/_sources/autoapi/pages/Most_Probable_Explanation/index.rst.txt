@@ -1,0 +1,115 @@
+:py:mod:`pages.Most_Probable_Explanation`
+=========================================
+
+.. py:module:: pages.Most_Probable_Explanation
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pages.Most_Probable_Explanation.layout_mpe
+   pages.Most_Probable_Explanation.evid_gen
+   pages.Most_Probable_Explanation.modal_router
+   pages.Most_Probable_Explanation.erg_controller
+   pages.Most_Probable_Explanation.mpe
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pages.Most_Probable_Explanation.page
+   pages.Most_Probable_Explanation.likelihood
+   pages.Most_Probable_Explanation.modal_var_index
+   pages.Most_Probable_Explanation.modal_basic_mpe
+   pages.Most_Probable_Explanation.modal_option_mpe
+   pages.Most_Probable_Explanation.layout
+
+
+.. py:data:: page
+   :annotation: = 0
+
+   
+
+.. py:data:: likelihood
+   :annotation: = 0.0
+
+   
+
+.. py:data:: modal_var_index
+   
+
+   
+
+.. py:data:: modal_basic_mpe
+   
+
+   
+
+.. py:data:: modal_option_mpe
+   
+
+   
+
+.. py:function:: layout_mpe()
+
+       Generad the Default style for the MPE Gui
+   :return:  Dash HTML Construkt
+
+
+.. py:data:: layout
+   
+
+   
+
+.. py:function:: evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i)
+
+       Receives appCallback events and manages these to the correct
+   :param dd_vals: All Varietals used in Evidence Section are chosen
+   :param b_e: Trigger if the Zoom Button in the Evidence is Pressed
+   :param op_s: Trigger if the Modal parameter from a Zoom should be saved
+   :param e_var: the Dropdown of variable of Evidence Section
+   :param e_in: the Input for the Variables of Evidence Section
+   :param q_var: the Dropdown of variable of Query Section
+   :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
+   :param op_i: The Values choosen in the Zoom Modal
+   :return: Updatet Varibel List and the Input.
+
+
+.. py:function:: modal_router(op, op_i, m_bod, dd)
+
+       Recessive all App Calls that are change the Modal for the zoom Function
+   :param op: Trigger to add More Input Option by Numeric Variabel
+   :param op_i: Trigger to update Chance for the Chosen values
+   :param m_bod: The State of the Modal
+   :param dd: div withe the chosen values
+   :return: update Modal Body for the Zoom
+
+
+.. py:function:: erg_controller(n1, n2, n3, e_var, e_in)
+
+       Manages the MPE Reulst and the Switch if possible between Results
+   :param n1: event for generating Result
+   :param n2: the Previous Result
+   :param n3: the Next Result
+   :param e_var: the Dropdown of variable of Evidence Section
+   :param e_in: the Input for the Variables of Evidence Section
+   :return: Div of the Result and if Previous or Next Result exists
+
+
+.. py:function:: mpe(res, likelihood)
+
+       Generates the Result from Res of a Variable
+   :param res:  Results of a specific Variable
+   :param likelihood: The likelihood of the maxima
+   :return: Div around the generated mpe Result of the Variable
+
+

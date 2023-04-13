@@ -1,0 +1,59 @@
+:py:mod:`app`
+=============
+
+.. py:module:: app
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   app.server_layout
+   app.tree_update
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   app.app
+   app.navbar
+   app.layout
+
+
+.. py:data:: app
+   
+
+   
+
+.. py:data:: navbar
+   
+
+   
+
+.. py:function:: server_layout()
+
+       Returns the Dash Strucktur of the JPT-GUI where the pages are Contained
+   :return: Dash Container of the Static Page Elements
+
+
+.. py:data:: layout
+   
+
+   
+
+.. py:function:: tree_update(upload)
+
+       Loads a chosen jpt Tree and Refresehs to home page
+       if it dosnt load nothing happens (Empty page default back to home)
+   :param upload: the Paramter Dash generats from chosen a File
+   :return: if the Tree was Changed and which page to load
+
+

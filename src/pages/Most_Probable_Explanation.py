@@ -7,11 +7,11 @@ import dash
 from dash import dcc, html, Input, Output, State, ctx, ALL, callback
 from src import components as c
 
-'''
+"""
     Most Probable Explanation GUI here can be chosen which Variabel to be consider (Default are all)
     Left kan chosen what be Given Information in the Moment. 
     After the Equals Button the Values will be Displayed, that can be change if Multi Results are exsisting. 
-'''
+"""
 
 global maxima
 
@@ -33,10 +33,10 @@ dash.register_page(__name__)
 
 
 def layout_mpe():
-    '''
+    """
         Generad the Default style for the MPE Gui
     :return:  Dash HTML Construkt
-    '''
+    """
     return dbc.Container(
         [
             dbc.Row(
@@ -108,7 +108,7 @@ layout = layout_mpe
     State({'type': 'op_i_mpe', 'index': ALL}, 'value'),
 )
 def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
-    '''
+    """
         Receives appCallback events and manages these to the correct
     :param dd_vals: All Varietals used in Evidence Section are chosen
     :param b_e: Trigger if the Zoom Button in the Evidence is Pressed
@@ -119,7 +119,7 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
     :param op_i: The Values choosen in the Zoom Modal
     :return: Updatet Varibel List and the Input.
-    '''
+    """
 
     cb = ctx.triggered_id if not None else None
     if cb is None:
@@ -191,14 +191,14 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     State({'type': 'dd_e_mpe', 'index': ALL}, 'value'),
 )
 def modal_router(op, op_i, m_bod, dd):
-    '''
+    """
         Recessive all App Calls that are change the Modal for the zoom Function
     :param op: Trigger to add More Input Option by Numeric Variabel
     :param op_i: Trigger to update Chance for the Chosen values
     :param m_bod: The State of the Modal
     :param dd: div withe the chosen values
     :return: update Modal Body for the Zoom
-    '''
+    """
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return m_bod
@@ -256,7 +256,7 @@ def modal_router(op, op_i, m_bod, dd):
     State({'type': 'i_e_mpe', 'index': ALL}, 'value'),
 )
 def erg_controller(n1, n2, n3, e_var, e_in):
-    '''
+    """
         Manages the MPE Reulst and the Switch if possible between Results
     :param n1: event for generating Result
     :param n2: the Previous Result
@@ -264,7 +264,7 @@ def erg_controller(n1, n2, n3, e_var, e_in):
     :param e_var: the Dropdown of variable of Evidence Section
     :param e_in: the Input for the Variables of Evidence Section
     :return: Div of the Result and if Previous or Next Result exists
-    '''
+    """
     global maxima
     global page
     global likelihood

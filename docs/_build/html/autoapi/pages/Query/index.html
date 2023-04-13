@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pages.Query &mdash; JPT-GUI 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> JPT-GUI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">JPT-GUI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pages.Query</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/pages/Query/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pages.Query">
+<span id="pages-query"></span><h1><a class="reference internal" href="#module-pages.Query" title="pages.Query"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pages.Query</span></code></a><a class="headerlink" href="#module-pages.Query" title="Permalink to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pages.Query.layout_que" title="pages.Query.layout_que"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout_que</span></code></a>()</p></td>
+<td><p>Generates the Basic Layout in Dash for Query withe the Tree varnames as Options</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pages.Query.query_gen" title="pages.Query.query_gen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_gen</span></code></a>(dd_vals, q_var, q_in, q_op)</p></td>
+<td><p>Handel all action in the Query Part of the GUI (Extend Change Reduce)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pages.Query.evid_gen" title="pages.Query.evid_gen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evid_gen</span></code></a>(dd_vals, e_var, e_in, e_op)</p></td>
+<td><p>Handel all action in the Evidence Part of the GUI (Extend Change Reduce)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pages.Query.query_router" title="pages.Query.query_router"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_router</span></code></a>(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, ...)</p></td>
+<td><p>Receives app callback events and manages/redirects these to the correct functions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pages.Query.modal_router" title="pages.Query.modal_router"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal_router</span></code></a>(op, op_i, m_bod, dd_e, dd_q)</p></td>
+<td><p>Recessive all App Calls that are change the Modal for the zoom Function</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pages.Query.infer" title="pages.Query.infer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer</span></code></a>(n1, q_var, q_in, e_var, e_in)</p></td>
+<td><p>Calculates withe Jpt the Probilty of query and evidence</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pages.Query.modal_var_index" title="pages.Query.modal_var_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal_var_index</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pages.Query.modal_type" title="pages.Query.modal_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal_type</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pages.Query.modal_basic_que" title="pages.Query.modal_basic_que"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal_basic_que</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pages.Query.modal_option_que" title="pages.Query.modal_option_que"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal_option_que</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pages.Query.layout" title="pages.Query.layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="pages.Query.modal_var_index">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">modal_var_index</span></span><a class="headerlink" href="#pages.Query.modal_var_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pages.Query.modal_type">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">modal_type</span></span><a class="headerlink" href="#pages.Query.modal_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pages.Query.modal_basic_que">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">modal_basic_que</span></span><a class="headerlink" href="#pages.Query.modal_basic_que" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pages.Query.modal_option_que">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">modal_option_que</span></span><a class="headerlink" href="#pages.Query.modal_option_que" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pages.Query.layout_que">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">layout_que</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pages.Query.layout_que" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Generates the Basic Layout in Dash for Query withe the Tree varnames as Options</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dash html strucktur</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pages.Query.layout">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">layout</span></span><a class="headerlink" href="#pages.Query.layout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pages.Query.query_gen">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">query_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pages.Query.query_gen" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Handel all action in the Query Part of the GUI (Extend Change Reduce)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dd_vals</strong> – All Varietals used in Query Section are chosen</p></li>
+<li><p><strong>q_var</strong> – the Dropdown of variable of Query Section</p></li>
+<li><p><strong>q_in</strong> – the Input for the Variables of Query Section</p></li>
+<li><p><strong>q_op</strong> – the Variabel  who is selected for the Zoom</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updatet Varibel List and the Input.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pages.Query.evid_gen">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">evid_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd_vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pages.Query.evid_gen" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Handel all action in the Evidence Part of the GUI (Extend Change Reduce)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dd_vals</strong> – All Varietals used in Evidence Section are chosen</p></li>
+<li><p><strong>e_var</strong> – the Dropdown of variable of Evidence Section</p></li>
+<li><p><strong>e_in</strong> – the Input for the Variables of Evidence Section</p></li>
+<li><p><strong>q_op</strong> – the Variabel  who is selected for the Zoom</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updatet Varibel List and the Input.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pages.Query.query_router">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">query_router</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_dd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pages.Query.query_router" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Receives app callback events and manages/redirects these to the correct functions.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q_dd</strong> – Query Varibels Names</p></li>
+<li><p><strong>e_dd</strong> – Evidence Variable Names</p></li>
+<li><p><strong>b_q</strong> – Trigger if the Zoom Button in the Query is Pressed</p></li>
+<li><p><strong>b_e</strong> – Trigger if the Zoom Button in the Evidence is Pressed</p></li>
+<li><p><strong>op_s</strong> – Trigger if the Modal parameter from a Zoom should be saved</p></li>
+<li><p><strong>q_var</strong> – Div of the Query Variable</p></li>
+<li><p><strong>q_in</strong> – Div or the Input of Query</p></li>
+<li><p><strong>e_var</strong> – Div of the Evidence Variable</p></li>
+<li><p><strong>e_in</strong> – Div or the Input of Evidence</p></li>
+<li><p><strong>q_op</strong> – Information of whiche Zoom Button was pressed in the Query section</p></li>
+<li><p><strong>e_op</strong> – Information of whiche Zoom Button was pressed in the Evidence section</p></li>
+<li><p><strong>op_i</strong> – The Values choosen in the Zoom Modal</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Query Varibels, Query Input, Evidence Variable, Evidence Input, Text Prefix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pages.Query.modal_router">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">modal_router</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_bod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dd_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dd_q</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pages.Query.modal_router" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Recessive all App Calls that are change the Modal for the zoom Function</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> – Trigger to add More Input Option by Numeric Variabel</p></li>
+<li><p><strong>op_i</strong> – Trigger to update Chance for the Chosen values</p></li>
+<li><p><strong>m_bod</strong> – The State of the Modal</p></li>
+<li><p><strong>dd_e</strong> – div withe the chosen values in the Evidence Section</p></li>
+<li><p><strong>dd_q</strong> – div withe the chosen values in the Query Section</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>update Modal Body for the Zoom</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pages.Query.infer">
+<span class="sig-prename descclassname"><span class="pre">pages.Query.</span></span><span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_in</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pages.Query.infer" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Calculates withe Jpt the Probilty of query and evidence</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n1</strong> – Button to trigger the Calculation</p></li>
+<li><p><strong>q_var</strong> – Div of the Query Variable</p></li>
+<li><p><strong>q_in</strong> – Div or the Input of Query</p></li>
+<li><p><strong>e_var</strong> – Div of the Evidence Variable</p></li>
+<li><p><strong>e_in</strong> – Div or the Input of Evidence</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Probability as String</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Maximilian N..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

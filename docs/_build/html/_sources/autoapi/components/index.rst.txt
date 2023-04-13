@@ -1,0 +1,295 @@
+:py:mod:`components`
+====================
+
+.. py:module:: components
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   components.gen_modal_basic_id
+   components.gen_modal_option_id
+   components.correct_input_div
+   components.generate_correct_plots
+   components.generate_modal_option
+   components.create_range_slider
+   components.fuse_overlapping_range
+   components.div_to_variablemap
+   components.mpe_result_to_div
+   components.create_prefix_text_query
+   components.create_prefix_text_mpe
+   components.generate_free_variables_from_div
+   components.generate_free_variables_from_list
+   components.update_free_vars_in_div
+   components.reduce_index
+   components.del_selector_from_div
+   components.del_selector_from_div_button
+   components.add_selector_to_div
+   components.add_selector_to_div_button
+   components.reset_gui_button
+   components.reset_gui
+   components.plot_symbolic_distribution
+   components.plot_numeric_pdf
+   components.plot_numeric_cdf
+   components.plot_numeric_to_div
+   components.plot_symbolic_to_div
+   components.gen_Nav_pages
+   components.oder_Nav
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   components.in_use_tree
+   components.priors
+   components.color_list_modal
+
+
+.. py:data:: in_use_tree
+   
+
+   
+
+.. py:data:: priors
+   
+
+   
+
+.. py:data:: color_list_modal
+   :annotation: = ['#ccff66', 'MediumSeaGreen', 'Tomato', 'SlateBlue', 'Violet']
+
+   
+
+.. py:function:: gen_modal_basic_id(id: str)
+
+       Generates the zoom Modal style Basic Dash Objects withe the Correct ID
+   :param id: The Id to Specify the Components for Dash Callbacks
+   :return: Zoom Modal Dash Object List
+
+
+.. py:function:: gen_modal_option_id(id: str)
+
+       Generates the Zoom Modal Obtions where the Inteative Components will be set
+   :param id: The Id to Specify the Components for Dash Callbacks
+   :return: Modal Components withe the base for the Inteactive parts
+
+
+.. py:function:: correct_input_div(variable, value, priors, id, **kwargs)
+
+       Generate a Dash Componant for the Varibael, that can be used in the zoom Modal
+   :param variable: The Variabel wich is be displayed
+   :param value:  The Value of the Variable chosen from the User
+   :param priors: the Priors of the modael
+   :param kwargs: further specifation for the Dash Componant
+   :return: a Dash Componant that displays the variable
+
+
+.. py:function:: generate_correct_plots(variable, var, result)
+
+
+.. py:function:: generate_modal_option(model: jpt.trees.JPT, var: str, value: List[str or int or float], priors, id)
+
+       Creates a modal for Zoom for a chosen Variabel, the Style is static
+   :param model: the model of the Tree
+   :param var: the Variabel wiche will be displayed
+   :param value: the User chosen Values from the Varibale
+   :param priors: the Priors pre calculatet
+   :param id: id from Modal will be modal_input_id because the callbacks cant be duplicated
+   :return: Zoom Modal for the Variabel in var
+
+
+.. py:function:: create_range_slider(minimum: float, maximum: float, *args, **kwargs) -> dash.dcc.RangeSlider
+
+       Generate a RangeSlider that resembles a continuous set.
+   :param minimum: lowest number possible in the Range of the slider (left-Side)
+   :param maximum: the Highest number possible in the Range of the slider (right-Side)
+   :param args: Further styling for plotly dash components
+   :param kwargs: Further styling for plotly dash components
+   :return: The slider as dcc component
+
+
+.. py:function:: fuse_overlapping_range(ranges: List) -> List
+
+
+.. py:function:: div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) -> jpt.variables.VariableMap
+
+       Transforms variable and Constrains List form the GUI to a VariableMap
+   :param model: the JPT model of the Prob. Tree
+   :param variables: The list of chosen Variables
+   :param constrains:  The list of for the Variables on the same Index
+   :return: VariableMap of the Variables with its associated Constraints
+
+
+.. py:function:: mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likelihood: float) -> List
+
+       Generate Visuel Dash Representation for result of the mpe jpt func
+   :param res: one of the Results from mpe func
+   :param likelihood: The likelihood of the maxima
+   :return: Children's List from Dash Components to display the Results in res
+
+
+.. py:function:: create_prefix_text_query(len_fac_q: int, len_fac_e: int) -> List
+
+       Creates Dash Style Prefix for the query GUI
+   :param len_fac_q:  Length of Query input used for Scaling
+   :param len_fac_e:  Length of Evidence input used for Scaling
+   :return: Children div for the prefix query GUI
+
+
+.. py:function:: create_prefix_text_mpe(len_fac: int) -> List
+
+       Creates Dash Style Prefix for the MPE GUI
+   :param len_fac: Length of Evidence input used for Scaling
+   :return: Children div for the prefix MPE GUI
+
+
+.. py:function:: generate_free_variables_from_div(model: jpt.trees.JPT, variable_div: List) -> List[str]
+
+       Peels the names out of variable_div elements and uses generate_free_variables_from_list for the Return
+   :param model: the JPT model of the Prob. Tree
+   :param variable_div: List of all Variabels that are being Used, in Dash Dropdown Class saved
+   :return: Returns List of String from the Names of all not used Variabels.
+
+
+.. py:function:: generate_free_variables_from_list(model: jpt.trees.JPT, variable_list: List[str]) -> List[str]
+
+       Deletes all used Variable Names out of a List of all Variables Names.
+   :param model: the JPT model of the Prob. Tree
+   :param variable_list: the List of in use Variable Names
+   :return: List of Variable Names that are not in use
+
+
+.. py:function:: update_free_vars_in_div(model: jpt.trees.JPT, variable_div: List) -> List
+
+       Updates the Variable Options for a Dash Dropdown for choosing Variables, to all not in use Variables.
+   :param model: the JPT model of the Prob. Tree
+   :param variable_div: the Div to update the Options
+   :return: the Div withe updated variable Options
+
+
+.. py:function:: reduce_index(index, number, list) -> List
+
+       Reduces the index in id from index in the list about the amount number
+   :param index: the start index to decrease the index
+   :param number: the amount to decrease
+   :param list: the List from Dash Components that should be decreased
+   :return: list with the decreased index implemented
+
+
+.. py:function:: del_selector_from_div(model: jpt.trees.JPT, variable_div: List, constrains_div: List, del_index: int) -> (List, List)
+
+       Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
+   :param model: the JPT model of the Prob. Tree
+   :param variable_div: list of Components to Chose Variable in the GUI
+   :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
+   :param del_index: the Value on what Position the to delete Row is.
+   :return: Variable Children and Constrains Children for the GUI withe Update options
+
+
+.. py:function:: del_selector_from_div_button(model: jpt.trees.JPT, variable_div: List, constrains_div: List, option_div: List, del_index: int) -> (List, List)
+
+       Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables
+   :param model: the JPT model of the Prob. Tree
+   :param variable_div: list of Components to Chose Variable in the GUI
+   :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
+   :param del_index: the Value on what Position the to delete Row is.
+   :return: Variable Children and Constrains Children for the GUI withe Update options
+
+
+.. py:function:: add_selector_to_div(model: jpt.trees.JPT, variable_div: List, constrains_div: list, type: str, index: int) -> (List[dash.dcc.Dropdown], List)
+
+       Genrats the Correct Selector Components for the div
+   :param model: the JPT model of the Prob. Tree
+   :param variable_div: list of Components to Chose Variable in the GUI
+   :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
+   :param type: the Type of the Component for the ID
+   :param index: the index Number of the Component for the ID
+   :return: Variable Children and Constrains Children for the GUI withe one more Row
+
+
+.. py:function:: add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_div, option_div, type: str, index: int) -> (List[dash.dcc.Dropdown], List, List)
+
+       Genrates teh Selector for the div withe a Button
+   :param model: the JPT model of the Prob. Tree
+   :param variable_div: list of Components to Chose Variable in the GUI
+   :param constrains_div: list of Components that are the Constraints for the Variables on the Same Index
+   :param type: the Type of the Component for the ID
+   :param index: the index Number of the Component for the ID
+   :return: Variable Children and Constrains Children for the GUI withe one more Row
+
+
+.. py:function:: reset_gui_button(model: jpt.trees.JPT, type: str)
+
+       Resets the GUI Parts back to Start + Button
+   :param model: the JPT Tree
+   :param type: What Type of ID it is
+   :return: Clean Start Style of Components for the GUI
+
+
+.. py:function:: reset_gui(model: jpt.trees.JPT, type: str) -> (List, List)
+
+       Resets the GUI Parts back to Start
+   :param model: the JPT Tree
+   :param type: What Type of ID it is
+   :return: Clean Start Style of Components for the GUI
+
+
+.. py:function:: plot_symbolic_distribution(distribution: jpt.distributions.univariate.Multinomial) -> plotly.graph_objects.Bar
+
+       generates a Bar graph for symbolic distribution in jpt.
+   :param distribution: the Distribution for the Bar Diagram
+   :return: the trace of a Bar Diagram for the symbolic variable.
+
+
+.. py:function:: plot_numeric_pdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> plotly.graph_objects.Scatter
+
+       generates a jpt plot from a numeric variable
+   :param distribution: the Distribution of the variable for the Plot
+   :param padding: for the ends of the Plot, it is for visibility.
+   :return: scatter plot for the numeric variable
+
+
+.. py:function:: plot_numeric_cdf(distribution: jpt.distributions.univariate.Numeric, padding=0.1) -> plotly.graph_objects.Scatter
+
+       generates a cdf plot from a numeric variable
+   :param distribution: the Distribution of the variable for the Plot
+   :param padding: for the ends of the Plot, it is for visibility.
+   :return: scatter plot for the numeric variable
+
+
+.. py:function:: plot_numeric_to_div(var_name: List, result) -> List
+
+       Generates a Div where both plots are in for a numeric variable
+   :param var_name: the name of variable that will be plotted
+   :param result: the result generate from jpt.
+   :return: one div withe 2 Plots in.
+
+
+.. py:function:: plot_symbolic_to_div(var_name: str, result) -> List
+
+       generates a div where a bar Diagram for a Symbolic Variable.
+   :param var_name: the name of the variable
+   :param result: the result generate from jpt
+   :return: a div withe one bar diagram in it.
+
+
+.. py:function:: gen_Nav_pages(pages, toIgnoreName)
+
+       Genartes the Navigation Page Links, withe out the toIgnoreNames
+   :param pages: All Pages that are in the GUI
+   :param toIgnoreName: Names of Pages that shouldnt be displayed (Empty)
+   :return: Dash Struct for Navgation of Pages
+
+
+.. py:function:: oder_Nav(nav_positions: dict, nav: List)
+
+

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>components &mdash; JPT-GUI 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> JPT-GUI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">JPT-GUI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">components</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/autoapi/components/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-components">
+<span id="components"></span><h1><a class="reference internal" href="#module-components" title="components"><code class="xref py py-mod docutils literal notranslate"><span class="pre">components</span></code></a><a class="headerlink" href="#module-components" title="Permalink to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.gen_modal_basic_id" title="components.gen_modal_basic_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_modal_basic_id</span></code></a>(id)</p></td>
+<td><p>Generates the zoom Modal style Basic Dash Objects withe the Correct ID</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.gen_modal_option_id" title="components.gen_modal_option_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_modal_option_id</span></code></a>(id)</p></td>
+<td><p>Generates the Zoom Modal Obtions where the Inteative Components will be set</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.correct_input_div" title="components.correct_input_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_input_div</span></code></a>(variable, value, priors, id, **kwargs)</p></td>
+<td><p>Generate a Dash Componant for the Varibael, that can be used in the zoom Modal</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.generate_correct_plots" title="components.generate_correct_plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_correct_plots</span></code></a>(variable, var, result)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.generate_modal_option" title="components.generate_modal_option"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_modal_option</span></code></a>(model, var, value, priors, id)</p></td>
+<td><p>Creates a modal for Zoom for a chosen Variabel, the Style is static</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.create_range_slider" title="components.create_range_slider"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_range_slider</span></code></a>(→ dash.dcc.RangeSlider)</p></td>
+<td><p>Generate a RangeSlider that resembles a continuous set.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.fuse_overlapping_range" title="components.fuse_overlapping_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuse_overlapping_range</span></code></a>(→ List)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.div_to_variablemap" title="components.div_to_variablemap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">div_to_variablemap</span></code></a>(→ jpt.variables.VariableMap)</p></td>
+<td><p>Transforms variable and Constrains List form the GUI to a VariableMap</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.mpe_result_to_div" title="components.mpe_result_to_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpe_result_to_div</span></code></a>(→ List)</p></td>
+<td><p>Generate Visuel Dash Representation for result of the mpe jpt func</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.create_prefix_text_query" title="components.create_prefix_text_query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_prefix_text_query</span></code></a>(→ List)</p></td>
+<td><p>Creates Dash Style Prefix for the query GUI</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.create_prefix_text_mpe" title="components.create_prefix_text_mpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_prefix_text_mpe</span></code></a>(→ List)</p></td>
+<td><p>Creates Dash Style Prefix for the MPE GUI</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.generate_free_variables_from_div" title="components.generate_free_variables_from_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_free_variables_from_div</span></code></a>(→ List[str])</p></td>
+<td><p>Peels the names out of variable_div elements and uses generate_free_variables_from_list for the Return</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.generate_free_variables_from_list" title="components.generate_free_variables_from_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_free_variables_from_list</span></code></a>(→ List[str])</p></td>
+<td><p>Deletes all used Variable Names out of a List of all Variables Names.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.update_free_vars_in_div" title="components.update_free_vars_in_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_free_vars_in_div</span></code></a>(→ List)</p></td>
+<td><p>Updates the Variable Options for a Dash Dropdown for choosing Variables, to all not in use Variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.reduce_index" title="components.reduce_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_index</span></code></a>(→ List)</p></td>
+<td><p>Reduces the index in id from index in the list about the amount number</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.del_selector_from_div" title="components.del_selector_from_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">del_selector_from_div</span></code></a>(model, variable_div, ...)</p></td>
+<td><p>Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.del_selector_from_div_button" title="components.del_selector_from_div_button"><code class="xref py py-obj docutils literal notranslate"><span class="pre">del_selector_from_div_button</span></code></a>(model, variable_div, ...)</p></td>
+<td><p>Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.add_selector_to_div" title="components.add_selector_to_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_selector_to_div</span></code></a>(model, variable_div, ...)</p></td>
+<td><p>Genrats the Correct Selector Components for the div</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.add_selector_to_div_button" title="components.add_selector_to_div_button"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_selector_to_div_button</span></code></a>(model, variable_div, ...)</p></td>
+<td><p>Genrates teh Selector for the div withe a Button</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.reset_gui_button" title="components.reset_gui_button"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_gui_button</span></code></a>(model, type)</p></td>
+<td><p>Resets the GUI Parts back to Start + Button</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.reset_gui" title="components.reset_gui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_gui</span></code></a>(model, type, List)</p></td>
+<td><p>Resets the GUI Parts back to Start</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.plot_symbolic_distribution" title="components.plot_symbolic_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_symbolic_distribution</span></code></a>(→ plotly.graph_objects.Bar)</p></td>
+<td><p>generates a Bar graph for symbolic distribution in jpt.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.plot_numeric_pdf" title="components.plot_numeric_pdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_numeric_pdf</span></code></a>(→ plotly.graph_objects.Scatter)</p></td>
+<td><p>generates a jpt plot from a numeric variable</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.plot_numeric_cdf" title="components.plot_numeric_cdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_numeric_cdf</span></code></a>(→ plotly.graph_objects.Scatter)</p></td>
+<td><p>generates a cdf plot from a numeric variable</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.plot_numeric_to_div" title="components.plot_numeric_to_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_numeric_to_div</span></code></a>(→ List)</p></td>
+<td><p>Generates a Div where both plots are in for a numeric variable</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.plot_symbolic_to_div" title="components.plot_symbolic_to_div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_symbolic_to_div</span></code></a>(→ List)</p></td>
+<td><p>generates a div where a bar Diagram for a Symbolic Variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.gen_Nav_pages" title="components.gen_Nav_pages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_Nav_pages</span></code></a>(pages, toIgnoreName)</p></td>
+<td><p>Genartes the Navigation Page Links, withe out the toIgnoreNames</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.oder_Nav" title="components.oder_Nav"><code class="xref py py-obj docutils literal notranslate"><span class="pre">oder_Nav</span></code></a>(nav_positions, nav)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.in_use_tree" title="components.in_use_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">in_use_tree</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#components.priors" title="components.priors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">priors</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#components.color_list_modal" title="components.color_list_modal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">color_list_modal</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="components.in_use_tree">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">in_use_tree</span></span><a class="headerlink" href="#components.in_use_tree" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="components.priors">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">priors</span></span><a class="headerlink" href="#components.priors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="components.color_list_modal">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">color_list_modal</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">['#ccff66',</span> <span class="pre">'MediumSeaGreen',</span> <span class="pre">'Tomato',</span> <span class="pre">'SlateBlue',</span> <span class="pre">'Violet']</span></em><a class="headerlink" href="#components.color_list_modal" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.gen_modal_basic_id">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">gen_modal_basic_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#gen_modal_basic_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.gen_modal_basic_id" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Generates the zoom Modal style Basic Dash Objects withe the Correct ID</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> – The Id to Specify the Components for Dash Callbacks</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Zoom Modal Dash Object List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.gen_modal_option_id">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">gen_modal_option_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#gen_modal_option_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.gen_modal_option_id" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Generates the Zoom Modal Obtions where the Inteative Components will be set</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> – The Id to Specify the Components for Dash Callbacks</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Modal Components withe the base for the Inteactive parts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.correct_input_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">correct_input_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#correct_input_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.correct_input_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Generate a Dash Componant for the Varibael, that can be used in the zoom Modal</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> – The Variabel wich is be displayed</p></li>
+<li><p><strong>value</strong> – The Value of the Variable chosen from the User</p></li>
+<li><p><strong>priors</strong> – the Priors of the modael</p></li>
+<li><p><strong>kwargs</strong> – further specifation for the Dash Componant</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a Dash Componant that displays the variable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.generate_correct_plots">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">generate_correct_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#generate_correct_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.generate_correct_plots" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.generate_modal_option">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">generate_modal_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List[str</span> <span class="pre">or</span> <span class="pre">int</span> <span class="pre">or</span> <span class="pre">float]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#generate_modal_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.generate_modal_option" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Creates a modal for Zoom for a chosen Variabel, the Style is static</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model of the Tree</p></li>
+<li><p><strong>var</strong> – the Variabel wiche will be displayed</p></li>
+<li><p><strong>value</strong> – the User chosen Values from the Varibale</p></li>
+<li><p><strong>priors</strong> – the Priors pre calculatet</p></li>
+<li><p><strong>id</strong> – id from Modal will be modal_input_id because the callbacks cant be duplicated</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Zoom Modal for the Variabel in var</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.create_range_slider">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">create_range_slider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dash.dcc.RangeSlider</span></span></span><a class="reference internal" href="../../_modules/components.html#create_range_slider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.create_range_slider" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Generate a RangeSlider that resembles a continuous set.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minimum</strong> – lowest number possible in the Range of the slider (left-Side)</p></li>
+<li><p><strong>maximum</strong> – the Highest number possible in the Range of the slider (right-Side)</p></li>
+<li><p><strong>args</strong> – Further styling for plotly dash components</p></li>
+<li><p><strong>kwargs</strong> – Further styling for plotly dash components</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The slider as dcc component</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.fuse_overlapping_range">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">fuse_overlapping_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ranges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#fuse_overlapping_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.fuse_overlapping_range" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.div_to_variablemap">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">div_to_variablemap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">jpt.variables.VariableMap</span></span></span><a class="reference internal" href="../../_modules/components.html#div_to_variablemap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.div_to_variablemap" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Transforms variable and Constrains List form the GUI to a VariableMap</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variables</strong> – The list of chosen Variables</p></li>
+<li><p><strong>constrains</strong> – The list of for the Variables on the same Index</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>VariableMap of the Variables with its associated Constraints</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.mpe_result_to_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">mpe_result_to_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.VariableMap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#mpe_result_to_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.mpe_result_to_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Generate Visuel Dash Representation for result of the mpe jpt func</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>res</strong> – one of the Results from mpe func</p></li>
+<li><p><strong>likelihood</strong> – The likelihood of the maxima</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Children’s List from Dash Components to display the Results in res</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.create_prefix_text_query">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">create_prefix_text_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">len_fac_q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_fac_e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#create_prefix_text_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.create_prefix_text_query" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Creates Dash Style Prefix for the query GUI</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>len_fac_q</strong> – Length of Query input used for Scaling</p></li>
+<li><p><strong>len_fac_e</strong> – Length of Evidence input used for Scaling</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Children div for the prefix query GUI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.create_prefix_text_mpe">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">create_prefix_text_mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">len_fac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#create_prefix_text_mpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.create_prefix_text_mpe" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Creates Dash Style Prefix for the MPE GUI</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>len_fac</strong> – Length of Evidence input used for Scaling</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Children div for the prefix MPE GUI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.generate_free_variables_from_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">generate_free_variables_from_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/components.html#generate_free_variables_from_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.generate_free_variables_from_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Peels the names out of variable_div elements and uses generate_free_variables_from_list for the Return</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variable_div</strong> – List of all Variabels that are being Used, in Dash Dropdown Class saved</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns List of String from the Names of all not used Variabels.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.generate_free_variables_from_list">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">generate_free_variables_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/components.html#generate_free_variables_from_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.generate_free_variables_from_list" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Deletes all used Variable Names out of a List of all Variables Names.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variable_list</strong> – the List of in use Variable Names</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Variable Names that are not in use</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.update_free_vars_in_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">update_free_vars_in_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#update_free_vars_in_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.update_free_vars_in_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Updates the Variable Options for a Dash Dropdown for choosing Variables, to all not in use Variables.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variable_div</strong> – the Div to update the Options</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Div withe updated variable Options</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.reduce_index">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">reduce_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#reduce_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.reduce_index" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Reduces the index in id from index in the list about the amount number</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – the start index to decrease the index</p></li>
+<li><p><strong>number</strong> – the amount to decrease</p></li>
+<li><p><strong>list</strong> – the List from Dash Components that should be decreased</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list with the decreased index implemented</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.del_selector_from_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">del_selector_from_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrains_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">del_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#del_selector_from_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.del_selector_from_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variable_div</strong> – list of Components to Chose Variable in the GUI</p></li>
+<li><p><strong>constrains_div</strong> – list of Components that are the Constraints for the Variables on the Same Index</p></li>
+<li><p><strong>del_index</strong> – the Value on what Position the to delete Row is.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Variable Children and Constrains Children for the GUI withe Update options</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.del_selector_from_div_button">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">del_selector_from_div_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrains_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">del_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#del_selector_from_div_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.del_selector_from_div_button" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Deletes a Row from the Option + Constrains and Rebuilds all Choices for Variables</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variable_div</strong> – list of Components to Chose Variable in the GUI</p></li>
+<li><p><strong>constrains_div</strong> – list of Components that are the Constraints for the Variables on the Same Index</p></li>
+<li><p><strong>del_index</strong> – the Value on what Position the to delete Row is.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Variable Children and Constrains Children for the GUI withe Update options</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.add_selector_to_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">add_selector_to_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrains_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#add_selector_to_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.add_selector_to_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Genrats the Correct Selector Components for the div</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variable_div</strong> – list of Components to Chose Variable in the GUI</p></li>
+<li><p><strong>constrains_div</strong> – list of Components that are the Constraints for the Variables on the Same Index</p></li>
+<li><p><strong>type</strong> – the Type of the Component for the ID</p></li>
+<li><p><strong>index</strong> – the index Number of the Component for the ID</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Variable Children and Constrains Children for the GUI withe one more Row</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.add_selector_to_div_button">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">add_selector_to_div_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_div</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrains_div</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option_div</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#add_selector_to_div_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.add_selector_to_div_button" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Genrates teh Selector for the div withe a Button</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT model of the Prob. Tree</p></li>
+<li><p><strong>variable_div</strong> – list of Components to Chose Variable in the GUI</p></li>
+<li><p><strong>constrains_div</strong> – list of Components that are the Constraints for the Variables on the Same Index</p></li>
+<li><p><strong>type</strong> – the Type of the Component for the ID</p></li>
+<li><p><strong>index</strong> – the index Number of the Component for the ID</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Variable Children and Constrains Children for the GUI withe one more Row</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.reset_gui_button">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">reset_gui_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#reset_gui_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.reset_gui_button" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Resets the GUI Parts back to Start + Button</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT Tree</p></li>
+<li><p><strong>type</strong> – What Type of ID it is</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Clean Start Style of Components for the GUI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.reset_gui">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">reset_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.trees.JPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#reset_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.reset_gui" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Resets the GUI Parts back to Start</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the JPT Tree</p></li>
+<li><p><strong>type</strong> – What Type of ID it is</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Clean Start Style of Components for the GUI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.plot_symbolic_distribution">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">plot_symbolic_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.distributions.univariate.Multinomial</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Bar</span></span></span><a class="reference internal" href="../../_modules/components.html#plot_symbolic_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.plot_symbolic_distribution" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>generates a Bar graph for symbolic distribution in jpt.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>distribution</strong> – the Distribution for the Bar Diagram</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the trace of a Bar Diagram for the symbolic variable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.plot_numeric_pdf">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">plot_numeric_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.distributions.univariate.Numeric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Scatter</span></span></span><a class="reference internal" href="../../_modules/components.html#plot_numeric_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.plot_numeric_pdf" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>generates a jpt plot from a numeric variable</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distribution</strong> – the Distribution of the variable for the Plot</p></li>
+<li><p><strong>padding</strong> – for the ends of the Plot, it is for visibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>scatter plot for the numeric variable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.plot_numeric_cdf">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">plot_numeric_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jpt.distributions.univariate.Numeric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Scatter</span></span></span><a class="reference internal" href="../../_modules/components.html#plot_numeric_cdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.plot_numeric_cdf" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>generates a cdf plot from a numeric variable</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distribution</strong> – the Distribution of the variable for the Plot</p></li>
+<li><p><strong>padding</strong> – for the ends of the Plot, it is for visibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>scatter plot for the numeric variable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.plot_numeric_to_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">plot_numeric_to_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#plot_numeric_to_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.plot_numeric_to_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Generates a Div where both plots are in for a numeric variable</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var_name</strong> – the name of variable that will be plotted</p></li>
+<li><p><strong>result</strong> – the result generate from jpt.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>one div withe 2 Plots in.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.plot_symbolic_to_div">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">plot_symbolic_to_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="../../_modules/components.html#plot_symbolic_to_div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.plot_symbolic_to_div" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>generates a div where a bar Diagram for a Symbolic Variable.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var_name</strong> – the name of the variable</p></li>
+<li><p><strong>result</strong> – the result generate from jpt</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a div withe one bar diagram in it.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.gen_Nav_pages">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">gen_Nav_pages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toIgnoreName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#gen_Nav_pages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.gen_Nav_pages" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Genartes the Navigation Page Links, withe out the toIgnoreNames</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pages</strong> – All Pages that are in the GUI</p></li>
+<li><p><strong>toIgnoreName</strong> – Names of Pages that shouldnt be displayed (Empty)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dash Struct for Navgation of Pages</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="components.oder_Nav">
+<span class="sig-prename descclassname"><span class="pre">components.</span></span><span class="sig-name descname"><span class="pre">oder_Nav</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nav_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nav</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/components.html#oder_Nav"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#components.oder_Nav" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Maximilian N..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

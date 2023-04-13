@@ -1,0 +1,35 @@
+:py:mod:`pages.Home`
+====================
+
+.. py:module:: pages.Home
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pages.Home.gen_varnames
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pages.Home.layout
+
+
+.. py:function:: gen_varnames(children)
+
+
+.. py:data:: layout
+   
+
+   
+

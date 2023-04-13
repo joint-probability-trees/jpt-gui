@@ -1,0 +1,107 @@
+:py:mod:`pages.Posterior`
+=========================
+
+.. py:module:: pages.Posterior
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pages.Posterior.layout_pos
+   pages.Posterior.post_router
+   pages.Posterior.modal_router
+   pages.Posterior.erg_controller
+   pages.Posterior.plot_post
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pages.Posterior.page
+   pages.Posterior.modal_var_index
+   pages.Posterior.modal_basic_pos
+   pages.Posterior.modal_option_pos
+   pages.Posterior.layout
+
+
+.. py:data:: page
+   :annotation: = 0
+
+   
+
+.. py:data:: modal_var_index
+   
+
+   
+
+.. py:data:: modal_basic_pos
+   
+
+   
+
+.. py:data:: modal_option_pos
+   
+
+   
+
+.. py:function:: layout_pos()
+
+
+.. py:data:: layout
+   
+
+   
+
+.. py:function:: post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i)
+
+       Receives callback events and manages these to the correct
+   :param dd_vals: All Varietals used in Evidence Section are chosen
+   :param b_e: Trigger if the Zoom Button in the Evidence is Pressed
+   :param op_s: Trigger if the Modal parameter from a Zoom should be saved
+   :param e_var: the Dropdown of variable of Evidence Section
+   :param e_in: the Input for the Variables of Evidence Section
+   :param q_var: the Dropdown of variable of Query Section
+   :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
+   :param op_i: The Values choosen in the Zoom Modal
+   :return: returns evidence variable, evidence Input, text prefix, query Variable
+
+
+.. py:function:: modal_router(op, op_i, m_bod, dd)
+
+       Recessive all App Calls that are change the Modal for the zoom Function
+   :param op: Trigger to add More Input Option by Numeric Variabel
+   :param op_i: Trigger to update Chance for the Chosen values
+   :param m_bod: The State of the Modal
+   :param dd: div withe the chosen values
+   :return: update Modal Body for the Zoom
+
+
+.. py:function:: erg_controller(n1, n2, n3, e_var, e_in, q_var)
+
+       Conntroller for the Results and the Displays
+   :param n1: event for generating Result
+   :param n2: the Previous Result
+   :param n3: the Next Result
+   :param e_var: the Dropdown of variable of Evidence Section
+   :param e_in: the Input for the Variables of Evidence Section
+   :param q_var: the Dropdown of variable of Query Section
+   :return: Returns the Name of The Variabel, the plot of the Variable, if there is a pre or post result
+
+
+.. py:function:: plot_post(vars: List, n: int)
+
+       Generates the Plots for a Varibel in Vars postion n
+   :param vars: List of Variabel
+   :param n: Postion of the Choosen Variabel
+   :return:  Plot
+
+

@@ -3,12 +3,12 @@ import dash
 from dash import dcc, html, Input, Output, State, ctx, ALL, callback
 from src import components as c
 from typing import List
-'''
+"""
 On this Page there can be ask Query Situation. 
-Query: Waht the Propablity is for the Attributes to be in the Range/Style 
+Query: What the Propablity is for the Attributes to be in the Range/Style 
 Evidence: What is Given for the Probablity of the Query 
 After = Button there will be the Display of the Percantage 
-'''
+"""
 
 
 global modal_var_index
@@ -26,10 +26,10 @@ modal_option_que = c.gen_modal_option_id("_que")
 dash.register_page(__name__)
 
 def layout_que():
-    '''
+    """
         Generates the Basic Layout in Dash for Query withe the Tree varnames as Options
     :return: Dash html strucktur
-    '''
+    """
     return dbc.Container(
     [
         dbc.Row(
@@ -73,14 +73,14 @@ def layout_que():
 layout = layout_que
 
 def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
-    '''
+    """
         Handel all action in the Query Part of the GUI (Extend Change Reduce)
     :param dd_vals: All Varietals used in Query Section are chosen
     :param q_var: the Dropdown of variable of Query Section
     :param q_in: the Input for the Variables of Query Section
     :param q_op:  the Variabel  who is selected for the Zoom
     :return: Updatet Varibel List and the Input.
-    '''
+    """
     cb = ctx.triggered_id
     if dd_vals[cb.get("index")] is None:
         return c.del_selector_from_div_button(c.in_use_tree, q_var, q_in, q_op, cb.get("index"))
@@ -116,14 +116,14 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
 
 
 def evid_gen(dd_vals, e_var, e_in, e_op):
-    '''
+    """
         Handel all action in the Evidence Part of the GUI (Extend Change Reduce)
     :param dd_vals: All Varietals used in Evidence Section are chosen
     :param e_var: the Dropdown of variable of Evidence Section
     :param e_in: the Input for the Variables of Evidence Section
     :param q_op:  the Variabel  who is selected for the Zoom
     :return: Updatet Varibel List and the Input.
-    '''
+    """
     e_var: List[dict] = e_var
     e_in: List[dict] = e_in
     cb = ctx.triggered_id
@@ -180,7 +180,7 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     State({'type': 'op_i_que', 'index': ALL}, 'value'),
 )
 def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
-    '''
+    """
         Receives app callback events and manages/redirects these to the correct functions.
     :param q_dd: Query Varibels Names
     :param e_dd: Evidence Variable Names
@@ -195,7 +195,7 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
     :param e_op: Information of whiche Zoom Button was pressed in the Evidence section
     :param op_i: The Values choosen in the Zoom Modal
     :return: Query Varibels, Query Input, Evidence Variable, Evidence Input, Text Prefix.
-    '''
+    """
     global modal_var_index
     global modal_type  # 0 = q and 1 = e
 
@@ -275,7 +275,7 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
     State({'type': 'dd_q_que', 'index': ALL}, 'value'),
 )
 def modal_router(op, op_i, m_bod, dd_e, dd_q):
-    '''
+    """
         Recessive all App Calls that are change the Modal for the zoom Function
     :param op: Trigger to add More Input Option by Numeric Variabel
     :param op_i: Trigger to update Chance for the Chosen values
@@ -283,7 +283,7 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
     :param dd_e: div withe the chosen values in the Evidence Section
     :param dd_q: div withe the chosen values in the Query Section
     :return: update Modal Body for the Zoom
-    '''
+    """
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return m_bod
