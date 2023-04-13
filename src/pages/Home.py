@@ -1,6 +1,6 @@
 import dash
 from dash import html, Input, Output, callback
-from src import components as c
+import components as c
 import dash_bootstrap_components as dbc
 
 dash.register_page(__name__, path='/')

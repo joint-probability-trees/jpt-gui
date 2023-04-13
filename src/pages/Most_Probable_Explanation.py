@@ -5,7 +5,7 @@ import jpt.variables
 import dash_bootstrap_components as dbc
 import dash
 from dash import dcc, html, Input, Output, State, ctx, ALL, callback
-from src import components as c
+import components as c
 
 '''
     Most Probable Explanation GUI here can be chosen which Variabel to be consider (Default are all)

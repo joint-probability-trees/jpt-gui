@@ -12,7 +12,7 @@ import dash
 from dash import dcc, html, Input, Output, State, ctx, MATCH, ALLSMALLER, ALL
 import math
 import json
-from src import components as c
+import components as c
 from typing import List
 
 '''
