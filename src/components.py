@@ -102,9 +102,13 @@ def correct_input_div(variable, value, priors, id, **kwargs):
                             options={k: v for k, v in zip(variable.domain.labels.values(), variable.domain.labels.values())},
                             value=value, multi=True, **kwargs)
     elif variable.integer:
-        lab = variable.distribution().labels
-        return create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
+        lab = list(variable.domain.labels.values())
+        mini = min(lab)
+        maxi = max(lab)
+        markings = dict(zip(lab, map(str, lab)))
+        return create_range_slider(minimum=mini, maximum=maxi, value=[mini, maxi],
                                                       id={'type': f'op_i{id}', 'index': 0}, dots=False,
+                                                      marks=markings,
                                                       tooltip={"placement": "bottom", "always_visible": False}, **kwargs)
 
 
@@ -241,7 +245,16 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likeliho
 
     for variable, restriction in res.items():
         if variable.integer:
-            print("F")
+            value = [x for i in range(0, len(restriction)) for x in (i, i)]
+            lab = list(variable.domain.labels.values())
+            mini = min(lab)
+            maxi = max(lab)
+            markings = dict(zip(lab, map(str, lab)))
+            return_div += [html.Div(
+                [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True, className="margin10"),
+                 create_range_slider(minimum=mini-1, maximum=maxi+1, value=value, disabled=True, marks=markings, dots=False,
+                                     className="margin10")]
+                , style={"display": "grid", "grid-template-columns": "30% 70%"})]
 
         if variable.numeric:
             value = []
@@ -255,7 +268,7 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likeliho
                  create_range_slider(minimum, maximum, value=value, disabled=True, className="margin10",
                                      tooltip={"placement": "bottom", "always_visible": True})]
                 , style={"display": "grid", "grid-template-columns": "30% 70%"})]
-        elif variable.symbolic or variable.integer:
+        elif variable.symbolic:
             return_div += [html.Div(
                 [dcc.Dropdown(options=[variable.name], value=variable.name, disabled=True),
                  dcc.Dropdown(
@@ -325,7 +338,7 @@ def generate_free_variables_from_list(model: jpt.trees.JPT, variable_list: List[
     :return: List of Variable Names that are not in use
     """
     vars_free = model.varnames.copy()
-    print(variable_list)
+
     for v in variable_list:
         if v != []:
             vars_free.pop(v)

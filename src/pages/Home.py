@@ -26,7 +26,6 @@ def gen_varnames(children):
             childStr = [html.Div(var_name, className="fs-4  flex-nowrap flex-grow-0 text-nowrap text-start"), html.Div(" ∈ ", className="pe-2 ps-1 fs-4  flex-nowrap flex-grow-0 text-nowrap text-start"), html.Div(f"[{round(mini,3)}, {round(maxi, 3)}]", className="fs-4  flex-nowrap flex-grow-0 text-nowrap text-start")]
             var_divs.append(html.Div(childStr, className="d-flex justify-content-center flex-grow-0"))
         else:
-            print(list(c.priors[variable.name].labels.keys()))
             vals = list(variable.domain.labels.values())
             #c.priors[var_name]
             stri = f"{var_name} ∈ ({vals})"

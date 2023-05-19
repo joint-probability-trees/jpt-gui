@@ -83,6 +83,6 @@ def tree_update(upload):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True, dev_tools_hot_reload=False)
 
     #Dash Hover Upload beim Samen

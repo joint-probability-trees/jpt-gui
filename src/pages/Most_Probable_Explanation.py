@@ -145,10 +145,14 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
                                                  value=list(variable.domain.labels.values()),
                                                  multi=True, )
         elif variable.integer:
-            lab = variable.distribution().labels
-            e_in[cb.get("index")] = c.create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
-                                                      id={'type': 'i_e_mpe', 'index': cb.get("index")}, dots=False,
-                                                      tooltip={"placement": "bottom", "always_visible": False})
+            lab = list(variable.domain.labels.values())
+            mini = min(lab)
+            maxi = max(lab)
+            markings = dict(zip(lab, map(str, lab)))
+            e_in[cb.get("index")] = c.create_range_slider(minimum=mini - 1, maximum=maxi + 1, value=[mini, maxi],
+                                                          id={'type': 'i_e_que', 'index': cb.get("index")}, dots=False,
+                                                          marks=markings,
+                                                          tooltip={"placement": "bottom", "always_visible": False})
 
         if len(e_var) - 1 == cb.get("index"):
             return *c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_mpe", cb.get("index") + 1), \
@@ -172,7 +176,8 @@ def evid_gen(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
         return e_var, e_in, e_op, c.create_prefix_text_mpe(len(e_var)), q_var, modal_body, True
     elif cb.get("type") == "option_save_mpe":
         new_vals = List
-        if c.in_use_tree.varnames[dd_vals[cb.get("index")]].numeric:
+        variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
+        if variable.numeric or variable.integer:
             new_vals = c.fuse_overlapping_range(op_i)
         else:
             new_vals = op_i[0]  # is List of a List
@@ -204,6 +209,7 @@ def modal_router(op, op_i, m_bod, dd):
         return m_bod
     global modal_var_index
     var = dd[modal_var_index]
+    variable = c.in_use_tree.varnames[var]
     if not isinstance(m_bod, list):
         m_in_new = [m_bod]
     else:
@@ -211,7 +217,7 @@ def modal_router(op, op_i, m_bod, dd):
     if cb == "op_add_mpe":
         index = m_in_new[-2]['props']['children'][0]['props']['children'][1]['props']['id']['index']
         type = m_in_new[1]['props']['children'][0]['props']['children'][1]['type']
-        if type == "RangeSlider":
+        if variable.numeric:
 
             mini = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['min']
             maxi = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['max']
@@ -231,6 +237,25 @@ def modal_router(op, op_i, m_bod, dd):
                          id=f"modal_color_{(index + 1) % (len(c.color_list_modal) - 1)}",
                          className="d-flex flex-nowrap justify-content-center ps-2")
             ], className="d-flex justify-content-center"))
+            return m_in_new
+        elif variable.integer:
+            lab = list(variable.domain.labels.values())
+            mini = min(lab)
+            maxi = max(lab)
+            markings = dict(zip(lab, map(str, lab)))
+            range_string = html.Div(f"Range {index + 2}",
+                                    style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            n_slider = c.create_range_slider(minimum=mini, maximum=maxi, value=[mini, maxi]
+                                                          ,id={'type': 'op_i_mpe', 'index': index + 1}, dots=False,
+                                                          marks=markings,
+                                                          tooltip={"placement": "bottom", "always_visible": False},
+                                            className="flex-fill")
+            var_map = c.div_to_variablemap(c.in_use_tree, [var], [[mini, maxi]])
+            prob = c.in_use_tree.infer(var_map, {})
+            prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            m_in_new.insert(len(m_in_new) - 1, dbc.Row([
+                html.Div([range_string, n_slider, prob_div], id=f"modal_color_{(index + 1) % (len(c.color_list_modal)-1)}", className="d-flex flex-nowrap justify-content-center ps-2")
+            ],className="d-flex justify-content-center"))
             return m_in_new
         else:
             # Sollte nicht Triggerbar sein, da bei DDMenu der +Buttone nicht Aktiv ist

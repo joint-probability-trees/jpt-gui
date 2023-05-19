@@ -84,7 +84,6 @@ def query_gen(dd_vals: List, q_var: List, q_in: List, q_op):
     cb = ctx.triggered_id
     if dd_vals[cb.get("index")] is None:
         return c.del_selector_from_div_button(c.in_use_tree, q_var, q_in, q_op, cb.get("index"))
-
     variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
 
 
@@ -127,7 +126,6 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     e_var: List[dict] = e_var
     e_in: List[dict] = e_in
     cb = ctx.triggered_id
-    print(cb)
     if dd_vals[cb.get("index")] is None:
         return c.del_selector_from_div_button(c.in_use_tree, e_var, e_in, e_op, cb.get('index'))
 
@@ -238,16 +236,25 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
                                                  value=[q_in[cb.get("index")]['props']['min'],
                                                         q_in[cb.get("index")]['props']['max']],
                                                  priors=c.priors, id="_que")
-        elif variable.symbolic or variable.integer:
+        elif variable.symbolic:
             modal_body = c.generate_modal_option(model=c.in_use_tree, var=q_var[cb.get("index")]['props']['value'],
                                                  value=q_in[cb.get("index")]['props'].get('value'), priors=c.priors,
                                                  id="_que")
+        elif variable.integer:
+            lab = list(variable.domain.labels.values())
+            mini = min(lab)
+            maxi = max(lab)
+            markings = dict(zip(lab, map(str, lab)))
+            modal_body = c.generate_modal_option(model=c.in_use_tree, var=q_var[cb.get("index")]['props']['value'],
+                                                 value=[mini, maxi],
+                                                 priors=c.priors, id="_que")
+
         return q_var, q_in, q_op, e_var, e_in, e_op, \
                c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
     elif cb.get("type") == "option_save_que":
         new_vals = List
         variable = c.in_use_tree.varnames[q_dd[cb.get("index")]] if modal_type == 0 else c.in_use_tree.varnames[e_dd[cb.get("index")]]
-        if variable.numeric:
+        if variable.numeric or variable.integer:
             new_vals = c.fuse_overlapping_range(op_i)
         else:
             new_vals = op_i[0]#is List of a List
@@ -291,14 +298,15 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
     global modal_type
     dd = dd_e if modal_type == 1 else dd_q
     var = dd[modal_var_index]
+    variable = c.in_use_tree.varnames[var]
     if not isinstance(m_bod, list):
         m_in_new = [m_bod]
     else:
         m_in_new = m_bod
     if cb == "op_add_que":
         index = m_in_new[-2]['props']['children'][0]['props']['children'][1]['props']['id']['index']
-        type = m_in_new[1]['props']['children'][0]['props']['children'][1]['type']
-        if type == "RangeSlider":
+        var_type = m_in_new[1]['props']['children'][0]['props']['children'][1]['type']
+        if variable.numeric:
 
             mini = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['min']
             maxi = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['max']
@@ -311,6 +319,25 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
             var_map = c.div_to_variablemap(c.in_use_tree, [var], [[mini, maxi]])
             prob = c.in_use_tree.infer(var_map, {})
 
+            prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            m_in_new.insert(len(m_in_new) - 1, dbc.Row([
+                html.Div([range_string, n_slider, prob_div], id=f"modal_color_{(index + 1) % (len(c.color_list_modal)-1)}", className="d-flex flex-nowrap justify-content-center ps-2")
+            ],className="d-flex justify-content-center"))
+            return m_in_new
+        elif variable.integer:
+            lab = list(variable.domain.labels.values())
+            mini = min(lab)
+            maxi = max(lab)
+            markings = dict(zip(lab, map(str, lab)))
+            range_string = html.Div(f"Range {index + 2}",
+                                    style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            n_slider = c.create_range_slider(minimum=mini, maximum=maxi, value=[mini, maxi]
+                                                          ,id={'type': 'op_i_que', 'index': index + 1}, dots=False,
+                                                          marks=markings,
+                                                          tooltip={"placement": "bottom", "always_visible": False},
+                                            className="flex-fill")
+            var_map = c.div_to_variablemap(c.in_use_tree, [var], [[mini, maxi]])
+            prob = c.in_use_tree.infer(var_map, {})
             prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
             m_in_new.insert(len(m_in_new) - 1, dbc.Row([
                 html.Div([range_string, n_slider, prob_div], id=f"modal_color_{(index + 1) % (len(c.color_list_modal)-1)}", className="d-flex flex-nowrap justify-content-center ps-2")
@@ -353,14 +380,13 @@ def infer(n1, q_var, q_in, e_var, e_in):
         return ""
     query = c.div_to_variablemap(c.in_use_tree, q_var, q_in)
     evidence = c.div_to_variablemap(c.in_use_tree, e_var, e_in)
-    print(f'query:{query}, evi:{evidence}')
+
     try:
         result = c.in_use_tree.infer(query, evidence)
 
     except Exception as e:
         print(e)
         return "Unsatasfiable"
-    print(result)
     return "{}%".format(round(result * 100, 2))
 
 

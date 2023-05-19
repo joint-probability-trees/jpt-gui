@@ -128,9 +128,13 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
                                                  value=list(variable.domain.labels.values()),
                                                  multi=True, )
         elif variable.integer:
-            lab = variable.distribution().labels
-            e_in[cb.get("index")] = c.create_range_slider(minimum=min(lab), maximum=max(lab), value=lab, drag_value=lab,
-                                                          id={'type': 'i_e_pos', 'index': cb.get("index")}, dots=False,
+            lab = list(variable.domain.labels.values())
+            mini = min(lab)
+            maxi = max(lab)
+            markings = dict(zip(lab, map(str, lab)))
+            e_in[cb.get("index")] = c.create_range_slider(minimum=mini - 1, maximum=maxi + 1, value=[mini, maxi],
+                                                          id={'type': 'i_e_que', 'index': cb.get("index")}, dots=False,
+                                                          marks=markings,
                                                           tooltip={"placement": "bottom", "always_visible": False})
 
         if len(e_var) - 1 == cb.get("index"):
@@ -154,12 +158,14 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
 
         return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_body, True
     elif cb.get("type") == "option_save_pos":
+        variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
         new_vals = List
-        if c.in_use_tree.varnames[dd_vals[cb.get("index")]].numeric:
+        if variable.numeric or variable.integer:
             new_vals = c.fuse_overlapping_range(op_i)
         else:
             new_vals = op_i[0]#is List of a List
         e_in[modal_var_index]['props']['value'] = new_vals
+        e_in[modal_var_index]['props']['drag_value'] = new_vals
         return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
 
     return c.update_free_vars_in_div(c.in_use_tree, e_var), e_in, e_op, c.create_prefix_text_query(len(e_var),
@@ -188,6 +194,7 @@ def modal_router(op, op_i, m_bod, dd):
         return m_bod
     global modal_var_index
     var = dd[modal_var_index]
+    variable = c.in_use_tree.varnames[var]
     if not isinstance(m_bod, list):
         m_in_new = [m_bod]
     else:
@@ -195,7 +202,7 @@ def modal_router(op, op_i, m_bod, dd):
     if cb == "op_add_pos":
         index = m_in_new[-2]['props']['children'][0]['props']['children'][1]['props']['id']['index']
         type = m_in_new[1]['props']['children'][0]['props']['children'][1]['type']
-        if type == "RangeSlider":
+        if variable.numeric:
 
             mini = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['min']
             maxi = m_in_new[1]['props']['children'][0]['props']['children'][1]['props']['max']
@@ -215,6 +222,25 @@ def modal_router(op, op_i, m_bod, dd):
                          id=f"modal_color_{(index + 1) % (len(c.color_list_modal) - 1)}",
                          className="d-flex flex-nowrap justify-content-center ps-2")
             ], className="d-flex justify-content-center"))
+            return m_in_new
+        elif variable.integer:
+            lab = list(variable.domain.labels.values())
+            mini = min(lab)
+            maxi = max(lab)
+            markings = dict(zip(lab, map(str, lab)))
+            range_string = html.Div(f"Range {index + 2}",
+                                    style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            n_slider = c.create_range_slider(minimum=mini, maximum=maxi, value=[mini, maxi]
+                                                          ,id={'type': 'op_i_pos', 'index': index + 1}, dots=False,
+                                                          marks=markings,
+                                                          tooltip={"placement": "bottom", "always_visible": False},
+                                            className="flex-fill")
+            var_map = c.div_to_variablemap(c.in_use_tree, [var], [[mini, maxi]])
+            prob = c.in_use_tree.infer(var_map, {})
+            prob_div = html.Div(f"{prob}", style=dict(color=c.color_list_modal[(index + 1) % (len(c.color_list_modal)-1)]))
+            m_in_new.insert(len(m_in_new) - 1, dbc.Row([
+                html.Div([range_string, n_slider, prob_div], id=f"modal_color_{(index + 1) % (len(c.color_list_modal)-1)}", className="d-flex flex-nowrap justify-content-center ps-2")
+            ],className="d-flex justify-content-center"))
             return m_in_new
         else:
             # Sollte nicht Triggerbar sein, da bei DDMenu der +Buttone nicht Aktiv ist
@@ -256,7 +282,6 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
     global page
     vals = q_var[0]['props']['value']
     cb = ctx.triggered_id if not None else None
-    print(cb)
     if cb is None:
         return [], [], True, True
     if cb == "b_erg_pre_pos":
@@ -277,9 +302,7 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
         page = 0
         evidence_dict = c.div_to_variablemap(c.in_use_tree, e_var, e_in)
         try:
-            print(evidence_dict)
             result = c.in_use_tree.posterior(evidence=evidence_dict)
-            print("RESULT", result)
         except Exception as e:
             print("Error was", type(e), e)
             return "", [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True
@@ -307,13 +330,3 @@ def plot_post(vars: List, n: int):
     elif variable.integer:
         return c.plot_symbolic_to_div(var_name, result=result)
 
-# print(model.variables)
-# # model.plot(directory="/tmp/skoomer", view=False, plotvars=model.variables)
-# evidence = {model.varnames["x_56"]: [0, 10]}
-# evidence = jpt.variables.VariableMap(evidence.items())
-# result = model.posterior(evidence=evidence)
-# t = plot_numeric_pdf(result["x_56"])
-
-# fig = go.Figure()
-# fig.add_trace(t)
-# fig.show()
