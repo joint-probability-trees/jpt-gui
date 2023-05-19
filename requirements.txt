@@ -1,3 +1,6 @@
 pyjpt
 igraph
 numpy
+plotly
+dash_bootstrap_components
+watchdog
