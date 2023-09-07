@@ -258,8 +258,11 @@ def mpe_result_to_div(model: jpt.trees.JPT, res: jpt.trees.VariableMap, likeliho
 
         if variable.numeric:
             value = []
-            for interval in res[variable].intervals:
-                value += [interval.lower, interval.upper]
+            if type(res[variable]) == jpt.base.intervals.RealSet:
+                for interval in res[variable].intervals:
+                    value += [interval.lower, interval.upper]
+            else:
+                value += [res[variable].lower, res[variable].upper]
 
             minimum = model.priors[variable.name].cdf.intervals[0].upper
             maximum = model.priors[variable.name].cdf.intervals[-1].lower
@@ -600,8 +603,8 @@ def plot_numeric_to_div(var_name: List, result) -> List:
         fig2.add_trace(t3)
 
 
-    expectation = result[var_name].expectation()
-    max_, arg_max = result[var_name].mpe()
+
+    arg_max, max_ = result[var_name].mpe()
     arg_max = result[var_name].value2label(arg_max)
 
     arg_max = arg_max.simplify()
@@ -628,13 +631,23 @@ def plot_numeric_to_div(var_name: List, result) -> List:
                                       mode="lines",
                                       fill="toself", line=dict(width=0),
                                       name="Max"))
-    fig.add_trace(go.Scatter(x=[expectation, expectation], y=[0, 1], name="Exp", mode="lines+markers",
-                             marker=dict(opacity=[0, 1])))
+
+    try:
+        expectation = result[var_name].expectation()
+        fig.add_trace(go.Scatter(x=[expectation, expectation], y=[0, 1], name="Exp", mode="lines+markers",
+                                marker=dict(opacity=[0, 1])))
+    except:
+        pass
+
     if is_dirac:
         return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2")], className="pb-3")
     else:
-        fig2.add_trace(go.Scatter(x=[expectation, expectation], y=[0, max_ * 1.1], name="Exp", mode="lines+markers",
+        try:
+            expectation = result[var_name].expectation()
+            fig2.add_trace(go.Scatter(x=[expectation, expectation], y=[0, max_ * 1.1], name="Exp", mode="lines+markers",
                                   marker=dict(opacity=[0, 1])))
+        except:
+            pass
         return html.Div([dcc.Graph(figure=fig), html.Div(className="pt-2"), dcc.Graph(figure=fig2)], className="pb-3")
 
 
