@@ -658,7 +658,7 @@ def plot_symbolic_to_div(var_name: str, result) -> List:
     :param result: the result generate from jpt
     :return: a div withe one bar diagram in it.
     """
-    max_, arg_max = result[var_name].mpe()
+    arg_max, max_ = result[var_name].mpe()
     fig = go.Figure(layout=dict(title="Probability Distribution"))
     lis_x_max = []
     lis_y_max = []
