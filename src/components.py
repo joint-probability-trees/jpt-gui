@@ -207,6 +207,12 @@ def fuse_overlapping_range(ranges: List) -> List:
             new_list.append(sor_val[0])
             sor_val.pop(0)
     return new_vals
+#Just Pray that there no other Strucktur for it or im in a pickel
+def value_getter_from_children(children: List[dict]):
+    value: List = []
+    for i in range(0, len(children)-1):
+        value.append(children[i].get('props').get('value'))
+    return value
 
 
 def div_to_variablemap(model: jpt.trees.JPT, variables: List, constrains: List) -> jpt.variables.VariableMap:
@@ -486,7 +492,7 @@ def add_selector_to_div_button(model: jpt.trees.JPT, variable_div, constrains_di
     constrains_list.append(dcc.Dropdown(id={'type': f'i_{type}', 'index': index}, disabled=True, className="", style={'padding-top': 0}))
     option_list.append(
         dbc.Button("👁️", id=dict(type=f'b_{type}', index=index), disabled=True, n_clicks=0, className="",
-                   size="sm"))
+                   size="sm", style={'width': '40px'}))
     return variable_list, constrains_list, option_list
 
 

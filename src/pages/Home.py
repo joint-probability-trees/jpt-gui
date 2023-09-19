@@ -37,8 +37,9 @@ def gen_varnames(children):
 
 
 layout = html.Div([
-    html.H1("Home"),
-    html.Div(children=[], id="list", className=""),
+    dbc.Row(html.H1("Home"), className="d-flex justify-content-center"),
+    dbc.Row(dbc.Col(html.Img(src="./assets/Logo_JPT_White.png", height="200px"), width=3), className="d-flex justify-content-center mb-5 ms-5 ps-3"),
+    dbc.Row(html.Div(children=[], id="list", className=""), className="d-flex justify-content-center"),
 ])
 
 # Home Name , Type , Range, AUGEN EMOTION HTML Sektion bigger and better

@@ -46,6 +46,7 @@ app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=False, suppr
 
 navbar = dbc.Navbar(
             dbc.Container([
+                dbc.Row(dbc.Col(html.Img(src="./assets/Logo_JPT_White_s.png", height="50px"), className="ps-4")),
                 dbc.Row(dbc.NavbarBrand("Joint Probability Trees", className="ms-2")),
                 dbc.Row(dbc.NavItem(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className=""),
                                                id="upload_tree"))),

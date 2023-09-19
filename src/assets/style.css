@@ -84,3 +84,6 @@
 #modal_color_4 .rc-slider-track{
   background-color: Violet;
 }
+#q_time .rc-slider-handle{
+  background-color: #96dbfa;
+}
