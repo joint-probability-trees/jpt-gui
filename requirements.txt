@@ -1,4 +1,4 @@
-pyjpt
+pyjpt>=0.1.25
 igraph
 numpy
 plotly
