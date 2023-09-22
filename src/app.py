@@ -31,7 +31,7 @@ if len(sys.argv) > 1:
                 raise ValueError(f"file {arg} dose not exist.")
             pre_tree = arg
         elif opt in ("-h", "--host"):
-            app_tags.update({"host", str(arg)})
+            app_tags.update(dict(host=str(arg)))
         elif opt in ("-p", "--port"):
             app_tags.update(dict(port=int(arg)))
         elif opt == "--help":
