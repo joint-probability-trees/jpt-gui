@@ -103,17 +103,28 @@ layout = layout_pos
     Output('q_variable_pos', 'children'),
     Output('modal_option_pos', 'children'),
     Output('modal_option_pos', 'is_open'),
+    Output('head_erg_pos', 'children'),
+    Output('erg_pos', 'children'),
+    Output('b_erg_pre_pos', 'disabled'),
+    Output('b_erg_next_pos', 'disabled'),
     Input('pos_time', 'value'),
     Input({'type': 'dd_e_pos', 'index': ALL}, 'value'),
     Input({'type': 'b_e_pos', 'index': ALL}, 'n_clicks'),
     Input({'type': 'option_save_pos', 'index': ALL}, 'n_clicks'),
+    Input('erg_b_pos', 'n_clicks'),
+    Input('b_erg_pre_pos', 'n_clicks'),
+    Input('b_erg_next_pos', 'n_clicks'),
     State('e_variable_pos', 'children'),
     State('e_input_pos', 'children'),
     State('q_variable_pos', 'children'),
     State('e_option_pos', 'children'),
     State({'type': 'op_i_pos', 'index': ALL}, 'value'),
+    State('head_erg_pos', 'children'),
+    State('erg_pos', 'children'),
+    State('b_erg_pre_pos', 'disabled'),
+    State('b_erg_next_pos', 'disabled'),
 )
-def post_router(time, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
+def post_router(time, dd_vals, b_e, op_s, n1, n2, n3, e_var, e_in, q_var, e_op, op_i, h_erg, erg, b_erg_pre, b_erg_next):
     """
         Receives callback events and manages these to the correct
     :param dd_vals: All Varietals used in Evidence Section are chosen
@@ -128,18 +139,24 @@ def post_router(time, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     """
     cb = ctx.triggered_id if not None else None
     if cb is None:
-        return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False,
+                h_erg, erg, b_erg_pre, b_erg_next)
     elif cb == "pos_time":
         global time_list
         update_time_slot((time[0] - 1), e_var, e_in, e_op, q_var)
         n_value = time_list[time[0]-1]
-
-        return n_value.get('e_var'), n_value.get('e_in') ,n_value.get('e_op'),c.create_prefix_text_query(len(n_value.get('e_var')), len(n_value.get('e_var')))\
-            , n_value.get('q_var'), modal_basic_pos, False
+        return (n_value.get('e_var'), n_value.get('e_in') ,n_value.get('e_op'),
+                c.create_prefix_text_query(len(n_value.get('e_var')), len(n_value.get('e_var'))),
+                n_value.get('q_var'), modal_basic_pos, False, h_erg, erg, b_erg_pre, b_erg_next)
+    elif cb in ["erg_pos", 'b_erg_pre_pos', 'b_erg_next_pos']:
+        erg = erg_controller(time, cb, e_var, e_in, q_var)
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False,
+                *erg)
     elif cb.get("type") == "dd_e_pos":
         if dd_vals[cb.get("index")] is None:
-            return *c.del_selector_from_div_button(c.in_use_tree, e_var, e_in, e_op, cb.get("index")), \
-                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+            return (*c.del_selector_from_div_button(c.in_use_tree, e_var, e_in, e_op, cb.get("index")),
+                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False, h_erg, erg, b_erg_pre,
+                    b_erg_next)
 
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
@@ -168,10 +185,11 @@ def post_router(time, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
                                                           tooltip={"placement": "bottom", "always_visible": False})
 
         if len(e_var) - 1 == cb.get("index"):
-            return *c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_pos", cb.get("index") + 1), \
-                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+            return (*c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_pos", cb.get("index") + 1),
+                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False, h_erg, erg, b_erg_pre,
+                    b_erg_next)
     elif cb.get("type") == "b_e_pos" and dd_vals[cb.get("index")] != []:
-        # Dont Like dont know to do it other wise
+        # Dont Like dont know to do it otherwise
         global modal_var_index
         modal_var_index = cb.get("index")
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
@@ -186,7 +204,8 @@ def post_router(time, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
                                                  value=e_in[cb.get("index")]['props'].get('value'), priors=c.priors,
                                                  id="_pos")
 
-        return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_body, True
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_body, True,
+                h_erg, erg, b_erg_pre, b_erg_next)
     elif cb.get("type") == "option_save_pos":
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
         new_vals = List
@@ -196,11 +215,12 @@ def post_router(time, dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
             new_vals = op_i[0]#is List of a List
         e_in[modal_var_index]['props']['value'] = new_vals
         e_in[modal_var_index]['props']['drag_value'] = new_vals
-        return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False,
+                h_erg, erg, b_erg_pre, b_erg_next)
 
-    return c.update_free_vars_in_div(c.in_use_tree, e_var), e_in, e_op, c.create_prefix_text_query(len(e_var),
-                                                                                                   len(e_var)), \
-        q_var, modal_basic_pos, False
+    return (c.update_free_vars_in_div(c.in_use_tree, e_var), e_in, e_op,
+            c.create_prefix_text_query(len(e_var),len(e_var)), q_var, modal_basic_pos, False,
+            h_erg, erg, b_erg_pre, b_erg_next)
 
 
 @callback(
@@ -285,20 +305,20 @@ def modal_router(op, op_i, m_bod, dd):
         return m_in_new
 
 
-@callback(
-    Output('head_erg_pos', 'children'),
-    Output('erg_pos', 'children'),
-    Output('b_erg_pre_pos', 'disabled'),
-    Output('b_erg_next_pos', 'disabled'),
-    Input('pos_time', 'value'),
-    Input('erg_b_pos', 'n_clicks'),
-    Input('b_erg_pre_pos', 'n_clicks'),
-    Input('b_erg_next_pos', 'n_clicks'),
-    State({'type': 'dd_e_pos', 'index': ALL}, 'value'),
-    State({'type': 'i_e_pos', 'index': ALL}, 'value'),
-    State('q_variable_pos', 'children'),
-)
-def erg_controller(t, n1, n2, n3, e_var, e_in, q_var):
+# @callback(
+#     Output('head_erg_pos', 'children'),
+#     Output('erg_pos', 'children'),
+#     Output('b_erg_pre_pos', 'disabled'),
+#     Output('b_erg_next_pos', 'disabled'),
+#     Input('pos_time', 'value'),
+#     Input('erg_b_pos', 'n_clicks'),
+#     Input('b_erg_pre_pos', 'n_clicks'),
+#     Input('b_erg_next_pos', 'n_clicks'),
+#     State({'type': 'dd_e_pos', 'index': ALL}, 'value'),
+#     State({'type': 'i_e_pos', 'index': ALL}, 'value'),
+#     State('q_variable_pos', 'children'),
+# )
+def erg_controller(t, cb, e_var, e_in, q_var):
     """
         Conntroller for the Results and the Displays
     :param n1: event for generating Result
@@ -337,8 +357,6 @@ def erg_controller(t, n1, n2, n3, e_var, e_in, q_var):
         else:
             left_bool = False if page > 0 else True
             n_vars = time_list[time].get('q_var')[0]['props']['value']
-            print(type(page))
-            print(n_vars, type(n_vars), type(n_vars[0]))
             right_bool = False if len(n_vars) > page +1 else True
         return n_vars[page], plot_post(n_vars, page), left_bool, right_bool
 
@@ -349,6 +367,7 @@ def erg_controller(t, n1, n2, n3, e_var, e_in, q_var):
         evidence_dict = c.div_to_variablemap(c.in_use_tree, e_var, e_in)
         try:
             result = c.in_use_tree.posterior(evidence=evidence_dict)
+            print(type(result))
         except Exception as e:
             print("Error was", type(e), e)
             return "", [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True

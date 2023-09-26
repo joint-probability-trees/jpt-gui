@@ -46,6 +46,7 @@ default_dic.update({'page': 0})
 default_dic.update({'maxima': None})
 default_dic.update({'erg_b': (True, True)})
 
+
 dash.register_page(__name__)
 
 
@@ -171,15 +172,23 @@ def evid_gen(time, n1, n2, n3, n4, n5, dd_vals, b_e, op_s, e_var, e_in, q_var, e
     :return: Updatet Varibel List and the Input.
     """
     now_mem = (mem.get('time_list'))[mem.get('time')]
+    #maxima = None if mem.get('maxima') is None else jpt.variables.VariableMap.from_json(mem.get('maxima'))
+
     maxima = None
+    maxima: List[jpt.variables.LabelAssignment]
     if now_mem.get('maxima') is not None:
-        maxima = []
+        maxima: List = []
+        maxim: dict["str", any]
         for maxim in now_mem.get('maxima'):
             maxima_li = []
-            for ma in maxim:
-                print(ma)
-                maxima_li.append(jpt.variables.NumericVariable.from_json(ma))
-        maxima.append([jpt.variables.VariableMap(maxima_li)])
+            print(maxim)
+            maxima_li = jpt.variables.LabelAssignment.from_json(variables=iter(c.in_use_tree._variables), d=maxim)
+            # for ma in maxim:
+            #     print(ma)
+            #     maxima_li.append(jpt.variables.LabelAssignment.from_json(ma))
+            #     print(type(maxima_li[-1]))
+            # m = jpt.variables.VariableMap(maxima_li)
+            maxima.append(maxima_li)
     print(maxima)
     page = now_mem.get('page')
     likelihood = now_mem.get('likelihood')
@@ -191,7 +200,7 @@ def evid_gen(time, n1, n2, n3, n4, n5, dd_vals, b_e, op_s, e_var, e_in, q_var, e
         erg_b = now_mem.get('erg_b')
         return e_var, e_in, e_op, c.create_prefix_text_mpe(len(e_var)), q_var, modal_basic_mpe, False, erg, *erg_b, mem, t_max
     elif cb == "mpe_time":
-        return update_time((time[0] - 1), e_var, e_in, e_op, q_var, mem), t_max
+        return *update_time((time[0] - 1), e_var, e_in, e_op, q_var, mem), t_max
     elif cb == "mpe_timer_plus" or cb == "mpe_timer_minus":
         new_t_max, new_mem = button_time(cb, t_val, t_max, mem)
         erg = [] if maxima is None else mpe(maxima[page], likelihood)
@@ -392,7 +401,7 @@ def erg_controller(t, cb, e_var, e_in, mem):
             return mpe(maxima[page], likelihood), mem
         else:
             mem.update({'erg_b': (False, False), 'page': page})
-            return mpe(maxima[page], likelihood),mem
+            return mpe(maxima[page], likelihood), mem
     elif cb == "b_erg_next_mpe":
         page += 1
         if len(maxima) > page + 1:
@@ -413,9 +422,10 @@ def erg_controller(t, cb, e_var, e_in, mem):
             maxima_li = []
             for maxim in maxima:
                 maxim_li = []
-                for ma in maxim:
-                    ma: jpt.variables.NumericVariable
-                    maxim_li.append(ma.to_json())
+                maxim_li = maxim.to_json()
+                # for ma in maxim:
+                #     ma: jpt.variables.LabelAssignment
+                #     maxim_li.append(ma.to_json())
                 maxima_li.append(maxim_li)
             mem.update({'maxima': maxima_li, 'likelihood': likelihood})
 
@@ -448,11 +458,12 @@ def update_time(time, e_var, e_in, e_op, q_var, mem):
     mem.update({'time': time})
     f_val = (mem.get('time_list'))[mem.get('time')]
     t = c.create_prefix_text_query(len_fac_q=len(f_val.get("e_var")), len_fac_e=len(f_val.get("e_var")))
-    maxima =  None if mem.get('maxima') is None else jpt.variables.VariableMap.from_json(mem.get('maxima'))
+    maxima = None if mem.get('maxima') is None else jpt.variables.VariableMap.from_json(mem.get('maxima'))
     page = (mem.get('time_list'))[mem.get('time')].get('page')
     likelihood = (mem.get('time_list'))[mem.get('time')].get('likelihood')
     erg = [] if maxima is None else mpe(maxima[page], likelihood)
     b_erg = (mem.get('time_list'))[mem.get('time')].get('erg_b')
+
     return f_val.get('e_var'), f_val.get('e_in'), f_val.get('e_op'), t, f_val.get('q_var'), modal_basic_mpe, False, erg, *b_erg, mem
 
 
