@@ -16,6 +16,13 @@ modal_basic_pos = c.gen_modal_basic_id("_pos")
 
 modal_option_pos = c.gen_modal_option_id("_pos")
 
+global old_time
+old_time = 0
+
+global time_list
+time_list = [dict()]
+
+
 dash.register_page(__name__)
 
 
@@ -28,6 +35,21 @@ def layout_pos():
                     dbc.Col(html.H1("Posterior", className='text-center mb-4'), width=12),
                 ]
             ),
+
+            dbc.Row([
+                dbc.Col([dbc.Button("-", n_clicks=0, className="align-self-start mt-0 flex-grow-0", size="sm",
+                                    id="pos_timer_minus", style={'verticalAlign': 'top', 'width': '40px'})], width=1,
+                        className="ps-0 pe-0 mb-2 mt-0 row row-cols-1 g-1 gy-2 justify-content-end"),
+                dbc.Col([dcc.RangeSlider(min=1, max=1, value=[1], step=1, dots=False,
+                                         tooltip={"placement": "bottom", "always_visible": False}, id="pos_time")],
+                        width=10, className="pe-0 pt-3"),
+                dbc.Col(children=[
+                    dbc.Button("+", n_clicks=0, className="mt-0 flex-grow-0 align-self-start", size="sm",
+                               id="pos_timer_plus", style={'verticalAlign': 'top', 'width': '40px'})],
+                    width=1, className="ps-0 pe-0 mb-2 mt-0 row row-cols-1 g-1 gy-2 justify-content-start"),
+            ], className="mt-2 d-flex justify-content-center align-items-center"
+            ),
+
             dbc.Row(
                 [
                     dbc.Col([
@@ -51,7 +73,7 @@ def layout_pos():
                     dbc.Col(id="e_option_pos", children=[
                         dbc.Button("👁️", id=dict(type='b_e_pos', index=0), disabled=True, n_clicks=0,
                                    className="",
-                                   size="sm")],className=" row row-cols-1 g-1 gy-2 align-items-center pe-3 ps-1 border-end border-secondary border-3 rounded-4")
+                                   size="sm")],className=" row row-cols-1 g-1 gy-2 align-items-center pe-3 ps-1 border-end border-secondary border-3 rounded-4", style={'width': '40px'})
                 ], className="justify-content-md-center"
             ),
             dbc.Row(dbc.Button("=", id="erg_b_pos", className="d-grid gap-2 col-3 mt-3 mx-auto", n_clicks=0)),
@@ -60,7 +82,7 @@ def layout_pos():
                 [
                     dbc.Col(dbc.Button("<", id="b_erg_pre_pos", n_clicks=0, disabled=True),
                             className="d-flex justify-content-end align-self-stretch"),
-                    dbc.Col(children=[], id="pos_erg_pos", className="", width=8),
+                    dbc.Col(children=[], id="erg_pos", className="", width=8),
                     dbc.Col(dbc.Button(">", id="b_erg_next_pos", n_clicks=0, disabled=True),
                             className="d-flex justify-content-start align-self-stretch")
                 ], className="pt-3", align="center"),
@@ -81,16 +103,28 @@ layout = layout_pos
     Output('q_variable_pos', 'children'),
     Output('modal_option_pos', 'children'),
     Output('modal_option_pos', 'is_open'),
+    Output('head_erg_pos', 'children'),
+    Output('erg_pos', 'children'),
+    Output('b_erg_pre_pos', 'disabled'),
+    Output('b_erg_next_pos', 'disabled'),
+    Input('pos_time', 'value'),
     Input({'type': 'dd_e_pos', 'index': ALL}, 'value'),
     Input({'type': 'b_e_pos', 'index': ALL}, 'n_clicks'),
     Input({'type': 'option_save_pos', 'index': ALL}, 'n_clicks'),
+    Input('erg_b_pos', 'n_clicks'),
+    Input('b_erg_pre_pos', 'n_clicks'),
+    Input('b_erg_next_pos', 'n_clicks'),
     State('e_variable_pos', 'children'),
     State('e_input_pos', 'children'),
     State('q_variable_pos', 'children'),
     State('e_option_pos', 'children'),
     State({'type': 'op_i_pos', 'index': ALL}, 'value'),
+    State('head_erg_pos', 'children'),
+    State('erg_pos', 'children'),
+    State('b_erg_pre_pos', 'disabled'),
+    State('b_erg_next_pos', 'disabled'),
 )
-def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
+def post_router(time, dd_vals, b_e, op_s, n1, n2, n3, e_var, e_in, q_var, e_op, op_i, h_erg, erg, b_erg_pre, b_erg_next):
     """
         Receives callback events and manages these to the correct
     :param dd_vals: All Varietals used in Evidence Section are chosen
@@ -105,11 +139,24 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
     """
     cb = ctx.triggered_id if not None else None
     if cb is None:
-        return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False,
+                h_erg, erg, b_erg_pre, b_erg_next)
+    elif cb == "pos_time":
+        global time_list
+        update_time_slot((time[0] - 1), e_var, e_in, e_op, q_var)
+        n_value = time_list[time[0]-1]
+        return (n_value.get('e_var'), n_value.get('e_in') ,n_value.get('e_op'),
+                c.create_prefix_text_query(len(n_value.get('e_var')), len(n_value.get('e_var'))),
+                n_value.get('q_var'), modal_basic_pos, False, h_erg, erg, b_erg_pre, b_erg_next)
+    elif cb in ["erg_pos", 'b_erg_pre_pos', 'b_erg_next_pos']:
+        erg = erg_controller(time, cb, e_var, e_in, q_var)
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False,
+                *erg)
     elif cb.get("type") == "dd_e_pos":
         if dd_vals[cb.get("index")] is None:
-            return *c.del_selector_from_div_button(c.in_use_tree, e_var, e_in, e_op, cb.get("index")), \
-                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+            return (*c.del_selector_from_div_button(c.in_use_tree, e_var, e_in, e_op, cb.get("index")),
+                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False, h_erg, erg, b_erg_pre,
+                    b_erg_next)
 
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
         if variable.numeric:
@@ -138,10 +185,11 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
                                                           tooltip={"placement": "bottom", "always_visible": False})
 
         if len(e_var) - 1 == cb.get("index"):
-            return *c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_pos", cb.get("index") + 1), \
-                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+            return (*c.add_selector_to_div_button(c.in_use_tree, e_var, e_in, e_op, "e_pos", cb.get("index") + 1),
+                c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False, h_erg, erg, b_erg_pre,
+                    b_erg_next)
     elif cb.get("type") == "b_e_pos" and dd_vals[cb.get("index")] != []:
-        # Dont Like dont know to do it other wise
+        # Dont Like dont know to do it otherwise
         global modal_var_index
         modal_var_index = cb.get("index")
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
@@ -156,7 +204,8 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
                                                  value=e_in[cb.get("index")]['props'].get('value'), priors=c.priors,
                                                  id="_pos")
 
-        return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_body, True
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_body, True,
+                h_erg, erg, b_erg_pre, b_erg_next)
     elif cb.get("type") == "option_save_pos":
         variable = c.in_use_tree.varnames[dd_vals[cb.get("index")]]
         new_vals = List
@@ -166,11 +215,12 @@ def post_router(dd_vals, b_e, op_s, e_var, e_in, q_var, e_op, op_i):
             new_vals = op_i[0]#is List of a List
         e_in[modal_var_index]['props']['value'] = new_vals
         e_in[modal_var_index]['props']['drag_value'] = new_vals
-        return e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False
+        return (e_var, e_in, e_op, c.create_prefix_text_query(len(e_var), len(e_var)), q_var, modal_basic_pos, False,
+                h_erg, erg, b_erg_pre, b_erg_next)
 
-    return c.update_free_vars_in_div(c.in_use_tree, e_var), e_in, e_op, c.create_prefix_text_query(len(e_var),
-                                                                                                   len(e_var)), \
-        q_var, modal_basic_pos, False
+    return (c.update_free_vars_in_div(c.in_use_tree, e_var), e_in, e_op,
+            c.create_prefix_text_query(len(e_var),len(e_var)), q_var, modal_basic_pos, False,
+            h_erg, erg, b_erg_pre, b_erg_next)
 
 
 @callback(
@@ -255,19 +305,20 @@ def modal_router(op, op_i, m_bod, dd):
         return m_in_new
 
 
-@callback(
-    Output('head_erg_pos', 'children'),
-    Output('pos_erg_pos', 'children'),
-    Output('b_erg_pre_pos', 'disabled'),
-    Output('b_erg_next_pos', 'disabled'),
-    Input('erg_b_pos', 'n_clicks'),
-    Input('b_erg_pre_pos', 'n_clicks'),
-    Input('b_erg_next_pos', 'n_clicks'),
-    State({'type': 'dd_e_pos', 'index': ALL}, 'value'),
-    State({'type': 'i_e_pos', 'index': ALL}, 'value'),
-    State('q_variable_pos', 'children'),
-)
-def erg_controller(n1, n2, n3, e_var, e_in, q_var):
+# @callback(
+#     Output('head_erg_pos', 'children'),
+#     Output('erg_pos', 'children'),
+#     Output('b_erg_pre_pos', 'disabled'),
+#     Output('b_erg_next_pos', 'disabled'),
+#     Input('pos_time', 'value'),
+#     Input('erg_b_pos', 'n_clicks'),
+#     Input('b_erg_pre_pos', 'n_clicks'),
+#     Input('b_erg_next_pos', 'n_clicks'),
+#     State({'type': 'dd_e_pos', 'index': ALL}, 'value'),
+#     State({'type': 'i_e_pos', 'index': ALL}, 'value'),
+#     State('q_variable_pos', 'children'),
+# )
+def erg_controller(t, cb, e_var, e_in, q_var):
     """
         Conntroller for the Results and the Displays
     :param n1: event for generating Result
@@ -280,6 +331,7 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
     """
     global result
     global page
+    global time_list
     vals = q_var[0]['props']['value']
     cb = ctx.triggered_id if not None else None
     if cb is None:
@@ -296,6 +348,18 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
             return vals[page], plot_post(vals, page), False, False
         else:
             return vals[page], plot_post(vals, page), False, True
+    elif cb == "pos_time":
+        time = t[0] -1
+        page = time_list[time].get("page")
+        result = time_list[time].get('result')
+        if type(time_list[time].get('q_var')[0]) is type(dcc.Dropdown()):
+            return [], [], True, True
+        else:
+            left_bool = False if page > 0 else True
+            n_vars = time_list[time].get('q_var')[0]['props']['value']
+            right_bool = False if len(n_vars) > page +1 else True
+        return n_vars[page], plot_post(n_vars, page), left_bool, right_bool
+
     elif vals == [] or cb == "b_erg_pos":
         return [], [], True, True
     else:
@@ -303,6 +367,7 @@ def erg_controller(n1, n2, n3, e_var, e_in, q_var):
         evidence_dict = c.div_to_variablemap(c.in_use_tree, e_var, e_in)
         try:
             result = c.in_use_tree.posterior(evidence=evidence_dict)
+            print(type(result))
         except Exception as e:
             print("Error was", type(e), e)
             return "", [html.Div("Unsatisfiable", className="fs-1 text text-center pt-3 ")], True, True
@@ -319,6 +384,7 @@ def plot_post(vars: List, n: int):
     :param n: Postion of the Choosen Variabel
     :return:  Plot
     """
+
     var_name = vars[n]
     variable = c.in_use_tree.varnames[var_name]
     if variable.numeric:
@@ -330,3 +396,49 @@ def plot_post(vars: List, n: int):
     elif variable.integer:
         return c.plot_symbolic_to_div(var_name, result=result)
 
+
+def update_time_slot(time, e_var, e_in, e_op, q_var):
+    global time_list
+    global old_time
+    global page
+    global result
+    #Save the Now Value in Postion Old_time
+    now_value = {'e_var': e_var, "e_in": e_in, "e_op": e_op, 'q_var': q_var, 'page': page, 'result': result}
+    #Update old_time
+    time_list[old_time] = now_value
+    old_time = time
+
+
+
+@callback(
+    Output("pos_time", "max"),
+    Input("pos_timer_plus", "n_clicks"),
+    Input("pos_timer_minus", "n_clicks"),
+    State("pos_time", "value"),
+    State("pos_time", "max")
+)
+def button_time(p_b, m_b, value, max_time):
+
+    global time_list
+    global old_time
+    cb = ctx.triggered_id if not None else None
+    if cb is not None and cb == "pos_timer_plus":
+        new_dic = dict()
+        new_dic.update({"e_var": [dcc.Dropdown(id={'type': 'dd_e_pos', 'index': 0}, options=sorted(c.in_use_tree.varnames))]})
+        new_dic.update({"e_in": [dcc.Dropdown(id={'type': 'i_e_pos', 'index': 0}, disabled=True)]})
+        new_dic.update({"e_op": [dbc.Button("👁️", id=dict(type='b_e_pos', index=0), disabled=True, n_clicks=0, className="", size="sm")]})
+        new_dic.update({"q_var": [dcc.Dropdown(id="text_var_pos", options=sorted(c.in_use_tree.varnames), value=sorted(c.in_use_tree.varnames),multi=True, disabled=False)]})
+        new_dic.update({'page': 0})
+        new_dic.update({'result': []})
+        if max_time < len(time_list):
+            time_list[max_time] = new_dic
+        else:
+            time_list.append(new_dic)
+
+        return max_time+1
+    else:
+
+        if value[0] == max_time:
+            return max_time
+        else:
+            return max_time - 1 if max_time > 1 else 1

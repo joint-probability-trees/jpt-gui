@@ -23,6 +23,12 @@ modal_basic_que = c.gen_modal_basic_id("_que")
 
 modal_option_que = c.gen_modal_option_id("_que")
 
+global old_time
+old_time = 0
+
+global time_list
+time_list = [dict()]
+
 dash.register_page(__name__)
 
 def layout_que():
@@ -37,6 +43,15 @@ def layout_que():
                 dbc.Col(html.H1("Query", className='text-center mb-4'), width=12),
             ]
         ),
+        dbc.Row([
+            dbc.Col([ dbc.Button("-", n_clicks=0, className="align-self-start mt-0 flex-grow-0", size="sm", id="que_timer_minus", style={'verticalAlign': 'top', 'width': '40px'})], width=1, className="ps-0 pe-0 mb-2 mt-0 row row-cols-1 g-1 gy-2 justify-content-end"),
+          dbc.Col([dcc.RangeSlider(min=1, max=1, value=[1], step=1 ,dots=False, tooltip={"placement": "bottom", "always_visible": False}, id="que_time")], width=10, className="pe-0 pt-3"),
+            dbc.Col(children=[
+                dbc.Button("+", n_clicks=0, className="mt-0 flex-grow-0 align-self-start", size="sm", id="que_timer_plus", style={'verticalAlign': 'top', 'width': '40px'})],
+                    width=1, className="ps-0 pe-0 mb-2 mt-0 row row-cols-1 g-1 gy-2 justify-content-start"),
+            ], className="mt-2 d-flex justify-content-center align-items-center"
+        ),
+
         dbc.Row(
             [
                 dbc.Col([
@@ -164,6 +179,9 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     Output('text_l_que', 'children'),
     Output('modal_option_que', 'children'),
     Output('modal_option_que', 'is_open'),
+    Output("erg_text_que", "children"),
+    Input('que_time', 'value'),
+    Input("erg_b_que", "n_clicks"),
     Input({'type': 'dd_q_que', 'index': ALL}, 'value'),
     Input({'type': 'dd_e_que', 'index': ALL}, 'value'),
     Input({'type': 'b_q_que', 'index': ALL}, 'n_clicks'),
@@ -176,8 +194,9 @@ def evid_gen(dd_vals, e_var, e_in, e_op):
     State('q_option_que', 'children'),
     State('e_option_que', 'children'),
     State({'type': 'op_i_que', 'index': ALL}, 'value'),
+    State("erg_text_que", 'children')
 )
-def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i):
+def query_router(time ,b_erg, q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_op, op_i, erg_out):
     """
         Receives app callback events and manages/redirects these to the correct functions.
     :param q_dd: Query Varibels Names
@@ -200,15 +219,28 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
     cb = ctx.triggered_id if not None else None
     if cb is None:
         return q_var, q_in, q_op, e_var, e_in, e_op, \
-            c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+            c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False, erg_out
+   #Cateches the cb String it is otherwise a Dic but b are Strings!
+    elif cb == "erg_b_que":
+        return q_var, q_in, q_op, e_var, e_in, e_op, \
+            c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False, \
+            infer(c.value_getter_from_children(q_var), c.value_getter_from_children(q_in),
+                  c.value_getter_from_children(e_var), c.value_getter_from_children(e_in))
+    elif cb == "que_time":
+        update_time_slot((time[0] - 1), q_var, q_in, q_op, e_var, e_in, e_op, erg_out)
+        f_val = time_list[time[0]-1]
+        pre = c.create_prefix_text_query(len_fac_q=len(f_val.get("q_v")), len_fac_e=len(f_val.get("e_v")))
+        return f_val.get("q_v"), f_val.get("q_i"), f_val.get("q_o"), f_val.get("e_v"), f_val.get("e_i"), f_val.get(
+            "e_o"), pre, modal_basic_que, False,  f_val.get("erg")
+
 
     elif cb.get("type") == "dd_q_que":
         return *query_gen(q_dd, q_var, q_in, q_op), e_var, e_in, e_op, \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False, erg_out
     elif cb.get("type") == "dd_e_que":
 
         return q_var, q_in, q_op, *evid_gen(e_dd, e_var, e_in, e_op), \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False, erg_out
     elif cb.get("type") == "b_e_que" and e_dd[cb.get("index")] != []:
 
         modal_var_index = cb.get("index")
@@ -225,7 +257,7 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
                                                  value=e_in[cb.get("index")]['props'].get('value'), priors=c.priors,
                                                  id="_que")
         return q_var, q_in, q_op, e_var, e_in, e_op, \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True, erg_out
     elif cb.get("type") == "b_q_que" and q_dd[cb.get("index")] != []:
 
         modal_var_index = cb.get("index")
@@ -250,7 +282,7 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
                                                  priors=c.priors, id="_que")
 
         return q_var, q_in, q_op, e_var, e_in, e_op, \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_body, True, erg_out
     elif cb.get("type") == "option_save_que":
         new_vals = List
         variable = c.in_use_tree.varnames[q_dd[cb.get("index")]] if modal_type == 0 else c.in_use_tree.varnames[e_dd[cb.get("index")]]
@@ -262,15 +294,15 @@ def query_router(q_dd, e_dd, b_q, b_e, op_s, q_var, q_in, e_var, e_in, q_op, e_o
             e_in[modal_var_index]['props']['value'] = new_vals
             e_in[modal_var_index]['props']['drag_value'] = new_vals
             return q_var, q_in, q_op, e_var, e_in, e_op, \
-                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False, erg_out
         else:
             q_in[modal_var_index]['props']['value'] = new_vals
             q_in[modal_var_index]['props']['drag_value'] = new_vals
             return q_var, q_in, q_op, e_var, e_in, e_op, \
-                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+                   c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False, erg_out
     else:
         return q_var, q_in, q_op, e_var, e_in, e_op, \
-               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False
+               c.create_prefix_text_query(len_fac_q=len(q_var), len_fac_e=len(e_var)), modal_basic_que, False, erg_out
 
 
 @callback(
@@ -356,19 +388,10 @@ def modal_router(op, op_i, m_bod, dd_e, dd_q):
         return m_in_new
 
 
-@callback(
-    Output("erg_text_que", "children"),
-    Input("erg_b_que", "n_clicks"),
 
-    State({'type': 'dd_q_que', 'index': ALL}, 'value'),
-    State({'type': 'i_q_que', 'index': ALL}, 'value'),
-    State({'type': 'dd_e_que', 'index': ALL}, 'value'),
-    State({'type': 'i_e_que', 'index': ALL}, 'value'),
-)
-def infer(n1, q_var, q_in, e_var, e_in):
+def infer(q_var, q_in, e_var, e_in):
     """
         Calculates withe Jpt the Probilty of query and evidence
-    :param n1: Button to trigger the Calculation
     :param q_var: Div of the Query Variable
     :param q_in: Div or the Input of Query
     :param e_var: Div of the Evidence Variable
@@ -390,3 +413,45 @@ def infer(n1, q_var, q_in, e_var, e_in):
     return "{}%".format(round(result * 100, 2))
 
 
+def update_time_slot(time, q_v, q_i, q_o, e_v, e_i, e_o, erg):
+    global time_list
+    global old_time
+    #Save the Now Value in Postion Old_time
+    now_value = {'q_v': q_v, "q_i": q_i, "q_o": q_o, 'e_v': e_v, "e_i": e_i, "e_o": e_o, "erg": erg}
+    #Update old_time
+    time_list[old_time] = now_value
+    old_time = time
+
+@callback(
+    Output("que_time", "max"),
+    Input("que_timer_plus", "n_clicks"),
+    Input("que_timer_minus", "n_clicks"),
+    State("que_time", "value"),
+    State("que_time", "max")
+)
+def button_time(p_b, m_b, q_value, q_max):
+    global time_list
+    global old_time
+    cb = ctx.triggered_id if not None else None
+    if cb is not None and cb == "que_timer_plus":
+        new_dic = dict()
+        new_dic.update({"q_v": [dcc.Dropdown(id={'type': 'dd_q_que', 'index': 0}, options=sorted(c.in_use_tree.varnames), className="")]})
+        new_dic.update({"q_i": [dcc.Dropdown(id={'type': 'i_q_que', 'index': 0}, disabled=True)]})
+        new_dic.update({"q_o": [dbc.Button("👁️", id=dict(type='b_q_que', index=0), disabled=True, n_clicks=0, className="", size="sm")]})
+        new_dic.update({"e_v": [dcc.Dropdown(id={'type': 'dd_e_que', 'index': 0}, options=sorted(c.in_use_tree.varnames))]})
+        new_dic.update({"e_i": [dcc.Dropdown(id={'type': 'i_e_que', 'index': 0}, disabled=True)]})
+        new_dic.update({"e_o": [dbc.Button("👁️", id=dict(type='b_e_que', index=0), disabled=True, n_clicks=0, className="", size="sm")]})
+        new_dic.update({"erg": []})
+
+        if q_max < len(time_list):
+            time_list[q_max] = new_dic
+        else:
+            time_list.append(new_dic)
+
+        return q_max+1
+    else:
+
+        if q_value[0] == q_max:
+            return q_max
+        else:
+            return q_max-1 if q_max > 1 else 1

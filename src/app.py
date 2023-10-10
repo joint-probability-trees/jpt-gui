@@ -1,4 +1,5 @@
 import base64
+import os.path
 
 import jpt
 import jpt.distributions.univariate
@@ -14,10 +15,28 @@ import math
 import json
 import components as c
 from typing import List
+import sys, getopt
 
 '''
 This is the main Programming where the Server will be started and the navigator are constructed.
 '''
+
+pre_tree = ""
+app_tags = dict(debug=True, dev_tools_hot_reload=False)
+if len(sys.argv) > 1:
+    opts, args = getopt.getopt(sys.argv[1:], "t:h:p:", ["tree=","host=", "port=", "help"])
+    for opt, arg in opts:
+        if opt in ("-t", "--tree"):
+            if not os.path.isfile(arg):
+                raise ValueError(f"file {arg} dose not exist.")
+            pre_tree = arg
+        elif opt in ("-h", "--host"):
+            app_tags.update(dict(host=str(arg)))
+        elif opt in ("-p", "--port"):
+            app_tags.update(dict(port=int(arg)))
+        elif opt == "--help":
+            print("-t, --tree you can preload a tree with its path from the app.py directory \n -h, --host you can change the IP of the GUI \n -p --port you can change the port of the GUI \n Default Address is (http://127.0.0.1:8050/)")
+            exit(0)
 
 app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=False, suppress_callback_exceptions=True,
                 meta_tags=[{'name': 'viewport',
@@ -27,6 +46,7 @@ app = dash.Dash(__name__, use_pages=True, prevent_initial_callbacks=False, suppr
 
 navbar = dbc.Navbar(
             dbc.Container([
+                dbc.Row(dbc.Col(html.Img(src="./assets/Logo_JPT_White_s.png", height="50px"), className="ps-4")),
                 dbc.Row(dbc.NavbarBrand("Joint Probability Trees", className="ms-2")),
                 dbc.Row(dbc.NavItem(dcc.Upload(children=dbc.Button("🌱", n_clicks=0, className=""),
                                                id="upload_tree"))),
@@ -83,6 +103,19 @@ def tree_update(upload):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, dev_tools_hot_reload=False)
+    if pre_tree != "":
+        try:
+            tree = open(pre_tree, "rb")
+            tree_data = tree.read()
+            io_tree = jpt.JPT.from_json(json.loads(tree_data))
+            c.in_use_tree = io_tree
+            c.priors = io_tree.priors
+            tree.close()
+        except Exception:
+            print("File could not be read")
+            exit(1)
 
-    #Dash Hover Upload beim Samen
+    app.run(**app_tags)
+
+
+
